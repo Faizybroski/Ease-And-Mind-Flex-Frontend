@@ -85,12 +85,19 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
+              <Button 
+                variant="outline" 
+                className="bg-secondary text-primary border border-primary hover:bg-primary hover:text-secondary"
+                onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button
-                className="text-secondary hover:border hover:border-primary hover:bg-secondary hover:text-primary" 
-                onClick={addUserfun}>Save Changes</Button>
+                variant="outline"
+                className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary" 
+                onClick={addUserfun}
+              >
+                Add User
+              </Button>
             </div>
           </div>
         </DialogContent>

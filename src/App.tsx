@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminRooms from "./pages/admin/AdminRooms";
+import AdminBilling from "./pages/admin/AdminBillings";
 import AdminSettings from "./pages/admin/AdminSettings";
 
 import AdminLayout from "./components/layout/AdminLayout";
@@ -69,6 +70,16 @@ const App = () => (
                   // <ProtectedAdminRoute requireAdmin={false}>
                     <AdminLayout>
                       <AdminRooms />
+                    </AdminLayout>
+                  // </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/billing"
+                element={
+                  // <ProtectedAdminRoute requireAdmin={false}>
+                    <AdminLayout>
+                      <AdminBilling />
                     </AdminLayout>
                   // </ProtectedAdminRoute>
                 }

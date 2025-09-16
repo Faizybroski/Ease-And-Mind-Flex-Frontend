@@ -42,7 +42,7 @@ const AdminSidebar = () => {
       { title: "All bookings", url: "/admin/bookings", icon: Calendar },
       { title: "Rooms", url: "/admin/rooms", icon: Building2 },
       { title: "Users", url: "/admin/users", icon: Users },
-      { title: "Billing & Invoicing", url: "/admin/billing-invoicing", icon: CreditCard },
+      { title: "Billing & Invoicing", url: "/admin/billing", icon: CreditCard },
       { title: "Settings", url: "/admin/settings", icon: Settings }
     ];
 
