@@ -19,6 +19,8 @@ import {AdminLogin} from "./components/adminLogin/AdminLogin";
 import ResetPassword from "./pages/ResetPassword";
 import AuthPage from "@/components/auth/AuthPage";
 
+import { Navigate } from "react-router-dom";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -34,6 +36,7 @@ const App = () => (
                 path="/auth"
                 element={<AuthPage />}
               />
+              <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
               <Route
                 path="/admin/dashboard"
                 element={

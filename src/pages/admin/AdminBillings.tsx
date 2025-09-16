@@ -1,6 +1,6 @@
 // import { useAuth } from "@/contexts/AuthContext";
 // import { useProfile } from "@/hooks/useProfile";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,6 +63,7 @@ import {
   UserX,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import UserBillingDetailsPage from "@/pages/admin/UserBillingDetailsPage"
 
 const profile = {
   role: "admin",
@@ -75,16 +76,17 @@ const AdminBilling = () => {
   // const { profile } = useProfile();
   const navigate = useNavigate();
 
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [data, setdata] = useState([]);
 
   useEffect(() => {
     if (profile && profile.role === "admin") {
-      fetchDashboardData();
+      fetchBillingData();
     }
   }, [profile]);
 
-  const fetchDashboardData = async () => {
+  const fetchBillingData = async () => {
     try {
       setdata([
         {
@@ -112,6 +114,7 @@ const AdminBilling = () => {
           revenue: 123,
         },
         {
+          id: 4,
           name: "Ayesha Khan",
           profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
           email: "ayesha.siddiqui@example.com",
@@ -119,6 +122,7 @@ const AdminBilling = () => {
           revenue: 675,
         },
         {
+          id: 5,
           name: "Bilal Ahmad",
           profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
           email: "hina.qureshi@example.com",
@@ -126,7 +130,7 @@ const AdminBilling = () => {
           revenue: 786,
         },
         {
-          id: 3,
+          id: 6,
           profilePic: "https://randomuser.me/api/portraits/men/65.jpg",
           name: "Mike Johnson",
           email: "usman.tariq@example.com",
@@ -141,6 +145,18 @@ const AdminBilling = () => {
       setLoading(false);
     }
   };
+
+  const handleBack = () => {
+    setSelectedId(null);
+  };
+
+  const handleViewMore = (userId: string) => {
+    setSelectedId(userId);
+  };
+
+  if (selectedId) {
+    return <UserBillingDetailsPage userId={selectedId} onBack={handleBack} />
+  }
 
   if (loading) {
     return (
@@ -168,7 +184,7 @@ const AdminBilling = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Welcome Header */}
       <header>
         <div className="flex items-center justify-between">
@@ -184,17 +200,7 @@ const AdminBilling = () => {
       </header>
 
       <Card className="border-none bg-transparent shadow-none">
-        {/* <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <CardTitle className="flex">
-                <span className="bg-primary/30 rounded-full p-2 mr-2">
-                  <Star className="h-4 w-4 text-primary" />
-                </span>{" "}
-                <span className="text-primary">Bookings This Week</span>
-              </CardTitle>
-            </div>
-          </CardHeader> */}
-        <CardContent className="overflow-x-auto flex flex-col gap-2">
+        <CardContent className="p-0 m-0 overflow-x-auto flex flex-col gap-2">
           {data.map((user) => (
             <div
               key={user.id}
@@ -224,8 +230,9 @@ const AdminBilling = () => {
                 <Button
                   variant="outline"
                   className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary"
+                  onClick={() => handleViewMore(user.id)}
                 >
-                  View
+                  View More
                 </Button>
               </div>
             </div>

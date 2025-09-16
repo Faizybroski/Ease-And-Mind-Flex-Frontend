@@ -572,7 +572,7 @@ const AdminUsers = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-full mx-auto">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <header className="flex justify-between">
         <div className="flex items-center justify-between">
