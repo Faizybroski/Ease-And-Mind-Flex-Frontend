@@ -128,6 +128,7 @@ const AdminDashboard = () => {
           bookedDate: "2025-09-14",
         },
         {
+          id: 4,
           first_name: "Ayesha",
           last_name: "Khan",
           profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
@@ -136,6 +137,7 @@ const AdminDashboard = () => {
           bookedDate: "2025-09-14",
         },
         {
+          id: 5,
           first_name: "Bilal",
           last_name: "Ahmad",
           profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
@@ -143,7 +145,7 @@ const AdminDashboard = () => {
           bookedDate: "2025-09-14",
         },
         {
-          id: 3,
+          id: 6,
           profilePic: "https://randomuser.me/api/portraits/men/65.jpg",
           first_name: "Mike",
           last_name: "Johnson",
@@ -155,6 +157,7 @@ const AdminDashboard = () => {
 
       setRecentActivity([
         {
+          id: 1,
           name: "Ayesha Khan",
           profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
           timeAgo: "2 min",
@@ -163,6 +166,7 @@ const AdminDashboard = () => {
           icon: "calendar",
         },
         {
+          id: 2,
           name: "Bilal Ahmed",
           profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
           timeAgo: "25 min",
@@ -171,6 +175,7 @@ const AdminDashboard = () => {
           icon: "check-circle",
         },
         {
+          id: 3,
           name: "Sana Malik",
           profilePic: "https://randomuser.me/api/portraits/women/12.jpg",
           timeAgo: "40 min",
@@ -179,6 +184,7 @@ const AdminDashboard = () => {
           icon: "x-circle",
         },
         {
+          id: 4,
           name: "Hamza Iqbal",
           profilePic: "https://randomuser.me/api/portraits/men/55.jpg",
           timeAgo: "1 hr",
@@ -187,6 +193,7 @@ const AdminDashboard = () => {
           icon: "calendar",
         },
         // {
+        //   id: 5,
         //   name: "Fatima Noor",
         //   profilePic: "https://randomuser.me/api/portraits/women/65.jpg",
         //   timeAgo: "1 hr 20 min",
@@ -295,11 +302,11 @@ const AdminDashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary mb-1">
-              <Euro className="h-10 w-10 text-primary text-bold" />
+            <div className=" flex text-3xl font-bold text-primary mb-1 items-center">
+              <Euro className="h-8 w-8 text-primary text-bold" />
               {stats.totalRevenue.toLocaleString()}
             </div>
-            <p className="text-sm text-muted-foreground flex items-center space-x-1">
+            <p className="text-sm text-primary flex items-center space-x-1">
               <span>{stats.percentTotalRevenue} from last month</span>
             </p>
           </CardContent>
@@ -356,8 +363,8 @@ const AdminDashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary mb-1">
-              <Euro className="h-10 w-10 text-primary text-bold" />
+            <div className="flex items-center text-3xl font-bold text-primary mb-1">
+              <Euro className="h-8 w-8 text-primary text-bold" />
               {stats.averageBooking.toLocaleString()}
             </div>
             <p className="text-sm text-primary flex items-center space-x-1">

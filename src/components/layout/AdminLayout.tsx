@@ -16,7 +16,8 @@ import {
   Plus,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
-import AddUser from "@/components/addUser/AddUser"
+import AddUser from "../addUser/AddUser"
+import AddRoom from "../addRoom/AddRoom";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   // const { signOut } = useAuth();
   // const { profile } = useProfile();
   const [showAddUser, setShowAddUser] = useState(false)
+  const [showAddRoom, setShowAddRoom] = useState(false)
+
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -63,7 +66,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   <UserPlus className="h-4 w-4" />
                   Send Invite
                 </Button>
-                <Button className="text-sm bg-primary border border-primary font-medium text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary">
+                <Button 
+                  onClick={() => setShowAddRoom(true)}
+                  className="text-sm bg-primary border border-primary font-medium text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary">
                   <Plus className="h-4 w-4" />
                   Add Room
                 </Button>
@@ -86,6 +91,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
       </div>
       <AddUser open={showAddUser} onOpenChange={setShowAddUser} />
+      <AddRoom open={showAddRoom} onOpenChange={setShowAddRoom} />
     </SidebarProvider>
   );
 };

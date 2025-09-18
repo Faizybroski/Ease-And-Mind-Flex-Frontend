@@ -3,7 +3,7 @@ import { Card } from "@/components/OnboardingCarousel/ui/card";
 import { Checkbox } from "@/components/OnboardingCarousel/ui/checkbox";
 import { Input } from "@/components/OnboardingCarousel/ui/input";
 import { Label } from "@/components/OnboardingCarousel/ui/label";
-// import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { ChevronLeft, ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -56,7 +56,7 @@ export const OnboardingCarousel = ({ startStep = 0 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-  // const { signIn, signUp, resetPassword, signInWithGoogle, signInWithApple } = useAuth();
+  const { signIn, signUp, resetPassword, signInWithGoogle, signInWithApple } = useAuth();
 
   console.info("instagram:=====>>>>", instagram);
   console.info("linkedin:=====>>>>", linkedin);

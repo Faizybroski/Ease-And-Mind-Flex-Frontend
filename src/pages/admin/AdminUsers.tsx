@@ -1,5 +1,6 @@
-// import { useAuth } from "@/contexts/AuthContext";
-// import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import AddUser from "@/components/addUser/AddUser"
+import AddUser from "@/components/addUser/AddUser";
 import {
   Table,
   TableBody,
@@ -49,15 +50,18 @@ import {
   Users,
   UserX,
 } from "lucide-react";
+import Axios from "axios";
+import axios from "axios";
 
 interface User {
   id: string;
+  user_id: string;
   pic: string;
   email: string;
-  name: string;
-  bookings: number;
+  full_name: string;
+  simpleBookings: number;
   recurringBookings: number;
-  revenue: number;
+  totalRevenue: number;
   status: string;
 }
 
@@ -74,9 +78,10 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   onOpenChange,
   onUserUpdate,
 }) => {
-  // const { user: currentUser } = useAuth();
-  // const { profile } = useProfile();
+  const { user: currentUser } = useAuth();
+  const { profile } = useProfile();
   const [bookings, setBookings] = useState([]);
+  const [recurringBookings, setRecurringBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -87,101 +92,36 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   React.useEffect(() => {
     if (userId) {
-      // fetch user data here
       fetchUser(userId);
     } else {
       setUser(null);
     }
   }, [userId]);
 
-  const fetchUser = (userId) => {
-    setUser({
-      id: userId,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      pic: "https://i.pravatar.cc/150?u=" + userId,
-      bookings: 12,
-      recurringBookings: 4,
-      revenue: 530,
-      status: "active",
-    });
+  const fetchUser = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      setUser(data || {});
+
+      console.info("User fetched", data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      toast({ title: "Error loading user", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchBookings = () => {
     if (!userId) return;
     try {
-      setBookings([
-        {
-          id: 1,
-          room: "Conference Room A",
-          date_time: "2025-09-15T10:30:00",
-          revenue: "$120",
-          status: "upcomming",
-        },
-        {
-          id: 2,
-          room: "Conference Room B",
-          date_time: "2025-09-16T14:00:00",
-          revenue: "$200",
-          status: "upcomming",
-        },
-        {
-          id: 3,
-          room: "Private Office 1",
-          date_time: "2025-09-17T09:00:00",
-          revenue: "$80",
-          status: "canceled",
-        },
-        {
-          id: 4,
-          room: "Event Hall",
-          date_time: "2025-09-18T18:30:00",
-          revenue: "$500",
-          status: "upcomming",
-        },
-        {
-          id: 5,
-          room: "Meeting Pod 2",
-          date_time: "2025-09-19T11:15:00",
-          revenue: "$60",
-          status: "completed",
-        },
-        {
-          id: 6,
-          room: "Training Room",
-          date_time: "2025-09-20T15:45:00",
-          revenue: "$300",
-          status: "upcomming",
-        },
-        {
-          id: 7,
-          room: "Board Room",
-          date_time: "2025-09-21T13:00:00",
-          revenue: "$400",
-          status: "completed",
-        },
-        {
-          id: 8,
-          room: "Hot Desk Area",
-          date_time: "2025-09-22T08:45:00",
-          revenue: "$50",
-          status: "upcomming",
-        },
-        {
-          id: 9,
-          room: "Workshop Studio",
-          date_time: "2025-09-23T17:00:00",
-          revenue: "$250",
-          status: "canceled",
-        },
-        {
-          id: 10,
-          room: "Private Office 2",
-          date_time: "2025-09-24T09:30:00",
-          revenue: "$100",
-          status: "upcomming",
-        },
-      ]);
+      setBookings([]);
+      setRecurringBookings([]);
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast({ title: "Error loading bookings", variant: "destructive" });
@@ -237,13 +177,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
-              <img
-                src={user?.pic}
-                alt={user?.name}
-                className="h-20 w-20 rounded-full"
-              />
               <span className="text-[50px] font-bold leading-none text-primary">
-                {user?.name}
+                {user?.full_name}
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -269,7 +204,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     Total Bookings:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
-                    {user?.bookings}
+                    {user?.simpleBookings}
                   </span>
                 </div>
                 <div>
@@ -287,7 +222,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   <div className="flex items-center">
                     <Euro className="h-4 w-4 text-primary/70" />
                     <span className="text-sm text-primary/70">
-                      {user?.revenue}
+                      {user?.totalRevenue}
                     </span>
                   </div>
                 </div>
@@ -299,12 +234,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
                   <span className="text-primary text-lg">
-                    Booking History ({user?.bookings || 0})
+                    Booking History ({user?.simpleBookings || 0})
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {user?.bookings > 0 ? (
+                {user?.recurringBookings > 0 ? (
                   <div className="rounded-lg">
                     <Table>
                       <TableHeader>
@@ -322,6 +257,50 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                             <TableCell>
                               {format(new Date(booking?.date_time), "PPP")}
                             </TableCell>
+                            <TableCell>{booking?.revenue}</TableCell>
+                            <TableCell>{booking?.status}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">
+                    No Booking history found.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center space-x-2">
+                  <span className="text-primary text-lg">
+                    Recurring Booking History ({user?.recurringBookings || 0})
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {user?.recurringBookings > 0 ? (
+                  <div className="rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Room</TableHead>
+                          <TableHead>Date & Time</TableHead>
+                          <TableHead>Recurrence</TableHead>
+                          <TableHead>Revenue</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {bookings.map((booking) => (
+                          <TableRow key={booking?.id}>
+                            <TableCell>{booking?.room}</TableCell>
+                            <TableCell>
+                              {format(new Date(booking?.date_time), "PPP")}
+                            </TableCell>
+                            <TableCell>{booking?.recurrencePattern}</TableCell>
                             <TableCell>{booking?.revenue}</TableCell>
                             <TableCell>{booking?.status}</TableCell>
                           </TableRow>
@@ -385,25 +364,20 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 };
 
 const AdminUsers = () => {
-  // const { profile } = useProfile();
-
-  const profile = {
-    role: "admin",
-  };
-
+  const { profile } = useProfile();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddUser, setShowAddUser] = useState(false)
+  const [showAddUser, setShowAddUser] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editUserData, setEditUserData] = useState(null);
 
-  // useEffect(() => {
-  //   if (profile && profile.role === "admin") {
-  //     fetchUsers();
-  //   }
-  // }, [profile]);
+  useEffect(() => {
+    if (profile && profile.role === "admin") {
+      fetchUsers();
+    }
+  }, [profile]);
 
   useEffect(() => {
     fetchUsers();
@@ -411,108 +385,14 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      setUsers([
-        {
-          id: "1",
-          pic: "https://randomuser.me/api/portraits/men/32.jpg",
-          name: "Ali Raza",
-          email: "ali.raza@example.com",
-          bookings: 12,
-          recurringBookings: 4,
-          revenue: 5600,
-          status: "active",
-        },
-        {
-          id: "2",
-          pic: "https://randomuser.me/api/portraits/women/45.jpg",
-          name: "Fatima Khan",
-          email: "fatima.khan@example.com",
-          bookings: 18,
-          recurringBookings: 7,
-          revenue: 8900,
-          status: "active",
-        },
-        {
-          id: "3",
-          pic: "https://randomuser.me/api/portraits/men/76.jpg",
-          name: "Ahmed Malik",
-          email: "ahmed.malik@example.com",
-          bookings: 9,
-          recurringBookings: 2,
-          revenue: 3400,
-          status: "suspend",
-        },
-        {
-          id: "4",
-          pic: "https://randomuser.me/api/portraits/women/62.jpg",
-          name: "Ayesha Siddiqui",
-          email: "ayesha.siddiqui@example.com",
-          bookings: 15,
-          recurringBookings: 6,
-          revenue: 7100,
-          status: "suspend",
-        },
-        {
-          id: "5",
-          pic: "https://randomuser.me/api/portraits/men/12.jpg",
-          name: "Usman Tariq",
-          email: "usman.tariq@example.com",
-          bookings: 7,
-          recurringBookings: 1,
-          revenue: 2800,
-          status: "suspend",
-        },
-        {
-          id: "6",
-          pic: "https://randomuser.me/api/portraits/women/19.jpg",
-          name: "Hina Qureshi",
-          email: "hina.qureshi@example.com",
-          bookings: 20,
-          recurringBookings: 9,
-          revenue: 11200,
-          status: "active",
-        },
-        {
-          id: "7",
-          pic: "https://randomuser.me/api/portraits/men/89.jpg",
-          name: "Imran Sheikh",
-          email: "imran.sheikh@example.com",
-          bookings: 11,
-          recurringBookings: 3,
-          revenue: 4700,
-          status: "active",
-        },
-        {
-          id: "8",
-          pic: "https://randomuser.me/api/portraits/women/21.jpg",
-          name: "Sara Butt",
-          email: "sara.butt@example.com",
-          bookings: 14,
-          recurringBookings: 5,
-          revenue: 6400,
-          status: "active",
-        },
-        {
-          id: "9",
-          pic: "https://randomuser.me/api/portraits/men/50.jpg",
-          name: "Hamza Nadeem",
-          email: "hamza.nadeem@example.com",
-          bookings: 6,
-          recurringBookings: 2,
-          revenue: 2300,
-          status: "active",
-        },
-        {
-          id: "10",
-          pic: "https://randomuser.me/api/portraits/women/36.jpg",
-          name: "Maryam Javed",
-          email: "maryam.javed@example.com",
-          bookings: 22,
-          recurringBookings: 10,
-          revenue: 13500,
-          status: "suspend",
-        },
-      ]);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .neq("role", "admin");
+
+      setUsers(data || []);
+
+      console.info("Users fetched", data);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({ title: "Error loading users", variant: "destructive" });
@@ -530,7 +410,15 @@ const AdminUsers = () => {
       return;
 
     try {
-      toast({ title: `User deleted successfully ${userId}` });
+      const { data, error } = await supabase.rpc("delete_user_account", {
+        target_user: userId,
+      });
+              if (error) {
+          console.error("❌ Error deleting user:", error.message);
+        } else {
+          console.log("✅ User deleted successfully!");
+          toast({ title: "User deleted successfully" });
+        }
       fetchUsers();
     } catch (error) {
       toast({ title: "Error deleting user", variant: "destructive" });
@@ -548,10 +436,38 @@ const AdminUsers = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading users...</p>
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <header className="flex justify-between">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">
+                All Users
+              </h1>
+              <p className="text-primary text-sm">Manage Your Users</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between space-x-4 gap-4">
+            <div className="text-right flex gap-3">
+              <Button className="text-sm bg-secondary border border-primary font-medium text-primary">
+                Add Recurring Reservation
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowAddUser(true);
+                }}
+                className="text-sm bg-primary font-medium text-secondary"
+              >
+                Send Invite
+              </Button>
+            </div>
+          </div>
+        </header>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-2">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Loading users...</p>
+          </div>
         </div>
       </div>
     );
@@ -586,8 +502,10 @@ const AdminUsers = () => {
             <Button className="text-sm bg-secondary border border-primary font-medium text-primary">
               Add Recurring Reservation
             </Button>
-            <Button 
-              onClick={() => {setShowAddUser(true)}}
+            <Button
+              onClick={() => {
+                setShowAddUser(true);
+              }}
               className="text-sm bg-primary font-medium text-secondary"
             >
               Send Invite
@@ -606,7 +524,6 @@ const AdminUsers = () => {
             <Table className="min-w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Pic</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Bookings</TableHead>
@@ -623,23 +540,16 @@ const AdminUsers = () => {
               <TableBody>
                 {users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium truncate">
-                      <img
-                        src={user.pic}
-                        alt={user.name}
-                        className="h-10 w-10 max-w-[100px] rounded-full"
-                      />
-                    </TableCell>
                     <TableCell className="font-medium truncate max-w-[150px]">
-                      {user.name}
+                      {user?.full_name}
                     </TableCell>
                     <TableCell className="truncate max-w-[8rem]">
-                      {user.email}
+                      {user?.email}
                     </TableCell>
-                    <TableCell>{user.bookings}</TableCell>
-                    <TableCell>{user.recurringBookings}</TableCell>
-                    <TableCell>{user.revenue}</TableCell>
-                    <TableCell>{getStatusColor(user.status)}</TableCell>
+                    <TableCell>{user?.simpleBookings}</TableCell>
+                    <TableCell>{user?.recurringBookings}</TableCell>
+                    <TableCell>{user?.totalRevenue}</TableCell>
+                    <TableCell>{getStatusColor(user?.status)}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -647,7 +557,7 @@ const AdminUsers = () => {
                           variant="outline"
                           className="hover:bg-primary bg-secondary hover:text-secondary"
                           onClick={() => {
-                            setSelectedUser(user.id);
+                            setSelectedUser(user?.id);
                             setShowUserDetails(true);
                           }}
                         >
@@ -669,7 +579,7 @@ const AdminUsers = () => {
                           variant="destructive"
                           className="border border-input bg-secondary text-destructive hover:text-[white] hover:border-destructive"
                           onClick={() => {
-                            handleDeleteUser(user.id);
+                            handleDeleteUser(user?.user_id);
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -690,6 +600,7 @@ const AdminUsers = () => {
         onOpenChange={setShowUserDetails}
         onUserUpdate={fetchUsers}
       />
+
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent>
           <DialogHeader>
@@ -703,11 +614,11 @@ const AdminUsers = () => {
               <div>
                 <Label>Name</Label>
                 <Input
-                  value={editUserData.name}
+                  value={editUserData.full_name}
                   onChange={(e) =>
                     setEditUserData({
                       ...editUserData,
-                      name: e.target.value,
+                      full_name: e.target.value,
                     })
                   }
                 />
@@ -724,18 +635,6 @@ const AdminUsers = () => {
                   }
                 />
               </div>
-              <div>
-                <Label>Password</Label>
-                <Input
-                  value={editUserData.password}
-                  onChange={(e) =>
-                    setEditUserData({
-                      ...editUserData,
-                      password: e.target.value,
-                    })
-                  }
-                />
-              </div>
 
               <div className="flex justify-end space-x-2">
                 <Button
@@ -747,113 +646,46 @@ const AdminUsers = () => {
                 <Button
                   className="border border-primary text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary"
                   onClick={async () => {
-                    if (!editUserData) return;
-                    if (
-                      !editUserData.first_name.trim() ||
-                      !editUserData.last_name.trim()
-                    ) {
+                    if (!editUserData) {
                       toast({
-                        title: "First and Last name are required",
+                        title: "No user is selected",
                         variant: "destructive",
                       });
                       return;
                     }
-                    if (!["user", "admin"].includes(editUserData.role)) {
+                    if (!editUserData.full_name.trim()) {
                       toast({
-                        title: "Invalid role selected",
+                        title: "Name is required",
                         variant: "destructive",
                       });
                       return;
                     }
-                    if (
-                      editUserData.job_title &&
-                      editUserData.job_title.length > 100
-                    ) {
+                    if (!editUserData.email.trim()) {
                       toast({
-                        title: "Job title is too long",
+                        title: "Email is required",
                         variant: "destructive",
                       });
                       return;
                     }
-                    if (!editUserData.job_title.trim()) {
-                      toast({
-                        title: "Job title is required",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (!editUserData.location_city.trim()) {
-                      toast({
-                        title: "City is required",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (
-                      editUserData.location_city &&
-                      editUserData.location_city.length > 100
-                    ) {
-                      toast({
-                        title: "City name is too long",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (
-                      editUserData.instagram_username &&
-                      editUserData.instagram_username.length > 30
-                    ) {
-                      toast({
-                        title: "Instagram username is too long",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (
-                      editUserData.linkedin_username &&
-                      editUserData.linkedin_username.length > 30
-                    ) {
-                      toast({
-                        title: "LinkedIn username is too long",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (
-                      !editUserData.instagram_username.trim() &&
-                      !editUserData.linkedin_username.trim()
-                    ) {
-                      toast({
-                        title: "At least one social link is required",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    // const { error } = await supabase
-                    //   .from("profiles")
-                    //   .update({
-                    //     first_name: editUserData.first_name.trim(),
-                    //     last_name: editUserData.last_name.trim(),
-                    //     role: editUserData.role.trim(),
-                    //     job_title: editUserData.job_title.trim(),
-                    //     location_city: editUserData.location_city.trim(),
-                    //     instagram_username:
-                    //       editUserData.instagram_username.trim() || null,
-                    //     linkedin_username:
-                    //       editUserData.linkedin_username.trim() || null,
-                    //   })
-                    //   .eq("id", editUserData.id);
+                    const { error: profileError } = await supabase
+                      .from("profiles")
+                      .update({
+                        full_name: editUserData.full_name.trim(),
+                        email: editUserData.email.trim(),
+                        status: editUserData.status,
+                      })
+                      .eq("id", editUserData.id);
 
-                    // if (error) {
-                    //   toast({
-                    //     title: "Error updating user",
-                    //     variant: "destructive",
-                    //   });
-                    // } else {
+                    if (profileError) {
+                      toast({
+                        title: "Error updating profile",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
                     toast({ title: "User updated successfully" });
                     setShowEditModal(false);
                     fetchUsers();
-                    // }
                   }}
                 >
                   Save Changes

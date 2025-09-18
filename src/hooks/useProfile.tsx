@@ -27,7 +27,11 @@ export const useProfile = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
+
+        console.log(user.id)
+
+      console.info("profile===>", data)
 
       if (error) throw error;
       setProfile(data);

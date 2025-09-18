@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, 
   useLocation 
 } from 'react-router-dom';
-// import { useProfile } from '@/hooks/useProfile';
+import { useProfile } from '@/hooks/useProfile';
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +26,7 @@ import AppLogo from "@/components/ui/logo"
 
 const AdminSidebar = () => {
   const location = useLocation();
-  // const { profile } = useProfile();
+  const { profile } = useProfile();
   const currentPath = location.pathname;
 
   const isActive = (path: string) => currentPath === path;
@@ -61,7 +61,7 @@ const AdminSidebar = () => {
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2 px-3">
+            {/* <SidebarMenu className="space-y-2 px-3">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -80,7 +80,42 @@ const AdminSidebar = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
+            </SidebarMenu> */}
+            <SidebarMenu className="space-y-2 px-3">
+  {navigationItems.map((item) => (
+    <SidebarMenuItem key={item.title}>
+      <NavLink to={item.url} end>
+        {({ isActive }) => (
+          <SidebarMenuButton
+            asChild
+            isActive={isActive}
+            className={`
+              flex items-center space-x-3 px-4 py-5 rounded-lg text-sm font-medium shadow transition-all duration-200
+              ${isActive
+                ? "bg-primary text-primary shadow-lg font-large"
+                : "hover:bg-secondary hover:text-foreground"}
+            `}
+          >
+            <div className="flex items-center space-x-3">
+              <item.icon
+                className={`h-6 w-6 flex-shrink-0 text-primary ${
+                  isActive ? "h-8 w-8" : "text-primary"
+                }`}
+              />
+              <span
+                className={`truncate text-md ${
+                  isActive ? "text-primary" : "text-primary"
+                }`}
+              >
+                {item.title}
+              </span>
+            </div>
+          </SidebarMenuButton>
+        )}
+      </NavLink>
+    </SidebarMenuItem>
+  ))}
+</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
