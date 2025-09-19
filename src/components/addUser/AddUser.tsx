@@ -28,23 +28,33 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
     
     if (!addUserData.name.trim()) {
       toast({
-        title: "Name is required",
+        title: "Error",
+        description: "Name is required",
         variant: "destructive",
       });
       return;
     }
     if (!addUserData.email.trim()) {
       toast({
-        title: "Email is required",
+        title: "Error",
+        description: "Email is required",
         variant: "destructive",
       });
       return;
     }
     try {
-      toast({ title: "User Added successfully" });
+      toast({ 
+        title: "Success",
+        description: "User Added successfully"
+       });
       onOpenChange(false);
-    } catch {
-      toast({ title: "User isnt Added successfully" });
+    } catch (error) {
+      toast({ 
+        title: "Error",
+        description: "Failed to Add User",
+        variant: "destructive"
+      });
+      console.error("Error adding user", error)
     }
     
   };

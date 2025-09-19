@@ -139,8 +139,12 @@ const AdminBilling = () => {
         },
       ]);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      toast({ title: "Error loading dashboard data", variant: "destructive" });
+      console.error("Error loading billing data:", error);
+      toast({ 
+        title: "Error",
+        description: "Error loading billing data.", 
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }

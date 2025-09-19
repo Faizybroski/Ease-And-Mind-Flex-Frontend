@@ -266,9 +266,10 @@ const EventsCarousel = () => {
       } catch (error) {
         toast({
           title: "Error",
-          description: error.message || "RSVP failed",
+          description: "RSVP failed",
           variant: "destructive",
         });
+        console.error("Error RSVP", error)
       }
     };
 

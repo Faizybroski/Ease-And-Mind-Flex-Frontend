@@ -50,13 +50,13 @@ export const useRestaurantVisits = () => {
       });
 
       return { success: true, data: result };
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to track visit",
+        description: "Failed to track visit",
         variant: "destructive"
       });
-      return { success: false, error: error.message };
+      console.error("Error tracking visit", error)
     } finally {
       setIsTracking(false);
     }

@@ -13,6 +13,7 @@ import {
 import { Calendar, Users, MapPin, Star, CalendarDays, Search, Users2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -57,7 +58,7 @@ const UserDashboard = () => {
       console.error("Error fetching wallet payments:", err);
       toast({
         title: "Error",
-        description: "Failed to load wallet payments",
+        description: err.message || "Failed to load wallet payments",
         variant: "destructive",
       });
     }
@@ -66,7 +67,7 @@ const UserDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {profile?.first_name || user?.email}!
+          Welcome back, {profile?.full_name || user?.email}!
         </h1>
         <p className="text-muted-foreground mt-2">
           Ready to connect over a great meal?
@@ -234,7 +235,7 @@ const UserDashboard = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm">Photo Uploaded</span>
                 <span className="text-sm font-medium text-muted-foreground">
-                  {profile?.profile_photo_url ? "✓" : "Pending"}
+                  {profile?.pic ? "✓" : "Pending"}
                 </span>
               </div>
             </div>

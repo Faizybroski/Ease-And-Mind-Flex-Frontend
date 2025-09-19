@@ -26,12 +26,13 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ mode }) => {
       });
 
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Authentication Error",
-        description: error.message || "Failed to authenticate with Google",
+        description: "Failed to authenticate with Google",
         variant: "destructive"
       });
+      console.error("Error authenticating google", error)
     } finally {
       setLoading(null);
     }
@@ -49,12 +50,13 @@ const SocialAuth: React.FC<SocialAuthProps> = ({ mode }) => {
       });
 
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Authentication Error",
-        description: error.message || "Failed to authenticate with Apple",
+        description: "Failed to authenticate with Apple",
         variant: "destructive"
       });
+      console.error("Error authenticating apple", error)
     } finally {
       setLoading(null);
     }

@@ -1,5 +1,6 @@
-// import { useAuth } from "@/contexts/AuthContext";
-// import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import { format, subMonths, getMonth, getYear } from "date-fns";
+import { formatDistanceToNow, format, subMonths, getMonth, getYear } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
@@ -47,6 +48,7 @@ import {
   CheckCircle,
   CheckCircle2,
   Clock,
+  CalendarCheck,
   DollarSign,
   Download,
   Eye,
@@ -64,15 +66,9 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const profile = {
-  role: "admin",
-  firstName: "Hasan",
-  lastName: "Munir",
-};
-
 const AdminDashboard = () => {
-  // const { user, signOut } = useAuth();
-  // const { profile } = useProfile();
+  const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -84,154 +80,140 @@ const AdminDashboard = () => {
     percentageBookingSchedule: "+12.5%",
     activeBookings: 2,
     percentageActiveBookings: "+5.2%",
-    averageBooking: 60,
+    bookingToday: 1,
     percentageAverageBooking: "+20.1%",
   });
 
-  const [data, setdata] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
-    if (profile && profile.role === "admin") {
       fetchDashboardData();
-    }
-  }, [profile]);
+  }, []);
 
   const fetchDashboardData = async () => {
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(now.getDate() - 2);
+
     try {
-      setdata([
-        {
-          id: 1,
-          profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
-          first_name: "John",
-          last_name: "Doe",
-          bookedRoom: "Room 101",
-          bookedTime: "10:00 AM",
-          bookedDate: "2025-09-12",
-        },
-        {
-          id: 2,
-          profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
-          first_name: "Jane",
-          last_name: "Smith",
-          bookedRoom: "Room 202",
-          bookedTime: "2:30 PM",
-          bookedDate: "2025-09-13",
-        },
-        {
-          id: 3,
-          profilePic: "https://randomuser.me/api/portraits/men/65.jpg",
-          first_name: "Mike",
-          last_name: "Johnson",
-          bookedRoom: "Room 303",
-          bookedTime: "11:15 AM",
-          bookedDate: "2025-09-14",
-        },
-        {
-          id: 4,
-          first_name: "Ayesha",
-          last_name: "Khan",
-          profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
-          bookedRoom: "Room 101",
-          bookedTime: "11:15 AM",
-          bookedDate: "2025-09-14",
-        },
-        {
-          id: 5,
-          first_name: "Bilal",
-          last_name: "Ahmad",
-          profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
-          bookedTime: "11:15 AM",
-          bookedDate: "2025-09-14",
-        },
-        {
-          id: 6,
-          profilePic: "https://randomuser.me/api/portraits/men/65.jpg",
-          first_name: "Mike",
-          last_name: "Johnson",
-          bookedRoom: "Room 303",
-          bookedTime: "11:15 AM",
-          bookedDate: "2025-09-14",
-        },
+      setLoading(true);
+
+      // Run all queries in parallel
+      const [
+        { data: recentBookings, error: recentBookingsError },
+        { data: newBookings, error: newBookingsError },
+        { data: cancelledBookings, error: cancelledBookingsError },
+        { data: newUsers, error: newUsersError },
+      ] = await Promise.all([
+        // Bookings from last 7 days
+        supabase
+          .from("bookings")
+          .select(`
+            *,
+            profiles!bookings_user_id_fkey(id, full_name, email),
+            rooms!bookings_room_id_fkey(room_name)
+          `)
+          .gte("date", now.toISOString())           
+          .lte("date", sevenDaysFromNow.toISOString())
+          .order("date", { ascending: true }),
+
+        // New bookings in last 48h
+        supabase
+          .from("bookings")
+          .select(`
+            id,
+            created_at,
+            status,
+            rooms:rooms!bookings_room_id_fkey(room_name),
+            profiles:profiles!bookings_user_id_fkey(full_name, email)
+          `)
+          .gte("created_at", twoDaysAgo.toISOString()),
+
+        // Cancelled bookings in last 48h
+        supabase
+          .from("bookings")
+          .select(`
+            id,
+            updated_at,
+            status,
+            rooms:rooms!bookings_room_id_fkey(room_name),
+            profiles:profiles!bookings_user_id_fkey(full_name, email)
+          `)
+          .eq("status", "canceled")
+          .gte("updated_at", twoDaysAgo.toISOString()),
+
+        // New users in last 48h
+        supabase
+          .from("profiles")
+          .select("id, full_name, email, created_at")
+          .gte("created_at", twoDaysAgo.toISOString()),
       ]);
 
-      setRecentActivity([
-        {
-          id: 1,
-          name: "Ayesha Khan",
-          profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
-          timeAgo: "2 min",
-          room: "Room 101",
-          status: "booked",
-          icon: "calendar",
-        },
-        {
-          id: 2,
-          name: "Bilal Ahmed",
-          profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
-          timeAgo: "25 min",
-          room: "Room 204",
-          status: "completed",
-          icon: "check-circle",
-        },
-        {
-          id: 3,
-          name: "Sana Malik",
-          profilePic: "https://randomuser.me/api/portraits/women/12.jpg",
-          timeAgo: "40 min",
-          room: "Room 305",
-          status: "canceled",
-          icon: "x-circle",
-        },
-        {
-          id: 4,
-          name: "Hamza Iqbal",
-          profilePic: "https://randomuser.me/api/portraits/men/55.jpg",
-          timeAgo: "1 hr",
-          room: "Room 110",
-          status: "booked",
-          icon: "calendar",
-        },
-        // {
-        //   id: 5,
-        //   name: "Fatima Noor",
-        //   profilePic: "https://randomuser.me/api/portraits/women/65.jpg",
-        //   timeAgo: "1 hr 20 min",
-        //   room: "Room 407",
-        //   status: "completed",
-        //   icon: "check-circle",
-        // },
-      ]);
+      if (
+        recentBookingsError ||
+        newBookingsError ||
+        cancelledBookingsError ||
+        newUsersError
+      ) {
+        throw (
+          recentBookingsError ||
+          newBookingsError ||
+          cancelledBookingsError ||
+          newUsersError
+        );
+      }
+
+
+
+      // Update bookings list
+      setBookings(recentBookings || []);
+
+      // Normalize activity feed
+      const activities = [
+        ...(newBookings || []).map((b) => ({
+          type: "booking_created",
+          at: b.created_at,
+          user: b.profiles?.full_name,
+          email: b.profiles?.email,
+          room: b.rooms?.room_name,
+          status: b.status,
+        })),
+        ...(cancelledBookings || []).map((b) => ({
+          type: "booking_cancelled",
+          at: b.updated_at,
+          user: b.profiles?.full_name,
+          email: b.profiles?.email,
+          room: b.rooms?.room_name,
+          status: b.status,
+        })),
+        ...(newUsers || []).map((u) => ({
+          type: "user_registered",
+          at: u.created_at,
+          user: u.full_name,
+          email: u.email,
+        })),
+      ];
+
+      // Sort by most recent
+      activities.sort(
+        (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
+      );
+
+
+      console.log("activities====>", activities)
+      setRecentActivity(activities);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      toast({ title: "Error loading dashboard data", variant: "destructive" });
+      console.error("Error fetching dashboard bookings:", error);
+      toast({
+        title: "Error",
+        description: "Error loading dashboard bookings",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "booked":
-        return (
-          <div className="p-1.5 rounded-full bg-primary/20 flex items-center justify-center">
-            <Calendar className="h-4 w-4 text-primary" />
-          </div>
-        );
-      case "completed":
-        return (
-          <div className="p-1.5 rounded-full bg-green-100 flex items-center justify-center">
-            <CheckCircle2 className="h-4 w-4 text-primary" />
-          </div>
-        );
-      case "canceled":
-      return (
-        <div className="p-1.5 rounded-full bg-red-100 flex items-center justify-center">
-          <XCircle className="h-4 w-4 text-red-600" />
-        </div>
-      );
-      default:
-        return null;
     }
   };
 
@@ -240,13 +222,13 @@ const AdminDashboard = () => {
       case "booked":
         return <span className="h-4 w-4 text-primary">{status}</span>;
       case "completed":
-        return <span className="h-4 w-4 text-primary" >{status}</span>;
+        return <span className="h-4 w-4 text-primary">{status}</span>;
       case "canceled":
-        return <span className="h-4 w-4 text-red-500" >{status}</span>;
+        return <span className="h-4 w-4 text-red-500">{status}</span>;
       default:
         return null;
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -356,16 +338,15 @@ const AdminDashboard = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/20 to-transparent rounded-bl-full" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Average Bookings
+              Bookings Today
             </CardTitle>
             <div className="p-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <CalendarCheck className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-3xl font-bold text-primary mb-1">
-              <Euro className="h-8 w-8 text-primary text-bold" />
-              {stats.averageBooking.toLocaleString()}
+              {stats.bookingToday.toLocaleString()}
             </div>
             <p className="text-sm text-primary flex items-center space-x-1">
               <span>{stats.percentageAverageBooking} from last month</span>
@@ -387,33 +368,26 @@ const AdminDashboard = () => {
             </div>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
-            {data.map((user) => (
+            {bookings.map((booking) => (
               <div
-                key={user.id}
+                key={booking.id}
                 className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4 px-2 py-2 border border-primary/50 hover:bg-muted/10 rounded-md"
               >
-                <div className="w-24 flex items-center pl-2">
-                  <img
-                    src={user.profilePic}
-                    alt={user.first_name}
-                    className="h-10 w-10 rounded-full"
-                  />
-                </div>
                 <div className="flex-1">
                   <p className="font-medium text-primary">
-                    {user.first_name} {user.last_name}
+                    {booking.profiles.full_name}
                   </p>
                   <span className="text-sm text-foreground">
-                    Booked {user.bookedRoom}
+                    Booked {booking.rooms.room_name}
                   </span>
                 </div>
                 <div className="w-32 flex items-center space-x-1">
                   <Clock className="h-4 w-4 text-primary" />
-                  <span className="text-primary">{user.bookedTime}</span>
+                  <span className="text-primary">{booking.time_slot}</span>
                 </div>
                 <div className="w-32 flex items-center space-x-1">
                   <Calendar className="h-4 w-4 text-primary" />
-                  <span className="text-primary">{user.bookedDate}</span>
+                  <span className="text-primary">{booking.date}</span>
                 </div>
               </div>
             ))}
@@ -432,43 +406,38 @@ const AdminDashboard = () => {
             </div>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
-            {recentActivity.map((activity) => (
+            {recentActivity.map((activity, idx) => (
               <div
-                key={activity.id}
+                key={idx}
                 className="flex border border-primary/40 hover:bg-muted/10 rounded-lg p-3 transition-all"
               >
-                {/* Profile column */}
-                <div className="w-16 flex items-center justify-center">
-                  <img
-                    src={activity.profilePic}
-                    alt={`${activity.first_name} ${activity.last_name}`}
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                </div>
-
-                {/* Content column */}
                 <div className="flex-1 flex flex-col justify-between ml-3">
-                  {/* Row 1: Name + status icon */}
-                  <div className="flex items-center justify-between">
-                    <p className="text-primary font-medium">{activity.name}</p>
-                    <div className="flex items-center">
-                      {getStatusIcon(activity.status)}
+                  {/* Row 1: Name + activity type */}
+                  <div className=" items-center justify-between">
+                    <p className="text-primary font-medium">{activity.user}</p>
+                    <p className="text-primary">{activity.email}</p>
+                  </div>
+
+                  {/* Row 2: Room info (only for bookings) */}
+                  {activity.room && (
+                    <div className="text-sm text-foreground">
+                      Booked {activity.room}
                     </div>
-                  </div>
+                  )}
+                  {activity.type === 'user_registered' && (
+                    <div className="text-sm text-foreground">
+                      Registered
+                    </div>
+                  )}
 
-                  {/* Row 2: Room */}
-                  <div className="text-sm text-foreground">
-                    Booked {activity.room}
-                  </div>
-
-                  {/* Row 3: Time ago + Status text */}
+                  {/* Row 3: Time + Type */}
                   <div className="flex justify-between items-center text-sm mt-1">
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4 text-primary" />
-                      <span className="text-primary">{activity.timeAgo}</span>
+                      <span className="text-primary">{formatDistanceToNow(new Date(activity.at), { addSuffix: true })}</span>
                     </div>
-                    <span className="capitalize text-primary border border-primary/20 rounded-full px-3 py-1 text-xs font-medium">
-                      {getStatusColor(activity.status)}
+                    <span className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs font-medium">
+                      {activity.type.replace("_", " ")}
                     </span>
                   </div>
                 </div>

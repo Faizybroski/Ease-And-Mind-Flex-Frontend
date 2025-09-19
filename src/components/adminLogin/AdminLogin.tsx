@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button } from "@/components/OnboardingCarousel/ui/button";
-import { Input } from "@/components/OnboardingCarousel/ui/input";
-import { Label } from "@/components/OnboardingCarousel/ui/label";
-import { Card } from "@/components/OnboardingCarousel/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -21,24 +21,20 @@ export const AdminLogin = () => {
     setLoading(true);
     try {
       const { error } = await signIn(email.trim(), password.trim(), "admin");
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
+      if (error) throw error;
+      if (!error)  {
         toast({
           title: "Welcome back!",
           description: "Signed in successfully.",
         });
       }
-    } catch {
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Unexpected error occurred.",
+        description: "Failed to login.",
         variant: "destructive",
       });
+      console.error("Error login", error)
     } finally {
       setLoading(false);
     }

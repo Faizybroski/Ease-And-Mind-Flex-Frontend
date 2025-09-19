@@ -75,9 +75,10 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
     } catch (error) {
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload photo",
+        description: "Failed to upload photo",
         variant: "destructive",
       });
+      console.log("Error uploading photo", error)
     } finally {
       setUploading(false);
     }
@@ -86,28 +87,32 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
   const addRoomfun = async () => {
     if (!addRoomData.room_name.trim()) {
       toast({
-        title: "Name is required",
+        title: "Error",
+        description: "Name is required",
         variant: "destructive",
       });
       return;
     }
     if (!addRoomData.morning_price) {
       toast({
-        title: "morning price is required",
+        title: "Error",
+        description: "Morning price is required",
         variant: "destructive",
       });
       return;
     }
     if (!addRoomData.afternoon_price) {
       toast({
-        title: "Afternoon price is required",
+        title: "Error",
+        description: "Afternoon price is required",
         variant: "destructive",
       });
       return;
     }
     if (!addRoomData.night_price) {
       toast({
-        title: "Night price is required",
+        title: "Error",
+        description: "Night price is required",
         variant: "destructive",
       });
       return;
@@ -127,13 +132,23 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
         .select()
         .single();
 
+        if (error) throw error;
+
       if (!error) {
-        toast({ title: "Room Added successfully" });
+        toast({ 
+          title: "Success",
+          description: "Room Added successfully",
+         });
         onOpenChange(false);
       }
       setLoading(false);
-    } catch {
-      toast({ title: "Room isn't Added successfully" });
+    } catch (error) {
+      toast({ 
+        title: "Error",
+        description: "Failed to Add Room",
+        variant: "destructive"
+       });
+       console.error("Error adding room", error)
     }
   };
 
@@ -235,7 +250,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
                   type="button"
                   variant="outline"
                   disabled={uploading}
-                  className="w-full cursor-pointer"
+                  className="w-full cursor-pointer text-primary"
                   asChild
                 >
                   <span>

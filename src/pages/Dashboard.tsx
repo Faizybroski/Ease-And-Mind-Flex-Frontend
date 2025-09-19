@@ -120,7 +120,7 @@ const Dashboard = () => {
       console.error("Error fetching wallet payments:", err);
       toast({
         title: "Error",
-        description: "Failed to load wallet payments",
+        description: err.message || "Failed to load wallet payments",
         variant: "destructive",
       });
     }
@@ -159,7 +159,7 @@ const Dashboard = () => {
 
       // Now get aggregated data from crossed_paths_log for each pair
       const enrichedPaths = await Promise.all(
-        (crossedPathsData || []).map(async (path: any) => {
+        (crossedPathsData || []).map(async (path) => {
           const otherUserId =
             path.user1_id === profile.user_id
               ? path.user2.user_id
@@ -212,14 +212,15 @@ const Dashboard = () => {
       );
 
       setCrossedPaths(enrichedPaths);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error in fetchCrossedPaths:", error);
       setCrossedPaths([]);
       toast({
         title: "Error",
-        description: "Failed to load crossed paths",
+        description:"Failed to load crossed paths",
         variant: "destructive",
       });
+      console.error("Error load crossed path", error)
     } finally {
       setCrossedLoading(false);
     }

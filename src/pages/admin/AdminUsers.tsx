@@ -30,7 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, previousDay } from "date-fns";
 import {
   AlertTriangle,
   Ban,
@@ -59,7 +59,7 @@ interface User {
   pic: string;
   email: string;
   full_name: string;
-  simpleBookings: number;
+  totalBookings: number;
   recurringBookings: number;
   totalRevenue: number;
   status: string;
@@ -102,29 +102,61 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`*`)
         .eq("id", userId)
         .single();
+
+      if (error) throw error;
 
       setUser(data || {});
 
       console.info("User fetched", data);
     } catch (error) {
       console.error("Error fetching user:", error);
-      toast({ title: "Error loading user", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error loading user.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchBookings = () => {
+  const fetchBookings = async () => {
     if (!userId) return;
     try {
-      setBookings([]);
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(
+          `*,
+        rooms: rooms(id, room_name)`
+        )
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      const totalBookings = data.length;
+      const totalRevenue = data.reduce((sum, b) => sum + (b.revenue || 0), 0);
+
+      // update user state safely
+      setUser((prev) => ({
+        ...prev,
+        totalBookings,
+        totalRevenue,
+      }));
+
+      console.info(`booking of user ${userId}`, data);
+
+      setBookings(data);
       setRecurringBookings([]);
     } catch (error) {
       console.error("Error fetching bookings:", error);
-      toast({ title: "Error loading bookings", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error loading bookings",
+        variant: "destructive",
+      });
     }
   };
 
@@ -136,21 +168,37 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     if (!confirm("Are you sure you want to suspend this user?")) return;
 
     try {
-      toast({ title: "User suspended successfully" });
+      toast({
+        title: "Success",
+        description: "User suspended successfully",
+      });
       onUserUpdate();
       onOpenChange(false);
     } catch (error) {
-      toast({ title: "Error suspending user", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error suspending user",
+        variant: "destructive",
+      });
+      console.error("Error suspending user", error);
     }
   };
 
   const handleReactivateUser = async () => {
     try {
-      toast({ title: "User reactivated successfully" });
+      toast({
+        title: "Success",
+        description: "User reactivated successfully",
+      });
       onUserUpdate();
       onOpenChange(false);
     } catch (error) {
-      toast({ title: "Error reactivating user", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error reactivating user",
+        variant: "destructive",
+      });
+      console.error("Error reactivating user", error);
     }
   };
 
@@ -163,11 +211,22 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
       return;
 
     try {
-      toast({ title: `User deleted successfully ${userId}` });
-      onUserUpdate();
-      onOpenChange(false);
+      const { data, error } = await supabase.rpc("delete_user_account", {
+        target_user: userId,
+      });
+      if (error) throw error;
+      if (!error) {
+        toast({
+          title: "Success",
+          description: "User deleted successfully",
+        });
+      }
     } catch (error) {
-      toast({ title: "Error deleting user", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error deleting user",
+        variant: "destructive",
+      });
     }
   };
 
@@ -204,7 +263,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     Total Bookings:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
-                    {user?.simpleBookings}
+                    {user?.totalBookings}
                   </span>
                 </div>
                 <div>
@@ -234,12 +293,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
                   <span className="text-primary text-lg">
-                    Booking History ({user?.simpleBookings || 0})
+                    Booking History ({user?.totalBookings || 0})
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {user?.recurringBookings > 0 ? (
+                {bookings.length > 0 ? (
                   <div className="rounded-lg">
                     <Table>
                       <TableHeader>
@@ -253,9 +312,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                       <TableBody>
                         {bookings.map((booking) => (
                           <TableRow key={booking?.id}>
-                            <TableCell>{booking?.room}</TableCell>
+                            <TableCell>{booking?.rooms?.room_name}</TableCell>
                             <TableCell>
-                              {format(new Date(booking?.date_time), "PPP")}
+                              {format(new Date(booking?.date), "PPP")}
                             </TableCell>
                             <TableCell>{booking?.revenue}</TableCell>
                             <TableCell>{booking?.status}</TableCell>
@@ -385,17 +444,52 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
         .neq("role", "admin");
 
-      setUsers(data || []);
+      if (profilesError) throw profilesError;
 
-      console.info("Users fetched", data);
+      // 2. Fetch all bookings
+      const { data: bookings, error: bookingsError } = await supabase
+        .from("bookings")
+        .select("id, user_id, revenue");
+
+      if (bookingsError) throw bookingsError;
+
+      // 3. Aggregate bookings per user
+      const statsMap = bookings.reduce((acc, booking) => {
+        if (!acc[booking.user_id]) {
+          acc[booking.user_id] = { totalBookings: 0, totalRevenue: 0 };
+        }
+        acc[booking.user_id].totalBookings += 1;
+        acc[booking.user_id].totalRevenue += booking.revenue || 0;
+        return acc;
+      }, {});
+
+      // 4. Merge stats into profiles
+      const usersWithStats = profiles.map((profile) => {
+        const stats = statsMap[profile.id] || {
+          totalBookings: 0,
+          totalRevenue: 0,
+        };
+        return {
+          ...profile,
+          ...stats,
+        };
+      });
+
+      setUsers(usersWithStats);
+
+      console.info("Users fetched", usersWithStats);
     } catch (error) {
       console.error("Error fetching users:", error);
-      toast({ title: "Error loading users", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error loading users",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -413,15 +507,20 @@ const AdminUsers = () => {
       const { data, error } = await supabase.rpc("delete_user_account", {
         target_user: userId,
       });
-              if (error) {
-          console.error("❌ Error deleting user:", error.message);
-        } else {
-          console.log("✅ User deleted successfully!");
-          toast({ title: "User deleted successfully" });
-        }
+      if (error) throw error;
+      if (!error) {
+        toast({
+          title: "Success",
+          description: "User deleted successfully",
+        });
+      }
       fetchUsers();
     } catch (error) {
-      toast({ title: "Error deleting user", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error deleting user",
+        variant: "destructive",
+      });
     }
   };
 
@@ -524,34 +623,44 @@ const AdminUsers = () => {
             <Table className="min-w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Bookings</TableHead>
-                  <TableHead>Recurring Bookings</TableHead>
+                  <TableHead className="text-center">Name</TableHead>
+                  <TableHead className="text-center">Email</TableHead>
+                  <TableHead className="text-center">Bookings</TableHead>
+                  <TableHead className="text-center max-w-[100px]">
+                    Recurring Bookings
+                  </TableHead>
                   <TableHead className="text-center border-b-2 border-border/30">
                     <div className="flex items-center justify-center gap-1">
                       Revenue <Euro className="h-4 w-4" />
                     </div>
                   </TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium truncate max-w-[150px]">
+                    <TableCell className="text-center font-medium max-w-[150px]">
                       {user?.full_name}
                     </TableCell>
-                    <TableCell className="truncate max-w-[8rem]">
+                    <TableCell className="text-center max-w-[150px]">
                       {user?.email}
                     </TableCell>
-                    <TableCell>{user?.simpleBookings}</TableCell>
-                    <TableCell>{user?.recurringBookings}</TableCell>
-                    <TableCell>{user?.totalRevenue}</TableCell>
-                    <TableCell>{getStatusColor(user?.status)}</TableCell>
+                    <TableCell className="text-center">
+                      {user?.totalBookings}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {user?.recurringBookings}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {user?.totalRevenue}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {getStatusColor(user?.status)}
+                    </TableCell>
                     <TableCell>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex justify-center items-center space-x-2">
                         <Button
                           size="sm"
                           variant="outline"
@@ -648,44 +757,53 @@ const AdminUsers = () => {
                   onClick={async () => {
                     if (!editUserData) {
                       toast({
-                        title: "No user is selected",
+                        title: "Error",
+                        description: "No user is selected",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editUserData.full_name.trim()) {
                       toast({
-                        title: "Name is required",
+                        title: "validation Error",
+                        description: "Name is required",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editUserData.email.trim()) {
                       toast({
-                        title: "Email is required",
+                        title: "Validation Error",
+                        description: "Email is required",
                         variant: "destructive",
                       });
                       return;
                     }
-                    const { error: profileError } = await supabase
-                      .from("profiles")
-                      .update({
-                        full_name: editUserData.full_name.trim(),
-                        email: editUserData.email.trim(),
-                        status: editUserData.status,
-                      })
-                      .eq("id", editUserData.id);
+                    try {
+                      const { error } = await supabase
+                        .from("profiles")
+                        .update({
+                          full_name: editUserData.full_name.trim(),
+                          email: editUserData.email.trim(),
+                          status: editUserData.status,
+                        })
+                        .eq("id", editUserData.id);
 
-                    if (profileError) {
+                      if (error) throw error;
                       toast({
-                        title: "Error updating profile",
+                        title: "Success",
+                        description: "User updated successfully",
+                      });
+                      setShowEditModal(false);
+                      fetchUsers();
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Error updating profile",
                         variant: "destructive",
                       });
-                      return;
+                      console.error("Error updating profile", error);
                     }
-                    toast({ title: "User updated successfully" });
-                    setShowEditModal(false);
-                    fetchUsers();
                   }}
                 >
                   Save Changes

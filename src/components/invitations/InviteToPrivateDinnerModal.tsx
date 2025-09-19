@@ -199,6 +199,7 @@ const InviteToPrivateDinnerModal: React.FC<InviteToPrivateDinnerModalProps> = ({
         description: "Failed to send invitation. Please try again.",
         variant: "destructive"
       });
+      console.error("Error send invitation", error)
     } finally {
       setLoading(false);
     }

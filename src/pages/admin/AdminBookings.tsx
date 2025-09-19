@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,22 +44,25 @@ import {
 interface Bookings {
   id: string;
   status: string;
-  day: string;
   date: string;
-  time: string;
+  time_slot: string;
   revenue: string;
-  user_id: string;
-  user_name: string;
-  user_email: string;
-  room_id: string;
-  room_name: string;
+  rooms: {
+    room_id: string;
+    room_name: string;
+  }
+  profiles: {
+    user_id: string;
+    full_name: string;
+    email: string;
+  }
 }
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState<Bookings[]>([]);
   const [loading, setLoading] = useState(true);
-  const [date, setDate] = useState<Date | undefined>(undefined)
-  const [filteredBookings, setFilteredBookings] = useState<Bookings[]>([])
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [filteredBookings, setFilteredBookings] = useState<Bookings[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -65,155 +71,33 @@ const AdminBookings = () => {
 
   useEffect(() => {
     if (date) {
-      const selectedDateStr = date.toLocaleDateString("en-CA") // e.g. "2025-09-16"
-      setFilteredBookings(
-        bookings.filter((b) => b.date === selectedDateStr)
-      )
+      const selectedDateStr = date.toLocaleDateString("en-CA"); // e.g. "2025-09-16"
+      setFilteredBookings(bookings.filter((b) => b.date === selectedDateStr));
     } else {
-      setFilteredBookings(bookings)
+      setFilteredBookings(bookings);
     }
-  }, [date, bookings])
+  }, [date, bookings]);
 
   const fetchBookings = async () => {
     try {
-      setBookings([
-        {
-          id: "b1",
-          status: "upcoming",
-          day: "Monday, Sep 15",
-          date: "2025-09-15",
-          time: "Morning 08:00 - 13:00",
-          revenue: "120",
-          user_id: "u1",
-          user_name: "Alice Johnson",
-          user_email: "alice@example.com",
-          room_id: "r1",
-          room_name: "Conference Room A",
-        },
-        {
-          id: "b2",
-          status: "completed",
-          day: "Monday, Sep 15",
-          date: "2025-09-15",
-          time: "Afternoon 13:00 - 18:00",
-          revenue: "200",
-          user_id: "u2",
-          user_name: "Bob Smith",
-          user_email: "bob@example.com",
-          room_id: "r2",
-          room_name: "Meeting Room 1",
-        },
-        {
-          id: "b3",
-          status: "canceled",
-          day: "Tuesday, Sep 16",
-          date: "2025-09-16",
-          time: "Night 18:00 - 22:00",
-          revenue: "0",
-          user_id: "u3",
-          user_name: "Charlie Davis",
-          user_email: "charlie@example.com",
-          room_id: "r3",
-          room_name: "Training Hall",
-        },
-        {
-          id: "b4",
-          status: "upcoming",
-          day: "Wednesday, Sep 17",
-          date: "2025-09-17",
-          time: "Morning 08:00 - 13:00",
-          revenue: "150",
-          user_id: "u4",
-          user_name: "Diana Lopez",
-          user_email: "diana@example.com",
-          room_id: "r1",
-          room_name: "Conference Room A",
-        },
-        {
-          id: "b5",
-          status: "completed",
-          day: "Wednesday, Sep 17",
-          date: "2025-09-17",
-          time: "Night 18:00 - 22:00",
-          revenue: "180",
-          user_id: "u5",
-          user_name: "Ethan Brown",
-          user_email: "ethan@example.com",
-          room_id: "r4",
-          room_name: "Board Room",
-        },
-        {
-          id: "b6",
-          status: "upcoming",
-          day: "Thursday, Sep 18",
-          date: "2025-09-18",
-          time: "Afternoon 13:00 - 18:00",
-          revenue: "220",
-          user_id: "u6",
-          user_name: "Fiona White",
-          user_email: "fiona@example.com",
-          room_id: "r2",
-          room_name: "Meeting Room 1",
-        },
-        {
-          id: "b7",
-          status: "completed",
-          day: "Friday, Sep 19",
-          date: "2025-09-19",
-          time: "Morning 08:00 - 13:00",
-          revenue: "90",
-          user_id: "u7",
-          user_name: "George Wilson",
-          user_email: "george@example.com",
-          room_id: "r5",
-          room_name: "Small Cabin",
-        },
-        {
-          id: "b8",
-          status: "canceled",
-          day: "Saturday, Sep 20",
-          date: "2025-09-20",
-          time: "Afternoon 13:00 - 18:00",
-          revenue: "0",
-          user_id: "u8",
-          user_name: "Hannah Lee",
-          user_email: "hannah@example.com",
-          room_id: "r3",
-          room_name: "Training Hall",
-        },
-        {
-          id: "b9",
-          status: "upcoming",
-          day: "Sunday, Sep 21",
-          date: "2025-09-21",
-          time: "Night 18:00 - 22:00",
-          revenue: "250",
-          user_id: "u9",
-          user_name: "Ian Clark",
-          user_email: "ian@example.com",
-          room_id: "r4",
-          room_name: "Board Room",
-        },
-        {
-          id: "b10",
-          status: "completed",
-          day: "Sunday, Sep 21",
-          date: "2025-09-21",
-          time: "Morning 08:00 - 13:00",
-          revenue: "130",
-          user_id: "u10",
-          user_name: "Julia Adams",
-          user_email: "julia@example.com",
-          room_id: "r1",
-          room_name: "Conference Room A",
-        },
-      ]);
+      const {data, error} = await supabase
+      .from('bookings')
+      .select(`
+        *,
+        profiles!bookings_user_id_fkey(id, full_name, email),
+        rooms!bookings_room_id_fkey(room_name)
+      `)
+      if (error) throw error;
+
+      console.info('bookings data=====>', data)
+
+      setBookings(data);
       console.log("Bookings fetched successfuly");
     } catch (error) {
-      console.error("Error fetching RSVPs:", error);
+      console.error("Error fetch bookings:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch RSVPs",
+        description: "Failed to fetch Bookings.",
         variant: "destructive",
       });
     } finally {
@@ -222,17 +106,26 @@ const AdminBookings = () => {
   };
 
   const handleDeletebooking = async (bookingId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
-      )
-    )
-      return;
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
     try {
-      toast({ title: `Booking deleted successfully ${bookingId}` });
+      const {error} = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', bookingId);
+
+      if (error) throw error;
+      toast({
+        title: "Success",
+        description: `Booking deleted successfully ${bookingId}`,
+      });
       fetchBookings();
     } catch (error) {
-      toast({ title: "Error deleting booking", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Error deleting booking.",
+        variant: "destructive",
+      });
+      console.error("Error deleting booking", error)
     }
   };
 
@@ -248,12 +141,12 @@ const AdminBookings = () => {
   };
 
   const handleDateChange = (selectedDate: Date | undefined) => {
-    setDate(selectedDate)
+    setDate(selectedDate);
     if (selectedDate) {
-      console.log("Selected date:", selectedDate.toISOString())
+      console.log("Selected date:", selectedDate.toISOString());
       // 👉 Here you can call API or filter bookings by date
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -300,7 +193,11 @@ const AdminBookings = () => {
                     className="w-full sm:w-40 justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                    {date ? date.toDateString() : <span className="text-muted-foreground">Pick a date</span>}
+                    {date ? (
+                      date.toDateString()
+                    ) : (
+                      <span className="text-muted-foreground">Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
@@ -340,22 +237,22 @@ const AdminBookings = () => {
                   <TableBody>
                     {filteredBookings.map((booking) => (
                       <TableRow key={booking.id}>
-                        <TableCell>{booking.room_name}</TableCell>
+                        <TableCell>{booking.rooms.room_name}</TableCell>
                         <TableCell>
                           <div>
-                            <div className="font-medium truncate max-w-[150px]">
-                              {booking.user_name}
+                            <div className="font-medium max-w-[200px]">
+                              {booking.profiles.full_name}
                             </div>
-                            <div className="text-sm text-muted-foreground truncate max-w-[150px]">
-                              {booking.user_email}
+                            <div className="text-sm text-muted-foreground max-w-[200px]">
+                              {booking.profiles.email}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div>{booking.day}</div>
+                          <div>{booking.date}</div>
                         </TableCell>
                         <TableCell>
-                          <div>{booking.time}</div>
+                          <div>{booking.time_slot}</div>
                         </TableCell>
                         <TableCell>
                           <div>{booking.revenue}</div>
@@ -365,7 +262,7 @@ const AdminBookings = () => {
                           <Button
                             size="sm"
                             variant="destructive"
-                            className="border border-input bg-background text-primary hover:text-[white] hover:border-[destructive]"
+                            className="border border-primary bg-background text-primary hover:text-[white] hover:border-destructive"
                             onClick={() => {
                               handleDeletebooking(booking.id);
                             }}
@@ -411,22 +308,22 @@ const AdminBookings = () => {
                         .filter((booking) => booking.status === status)
                         .map((booking) => (
                           <TableRow key={booking.id}>
-                            <TableCell>{booking.room_name}</TableCell>
+                            <TableCell>{booking.rooms.room_name}</TableCell>
                             <TableCell>
                               <div>
                                 <div className="font-medium truncate max-w-[150px]">
-                                  {booking.user_name}
+                                  {booking.profiles.full_name}
                                 </div>
                                 <div className="text-sm text-muted-foreground truncate max-w-[150px]">
-                                  {booking.user_email}
+                                  {booking.profiles.email}
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div>{booking.day}</div>
+                              <div>{booking.date}</div>
                             </TableCell>
                             <TableCell>
-                              <div>{booking.time}</div>
+                              <div>{booking.time_slot}</div>
                             </TableCell>
                             <TableCell>
                               <div>{booking.revenue}</div>

@@ -68,14 +68,16 @@ const AdminRooms = () => {
     try {
       const { data, error } = await supabase.from("rooms").select("*");
 
+      if (error) throw error;
       setRooms(data || []);
       console.log("Rooms Fetched");
-    } catch {
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load rooms",
+        description: "Failed to load rooms.",
         variant: "destructive",
       });
+      console.error("Error loading rooms", error)
     } finally {
       setLoading(false);
     }
@@ -380,52 +382,60 @@ const AdminRooms = () => {
                     if (!editRoomData) return;
                     if (!editRoomData.room_name.trim()) {
                       toast({
-                        title: "Name is required",
+                        title: "Validation Error",
+                        description: "Name is required",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editRoomData.morning_price) {
                       toast({
-                        title: "Morning Price is required",
+                        title: "Validation Error",
+                        description: "Morning Price is required",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editRoomData.afternoon_price) {
                       toast({
-                        title: "Afternoon Price is required",
+                        title: "Validation Error",
+                        description: "Afternoon Price is required",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editRoomData.night_price) {
                       toast({
-                        title: "Night Price is required",
+                        title: "Validation Error",
+                        description: "Night Price is required",
                         variant: "destructive",
                       });
                       return;
                     }
-                    const { error } = await supabase
-                      .from("rooms")
-                      .update({
-                        room_name: editRoomData.room_name.trim(),
-                        morning_price: editRoomData.morning_price,
-                        afternoon_price: editRoomData.afternoon_price,
-                        night_price: editRoomData.night_price,
-                        amenities: editRoomData.amenities.trim() || null,
-                      })
-                      .eq("id", editRoomData.id);
+                    try {
+                      const { error } = await supabase
+                        .from("rooms")
+                        .update({
+                          room_name: editRoomData.room_name.trim(),
+                          morning_price: editRoomData.morning_price,
+                          afternoon_price: editRoomData.afternoon_price,
+                          night_price: editRoomData.night_price,
+                          amenities: editRoomData.amenities.trim() || null,
+                        })
+                        .eq("id", editRoomData.id);
 
-                    if (error) {
+                      if (error) throw error;
+                      if (!error) {
+                        toast({ title: "Room updated successfully" });
+                        setShowEditModal(false);
+                        fetchRooms();
+                      }
+                    } catch (error) {
                       toast({
-                        title: "Error updating user",
+                        title: "Error",
+                        description: "Error updating user",
                         variant: "destructive",
                       });
-                    } else {
-                      toast({ title: "Room updated successfully" });
-                      setShowEditModal(false);
-                      fetchRooms();
                     }
                   }}
                 >

@@ -68,7 +68,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const handlePayment = async () => {
     if (!user) {
-      toast({ title: "Please log in to continue", variant: "destructive" });
+      toast({ 
+        title: "Error",
+        description: "Please log in to continue", 
+        variant: "destructive"
+       });
       return;
     }
 
@@ -94,9 +98,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         },
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw error;
 
       if (data?.url) {
         // Open Stripe checkout in a new tab
@@ -115,7 +117,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       console.error('Payment error:', error);
       toast({
         title: "Payment failed",
-        description: error instanceof Error ? error.message : "Please try again",
+        description: "Please try again",
         variant: "destructive",
       });
     } finally {
@@ -199,7 +201,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <Input
                   id="country"
                   value={billingInfo.country}
-                  onChange={(e) => handleInputChange('country', e.target.)}
+                  onChange={(e) => handleInputChange('country', e.target.value)}
                   placeholder="Country"
                 />
               </div>

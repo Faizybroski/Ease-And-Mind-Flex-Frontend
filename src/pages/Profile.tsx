@@ -171,12 +171,13 @@ const Profile = () => {
         title: "Photo updated!",
         description: "Your profile photo has been updated.",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload photo",
+        description: "Failed to upload photo",
         variant: "destructive",
       });
+      console.error("Error uploading photo", error)
     } finally {
       setUploading(false);
     }
@@ -227,12 +228,13 @@ const Profile = () => {
         title: "Profile updated!",
         description: "Your profile has been updated successfully.",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update profile",
+        description: "Failed to update profile",
         variant: "destructive",
       });
+      console.error("Error updating profile", error)
     } finally {
       setLoading(false);
     }
@@ -297,12 +299,13 @@ const Profile = () => {
         title: "Preferences updated!",
         description: "Your preferences have been updated successfully.",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update preferences",
+        description: "Failed to update preferences",
         variant: "destructive",
       });
+      console.error("Error updating preferences", error)
     } finally {
       setLoading(false);
     }
@@ -340,12 +343,13 @@ const Profile = () => {
         title: "Social Links updated!",
         description: "Your social links has been updated successfully.",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update social links",
+        description: "Failed to update social links",
         variant: "destructive",
       });
+      console.error("Error updating social links", error)
     } finally {
       setLoading(false);
     }
@@ -908,7 +912,7 @@ const Profile = () => {
                           checked ? "enabled" : "disabled"
                         }`,
                       });
-                    } catch (error: any) {
+                    } catch (error) {
                       setPrivacySettings((prev) => ({
                         ...prev,
                         allow_crossed_paths_tracking: !checked,

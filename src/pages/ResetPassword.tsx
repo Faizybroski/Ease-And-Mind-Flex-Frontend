@@ -1,12 +1,12 @@
 import { useState } from "react";
-// import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPassword() {
-  // const { updatePassword } = useAuth();
+  const { updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -15,22 +15,30 @@ export default function ResetPassword() {
     e.preventDefault();
     setLoading(true);
 
+    try {
+
+    
+
     const { error } = await updatePassword(password);
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+    if (error) throw error; 
+    
+    if (!error) {
       toast({
         title: "Password updated",
         description: "You can now log in with your new password.",
       });
-      window.location.href = "/"; // Redirect to login
+      window.location.href = "/"; 
     }
     setLoading(false);
+  } catch (error) {
+    toast({
+        title: "Error",
+        description: "Failed to update password.",
+        variant: "destructive",
+      });
+      console.error("Error adding room", error)
+  }
   };
 
   return (
