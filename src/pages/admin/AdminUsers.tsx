@@ -50,8 +50,7 @@ import {
   Users,
   UserX,
 } from "lucide-react";
-import Axios from "axios";
-import axios from "axios";
+import RecurringBookingDialog from "@/components/bookings/AddRecurringBookings";
 
 interface User {
   id: string;
@@ -59,7 +58,7 @@ interface User {
   pic: string;
   email: string;
   full_name: string;
-  totalBookings: number;
+  simpleBookings: number;
   recurringBookings: number;
   totalRevenue: number;
   status: string;
@@ -129,27 +128,47 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
       const { data, error } = await supabase
         .from("bookings")
         .select(
-          `*,
-        rooms: rooms(id, room_name)`
+          `
+          *,
+          rooms: rooms(id, room_name)
+        `
         )
         .eq("user_id", userId);
 
       if (error) throw error;
 
-      const totalBookings = data.length;
-      const totalRevenue = data.reduce((sum, b) => sum + (b.revenue || 0), 0);
+      // Separate recurring and simple bookings
+      const recurring = data.filter((b) => b.is_recurring);
+      const simple = data.filter((b) => !b.is_recurring);
 
-      // update user state safely
+      // Calculate stats
+      const simpleBookings = simple.length;
+      const recurringBookings = recurring.length;
+      // const totalBookings = totalSimple + totalRecurring;
+
+      const totalRevenue = data.reduce(
+        (sum, b) => sum + (b.final_revenue || 0),
+        0
+      );
+
+      // Update user stats safely
       setUser((prev) => ({
         ...prev,
-        totalBookings,
+        // totalBookings,
+        simpleBookings,
+        recurringBookings,
         totalRevenue,
       }));
 
-      console.info(`booking of user ${userId}`, data);
+      console.info(`Bookings of user ${userId}`, {
+        all: data,
+        simple,
+        recurring,
+      });
 
-      setBookings(data);
-      setRecurringBookings([]);
+      // Update states separately
+      setBookings(simple);
+      setRecurringBookings(recurring);
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast({
@@ -164,10 +183,15 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     fetchBookings();
   }, [userId]);
 
-  const handleSuspendUser = async () => {
+  const handleSuspendUser = async (userId: string) => {
     if (!confirm("Are you sure you want to suspend this user?")) return;
-
     try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ status: "Suspended" })
+        .eq("id", userId);
+
+        if (error) throw error;
       toast({
         title: "Success",
         description: "User suspended successfully",
@@ -184,8 +208,15 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     }
   };
 
-  const handleReactivateUser = async () => {
+  const handleReactivateUser = async (userId: string) => {
     try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ status: "Active" })
+        .eq("id", userId);
+
+      if (error) throw error;
+
       toast({
         title: "Success",
         description: "User reactivated successfully",
@@ -263,7 +294,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     Total Bookings:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
-                    {user?.totalBookings}
+                    {user?.simpleBookings}
                   </span>
                 </div>
                 <div>
@@ -293,7 +324,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
                   <span className="text-primary text-lg">
-                    Booking History ({user?.totalBookings || 0})
+                    Booking History ({user?.simpleBookings || 0})
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -316,7 +347,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                             <TableCell>
                               {format(new Date(booking?.date), "PPP")}
                             </TableCell>
-                            <TableCell>{booking?.revenue}</TableCell>
+                            <TableCell>{booking?.final_revenue}</TableCell>
                             <TableCell>{booking?.status}</TableCell>
                           </TableRow>
                         ))}
@@ -340,27 +371,37 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {user?.recurringBookings > 0 ? (
+                {recurringBookings.length > 0 ? (
                   <div className="rounded-lg">
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Room</TableHead>
-                          <TableHead>Date & Time</TableHead>
+                          <TableHead>Start → End</TableHead>
                           <TableHead>Recurrence</TableHead>
                           <TableHead>Revenue</TableHead>
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {bookings.map((booking) => (
+                        {recurringBookings.map((booking) => (
                           <TableRow key={booking?.id}>
-                            <TableCell>{booking?.room}</TableCell>
+                            <TableCell>{booking?.rooms?.room_name}</TableCell>
                             <TableCell>
-                              {format(new Date(booking?.date_time), "PPP")}
+                              {booking?.start_date
+                                ? `${format(
+                                    new Date(booking.start_date),
+                                    "PPP"
+                                  )} → ${format(
+                                    new Date(booking.end_date),
+                                    "PPP"
+                                  )}`
+                                : "-"}
                             </TableCell>
-                            <TableCell>{booking?.recurrencePattern}</TableCell>
-                            <TableCell>{booking?.revenue}</TableCell>
+                            <TableCell>
+                              {booking?.recurrence_pattern || "-"}
+                            </TableCell>
+                            <TableCell>{booking?.final_revenue}</TableCell>
                             <TableCell>{booking?.status}</TableCell>
                           </TableRow>
                         ))}
@@ -380,17 +421,17 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <Button
                 size="sm"
                 variant="outline"
-                className="hover:bg-primary hover:text-secondary"
+                className="text-primary bg-secondary hover:bg-primary hover:text-secondary"
                 onClick={() => onOpenChange(false)}
               >
                 Close
               </Button>
-              {user?.status === "suspend" ? (
+              {user?.status === "Suspended" ? (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="hover:bg-[secondary] hover:text-secondary bg-secondary"
-                  onClick={() => handleReactivateUser()}
+                  className="text-secondary bg-primary border border-primary hover:text-primary hover:bg-secondary"
+                  onClick={() => handleReactivateUser(user.id)}
                 >
                   <UserCheck className="h-3 w-3" />
                   <span>Reactivate User</span>
@@ -400,7 +441,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   size="sm"
                   variant="outline"
                   className="bg-secondary hover:bg-destructive hover:text-secondary hover:border-destructive"
-                  onClick={() => handleSuspendUser()}
+                  onClick={() => handleSuspendUser(user.id)}
                 >
                   <Ban className="h-3 w-3" />
                   <span>Suspend User</span>
@@ -427,6 +468,8 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [showRecurringBookingsDialog, setShowRecurringBookingsDialog] =
+    useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -451,27 +494,39 @@ const AdminUsers = () => {
 
       if (profilesError) throw profilesError;
 
-      // 2. Fetch all bookings
+      // Fetch all bookings (simple + recurring together)
       const { data: bookings, error: bookingsError } = await supabase
         .from("bookings")
-        .select("id, user_id, revenue");
+        .select("id, user_id, final_revenue, is_recurring");
 
       if (bookingsError) throw bookingsError;
 
-      // 3. Aggregate bookings per user
+      // Aggregate stats
       const statsMap = bookings.reduce((acc, booking) => {
         if (!acc[booking.user_id]) {
-          acc[booking.user_id] = { totalBookings: 0, totalRevenue: 0 };
+          acc[booking.user_id] = {
+            simpleBookings: 0,
+            recurringBookings: 0,
+            totalRevenue: 0,
+          };
         }
-        acc[booking.user_id].totalBookings += 1;
-        acc[booking.user_id].totalRevenue += booking.revenue || 0;
+
+        if (booking.is_recurring) {
+          acc[booking.user_id].recurringBookings += 1;
+        } else {
+          acc[booking.user_id].simpleBookings += 1;
+        }
+
+        acc[booking.user_id].totalRevenue += booking.final_revenue || 0;
+
         return acc;
       }, {});
 
-      // 4. Merge stats into profiles
+      // Merge stats into profiles
       const usersWithStats = profiles.map((profile) => {
         const stats = statsMap[profile.id] || {
-          totalBookings: 0,
+          simpleBookings: 0,
+          recurringBookings: 0,
           totalRevenue: 0,
         };
         return {
@@ -481,7 +536,6 @@ const AdminUsers = () => {
       });
 
       setUsers(usersWithStats);
-
       console.info("Users fetched", usersWithStats);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -526,9 +580,9 @@ const AdminUsers = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active":
+      case "Active":
         return <span className="text-green-700">Active</span>;
-      case "suspend":
+      case "Suspended":
         return <span className="text-red-700">Suspended</span>;
     }
   };
@@ -548,14 +602,19 @@ const AdminUsers = () => {
           </div>
           <div className="flex items-center justify-between space-x-4 gap-4">
             <div className="text-right flex gap-3">
-              <Button className="text-sm bg-secondary border border-primary font-medium text-primary">
+              <Button
+                onClick={() => {
+                  setShowRecurringBookingsDialog(true);
+                }}
+                className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
+              >
                 Add Recurring Reservation
               </Button>
               <Button
                 onClick={() => {
                   setShowAddUser(true);
                 }}
-                className="text-sm bg-primary font-medium text-secondary"
+                className="text-sm bg-primary border border-primary font-medium text-secondary hover:bg-secondary hover:text-primary"
               >
                 Send Invite
               </Button>
@@ -598,14 +657,19 @@ const AdminUsers = () => {
         </div>
         <div className="flex items-center justify-between space-x-4 gap-4">
           <div className="text-right flex gap-3">
-            <Button className="text-sm bg-secondary border border-primary font-medium text-primary">
+            <Button
+              onClick={() => {
+                setShowRecurringBookingsDialog(true);
+              }}
+              className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
+            >
               Add Recurring Reservation
             </Button>
             <Button
               onClick={() => {
                 setShowAddUser(true);
               }}
-              className="text-sm bg-primary font-medium text-secondary"
+              className="text-sm bg-primary border border-primary font-medium text-secondary hover:bg-secondary hover:text-primary"
             >
               Send Invite
             </Button>
@@ -648,7 +712,7 @@ const AdminUsers = () => {
                       {user?.email}
                     </TableCell>
                     <TableCell className="text-center">
-                      {user?.totalBookings}
+                      {user?.simpleBookings}
                     </TableCell>
                     <TableCell className="text-center">
                       {user?.recurringBookings}
@@ -813,6 +877,13 @@ const AdminUsers = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <RecurringBookingDialog
+        open={showRecurringBookingsDialog}
+        onClose={() => {
+          setShowRecurringBookingsDialog(false);
+        }}
+      />
 
       <AddUser open={showAddUser} onOpenChange={setShowAddUser} />
     </div>

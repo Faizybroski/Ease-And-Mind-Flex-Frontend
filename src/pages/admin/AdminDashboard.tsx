@@ -34,7 +34,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDistanceToNow, format, subMonths, getMonth, getYear } from "date-fns";
+import {
+  formatDistanceToNow,
+  format,
+  subMonths,
+  getMonth,
+  getYear,
+} from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
@@ -88,8 +94,64 @@ const AdminDashboard = () => {
   const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
-      fetchDashboardData();
+    fetchStats();
+    fetchDashboardData();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      const isoToday = today.toISOString().split("T")[0]; // YYYY-MM-DD
+      const isoStartOfMonth = startOfMonth.toISOString().split("T")[0];
+      const isoEndOfMonth = endOfMonth.toISOString().split("T")[0];
+
+      // 1. Booking schedules → any booking overlapping this month
+      const { data: monthlyBookings, error: monthlyError } = await supabase
+        .from("bookings")
+        .select("id")
+        .or(
+          `and(start_date.lte.${isoEndOfMonth},end_date.gte.${isoStartOfMonth}),and(date.gte.${isoStartOfMonth},date.lte.${isoEndOfMonth})`
+        );
+
+      if (monthlyError) throw monthlyError;
+
+      // 2. Active bookings (Completed this month)
+      const { data: activeBookings, error: activeError } = await supabase
+        .from("bookings")
+        .select("id")
+        .or(
+          `and(status.eq.Completed,date.gte.${isoStartOfMonth},date.lte.${isoEndOfMonth}),and(status.eq.Completed,end_date.gte.${isoStartOfMonth},end_date.lte.${isoEndOfMonth})`
+        );
+
+      if (activeError) throw activeError;
+
+      // 3. Bookings of today
+      const { data: todayBookings, error: todayError } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("date", isoToday);
+
+      if (todayError) throw todayError;
+
+      // Update state
+      setStats((prev) => ({
+        ...prev,
+        bookingShedules: monthlyBookings?.length || 0,
+        activeBookings: activeBookings?.length || 0,
+        bookingToday: todayBookings?.length || 0,
+      }));
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load booking stats.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchDashboardData = async () => {
     const now = new Date();
@@ -111,37 +173,43 @@ const AdminDashboard = () => {
         // Bookings from last 7 days
         supabase
           .from("bookings")
-          .select(`
+          .select(
+            `
             *,
             profiles!bookings_user_id_fkey(id, full_name, email),
             rooms!bookings_room_id_fkey(room_name)
-          `)
-          .gte("date", now.toISOString())           
+          `
+          )
+          .gte("date", now.toISOString())
           .lte("date", sevenDaysFromNow.toISOString())
           .order("date", { ascending: true }),
 
         // New bookings in last 48h
         supabase
           .from("bookings")
-          .select(`
+          .select(
+            `
             id,
             created_at,
             status,
             rooms:rooms!bookings_room_id_fkey(room_name),
             profiles:profiles!bookings_user_id_fkey(full_name, email)
-          `)
+          `
+          )
           .gte("created_at", twoDaysAgo.toISOString()),
 
         // Cancelled bookings in last 48h
         supabase
           .from("bookings")
-          .select(`
+          .select(
+            `
             id,
             updated_at,
             status,
             rooms:rooms!bookings_room_id_fkey(room_name),
             profiles:profiles!bookings_user_id_fkey(full_name, email)
-          `)
+          `
+          )
           .eq("status", "canceled")
           .gte("updated_at", twoDaysAgo.toISOString()),
 
@@ -165,8 +233,6 @@ const AdminDashboard = () => {
           newUsersError
         );
       }
-
-
 
       // Update bookings list
       setBookings(recentBookings || []);
@@ -202,8 +268,6 @@ const AdminDashboard = () => {
         (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
       );
 
-
-      console.log("activities====>", activities)
       setRecentActivity(activities);
     } catch (error) {
       console.error("Error fetching dashboard bookings:", error);
@@ -217,25 +281,26 @@ const AdminDashboard = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "booked":
-        return <span className="h-4 w-4 text-primary">{status}</span>;
-      case "completed":
-        return <span className="h-4 w-4 text-primary">{status}</span>;
-      case "canceled":
-        return <span className="h-4 w-4 text-red-500">{status}</span>;
-      default:
-        return null;
-    }
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading admin dashboard...</p>
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+        <header>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">
+                Welcome back, Admin!
+              </h1>
+              <p className="text-primary text-sm">
+                Here's what's happening with your coworking space today.
+              </p>
+            </div>
+          </div>
+        </header>
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Loading admin dashboard...</p>
+          </div>
         </div>
       </div>
     );
@@ -424,17 +489,19 @@ const AdminDashboard = () => {
                       Booked {activity.room}
                     </div>
                   )}
-                  {activity.type === 'user_registered' && (
-                    <div className="text-sm text-foreground">
-                      Registered
-                    </div>
+                  {activity.type === "user_registered" && (
+                    <div className="text-sm text-foreground">Registered</div>
                   )}
 
                   {/* Row 3: Time + Type */}
                   <div className="flex justify-between items-center text-sm mt-1">
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4 text-primary" />
-                      <span className="text-primary">{formatDistanceToNow(new Date(activity.at), { addSuffix: true })}</span>
+                      <span className="text-primary">
+                        {formatDistanceToNow(new Date(activity.at), {
+                          addSuffix: true,
+                        })}
+                      </span>
                     </div>
                     <span className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs font-medium">
                       {activity.type.replace("_", " ")}

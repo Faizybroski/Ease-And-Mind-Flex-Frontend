@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, Database, Mail, Bell, Shield, Globe } from "lucide-react";
+import {
+  Settings,
+  Database,
+  Mail,
+  Bell,
+  Shield,
+  Globe,
+  AlertTriangle,
+} from "lucide-react";
 
 const AdminSettings = () => {
+  const { profile } = useProfile();
+  const [loading, setLoading] = useState(true);
   const [businessHrs, setBusinessHrs] = useState({
     morningSessionStart: "08:00",
     morningSessionEnd: "13:00",
@@ -53,12 +64,18 @@ const AdminSettings = () => {
       };
 
       setBusinessHrs({
-        morningSessionStart: formatTimeForInput(data?.morningSessionStart) || "00:00",
-        morningSessionEnd: formatTimeForInput(data?.morningSessionEnd) || "00:00",
-        afternoonSessionStart: formatTimeForInput(data?.afternoonSessionStart) || "00:00",
-        afternoonSessionEnd: formatTimeForInput(data?.afternoonSessionEnd) || "00:00",
-        eveningSessionStart: formatTimeForInput(data?.eveningSessionStart) || "00:00",
-        eveningSessionEnd: formatTimeForInput(data?.eveningSessionEnd) || "00:00",
+        morningSessionStart:
+          formatTimeForInput(data?.morningSessionStart) || "00:00",
+        morningSessionEnd:
+          formatTimeForInput(data?.morningSessionEnd) || "00:00",
+        afternoonSessionStart:
+          formatTimeForInput(data?.afternoonSessionStart) || "00:00",
+        afternoonSessionEnd:
+          formatTimeForInput(data?.afternoonSessionEnd) || "00:00",
+        eveningSessionStart:
+          formatTimeForInput(data?.eveningSessionStart) || "00:00",
+        eveningSessionEnd:
+          formatTimeForInput(data?.eveningSessionEnd) || "00:00",
       });
 
       setBookingRules({
@@ -67,6 +84,8 @@ const AdminSettings = () => {
       });
     } catch (error) {
       console.error("Error fetching business Hrs settings:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,7 +131,7 @@ const AdminSettings = () => {
         description: "Failed to save settings",
         variant: "destructive",
       });
-      console.error("Error save settings", error)
+      console.error("Error save settings", error);
     }
   };
 
@@ -140,9 +159,47 @@ const AdminSettings = () => {
         description: "Failed to save settings",
         variant: "destructive",
       });
-      console.error("Error save settings", error)
+      console.error("Error save settings", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <header className="flex justify-between">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">
+                Booking Management
+              </h1>
+              <p className="text-primary text-sm">Manage all Bookings</p>
+            </div>
+          </div>
+        </header>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Loading Bookings...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile || profile.role !== "admin") {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center space-y-4">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
+          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
+          <p className="text-muted-foreground">
+            You don't have permission to access this area.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -173,7 +230,7 @@ const AdminSettings = () => {
               <input
                 id="morningSessionStart"
                 type="time"
-                className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+                className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground "
                 value={businessHrs.morningSessionStart}
                 onChange={(e) =>
                   updateBusinessHrsSetting(
@@ -185,7 +242,7 @@ const AdminSettings = () => {
               <input
                 id="morningSessionEnd"
                 type="time"
-                className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+                className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
                 value={businessHrs.morningSessionEnd}
                 onChange={(e) =>
                   updateBusinessHrsSetting("morningSessionEnd", e.target.value)
@@ -203,7 +260,7 @@ const AdminSettings = () => {
               <input
                 id="afternoonSessionStart"
                 type="time"
-                className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+                className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
                 value={businessHrs.afternoonSessionStart}
                 onChange={(e) =>
                   updateBusinessHrsSetting(
@@ -215,7 +272,7 @@ const AdminSettings = () => {
               <input
                 id="afternoonSessionEnd"
                 type="time"
-                className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+                className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
                 value={businessHrs.afternoonSessionEnd}
                 onChange={(e) =>
                   updateBusinessHrsSetting(
@@ -236,7 +293,7 @@ const AdminSettings = () => {
               <input
                 id="eveningSessionStart"
                 type="time"
-                className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+                className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
                 value={businessHrs.eveningSessionStart}
                 onChange={(e) =>
                   updateBusinessHrsSetting(
@@ -248,7 +305,7 @@ const AdminSettings = () => {
               <input
                 id="eveningSessionEnd"
                 type="time"
-                className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+                className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
                 value={businessHrs.eveningSessionEnd}
                 onChange={(e) =>
                   updateBusinessHrsSetting("eveningSessionEnd", e.target.value)
@@ -285,7 +342,7 @@ const AdminSettings = () => {
               type="number"
               min="1"
               max="50"
-              className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+              className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
               value={bookingRules.advancedBooking}
               onChange={(e) =>
                 updateBookingRulesSetting("advancedBooking", e.target.value)
@@ -301,7 +358,7 @@ const AdminSettings = () => {
               type="number"
               min="1"
               max="50"
-              className="w-full border rounded-lg px-3 py-2 bg-background text-foreground"
+              className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
               value={bookingRules.cancelationPolicy}
               onChange={(e) =>
                 updateBookingRulesSetting("cancelationPolicy", e.target.value)

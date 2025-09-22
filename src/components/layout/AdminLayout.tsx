@@ -40,9 +40,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {/* Header */}
           <header className="h-20 border-b border-border/50 bg-card/80 backdrop-blur-sm px-8 flex items-center justify-between shadow-sm">
             <div className="flex items-center space-x-6">
-              <SidebarTrigger className="h-10 w-10 rounded-lg text-primary hover:bg-transparent" />
+              <SidebarTrigger className="h-8 w-8 rounded-lg text-primary hover:bg-transparent hover" />
               <div className="flex items-center space-x-3">
-                <div className="relative w-full">
+                {/* <div className="relative w-full">
                   {!searchTerm && (
                     <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
                       <Search className="h-4 w-4 text-primary/50" />
@@ -54,7 +54,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 border border-primary/20 bg-secondary placeholder-transparent"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
 

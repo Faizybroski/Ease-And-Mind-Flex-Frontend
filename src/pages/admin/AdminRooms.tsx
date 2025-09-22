@@ -42,13 +42,13 @@ import AddRoom from "@/components/addRoom/AddRoom";
 interface Room {
   id: string;
   room_name: string;
-  morning_price: number;
+  morning_price: number; // lowercase to match DB
   afternoon_price: number;
   night_price: number;
   room_pics: string;
-  total_bookings: number;
-  revenue_generated: number;
-  amenities: string;
+  amenities: string | null;
+  total_bookings: number; // calculated
+  revenue_generated: number; // calculated
 }
 
 const AdminRooms = () => {
@@ -66,18 +66,39 @@ const AdminRooms = () => {
 
   const fetchRooms = async () => {
     try {
-      const { data, error } = await supabase.from("rooms").select("*");
+      const { data: rooms, error: roomsError } = await supabase
+        .from("rooms")
+        .select("*");
+      if (roomsError) throw roomsError;
 
-      if (error) throw error;
-      setRooms(data || []);
-      console.log("Rooms Fetched");
+      const { data: bookings, error: bookingsError } = await supabase
+        .from("bookings")
+        .select("id, room_id, final_revenue");
+      if (bookingsError) throw bookingsError;
+
+      const statsMap = bookings.reduce((acc, b) => {
+        if (!acc[b.room_id])
+          acc[b.room_id] = { total_bookings: 0, revenue_generated: 0 };
+        acc[b.room_id].total_bookings += 1;
+        acc[b.room_id].revenue_generated += b.final_revenue || 0;
+        return acc;
+      }, {} as Record<string, { total_bookings: number; revenue_generated: number }>);
+
+      const roomsWithStats = rooms.map((room) => ({
+        ...room,
+        total_bookings: statsMap[room.id]?.total_bookings || 0,
+        revenue_generated: statsMap[room.id]?.revenue_generated || 0,
+      }));
+
+      setRooms(roomsWithStats);
+      console.log("Rooms Fetched", roomsWithStats);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to load rooms.",
         variant: "destructive",
       });
-      console.error("Error loading rooms", error)
+      console.error("Error loading rooms", error);
     } finally {
       setLoading(false);
     }
@@ -217,21 +238,21 @@ const AdminRooms = () => {
                     <Sun className="h-5 w-5 mr-3 text-primary" />
                     <p className="flex items-center text-primary/90">
                       <Euro className="h-5 w-5 text-primary" />
-                      {room.morning_price}
+                      {room.Morning_price}
                     </p>
                   </div>
                   <div className="flex items-center mb-2">
                     <CloudSun className="h-5 w-5 mr-3 text-primary" />
                     <p className="flex items-center text-primary/90">
                       <Euro className="h-5 w-5 text-primary" />
-                      {room.afternoon_price}
+                      {room.Afternoon_price}
                     </p>
                   </div>
                   <div className="flex items-center">
                     <Moon className="h-5 w-5 mr-3 text-primary" />
                     <p className="flex items-center text-primary/90">
                       <Euro className="h-5 w-5 text-primary" />
-                      {room.night_price}
+                      {room.Night_price}
                     </p>
                   </div>
                 </div>
