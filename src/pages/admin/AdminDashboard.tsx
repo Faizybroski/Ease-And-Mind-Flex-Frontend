@@ -240,7 +240,10 @@ const AdminDashboard = () => {
       // Normalize activity feed
       const activities = [
         ...(newBookings || []).map((b) => ({
-          type: "booking_created",
+          type:
+            b.status === "Recurring"
+              ? "recurring_booking_created"
+              : "booking_created",
           at: b.created_at,
           user: b.profiles?.full_name,
           email: b.profiles?.email,
@@ -504,7 +507,7 @@ const AdminDashboard = () => {
                       </span>
                     </div>
                     <span className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs font-medium">
-                      {activity.type.replace("_", " ")}
+                      {activity.type.replace(/_/g, " ")}
                     </span>
                   </div>
                 </div>
