@@ -191,7 +191,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         .update({ status: "Suspended" })
         .eq("id", userId);
 
-        if (error) throw error;
+      if (error) throw error;
       toast({
         title: "Success",
         description: "User suspended successfully",
@@ -844,14 +844,19 @@ const AdminUsers = () => {
                       return;
                     }
                     try {
-                      const { error } = await supabase
-                        .from("profiles")
-                        .update({
-                          full_name: editUserData.full_name.trim(),
-                          email: editUserData.email.trim(),
-                          status: editUserData.status,
-                        })
-                        .eq("id", editUserData.id);
+                      // const { error } = await supabase
+                      //   .from("profiles")
+                      //   .update({
+                      //     full_name: editUserData.full_name.trim(),
+                      //     email: editUserData.email.trim(),
+                      //   })
+                      //   .eq("id", editUserData.id);
+
+                      const { error } = await supabase.rpc("update_user_info", {
+                        target_user: editUserData.user_id,
+                        new_email: editUserData.email.trim(),
+                        new_full_name: editUserData.full_name.trim(),
+                      });
 
                       if (error) throw error;
                       toast({
