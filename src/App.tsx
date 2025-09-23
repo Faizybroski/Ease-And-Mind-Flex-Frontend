@@ -15,9 +15,13 @@ import AdminBilling from "./pages/admin/AdminBillings";
 import AdminSettings from "./pages/admin/AdminSettings";
 
 import AdminLayout from "./components/layout/AdminLayout";
+import Navigation from "./components/layout/Navigation";
+
 import { AdminLogin } from "./components/adminLogin/AdminLogin";
-import ResetPassword from "./pages/ResetPassword";
 import AuthPage from "@/components/auth/AuthPage";
+import ResetPassword from "./pages/ResetPassword";
+
+import Dashboard from "./pages/Dashboard"
 
 import { Navigate } from "react-router-dom";
 
@@ -33,17 +37,13 @@ const App = () => (
           <div className="min-h-screen bg-background text-foreground">
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
-              <Route
-                path="/"
-                element={<Navigate to="/admin/dashboard" replace />}
-              />
-              <Route
-                path="/"
-                element={
+              <Route path="/"
+               element={
                   <ProtectedRoute>
-                    <Navigate to="/user/dashboard" replace />
+                    <Navigation />
+                    <Dashboard />
                   </ProtectedRoute>
-                }
+                } 
               />
               <Route
                 path="/admin/dashboard"

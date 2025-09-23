@@ -11,7 +11,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLogo from "../ui/logo";
 
-export const OnboardingCarousel = ({ startStep = 0 }) => {
+export const LoginSignup = ({ startStep = 0 }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");

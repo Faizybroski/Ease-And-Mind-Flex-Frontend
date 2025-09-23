@@ -95,9 +95,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     // Users
     if (profile.role === "user") {
-      if (!currentPath.startsWith("/user")) {
-        navigate("/user/dashboard", { replace: true });
-      }
+        navigate("/", { replace: true });
       return;
     }
   }

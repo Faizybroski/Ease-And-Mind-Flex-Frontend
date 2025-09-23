@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 import { useProfile } from "@/hooks/useProfile";
+import AppLogo from "@/components/ui/logo"
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -41,13 +42,8 @@ const Navigation = () => {
 
   const getNavItems = () => {
     const baseItems = [
-      { icon: Calendar, label: "My Events", path: "/events" },
-      { icon: Search, label: "Explore", path: "/explore" },
-      { icon: UtensilsCrossed, label: "Restaurants", path: "/restaurants" },
-      { icon: Heart, label: "RSVPs", path: "/rsvps" },
-      { icon: MessageSquare, label: "Feedback", path: "/feedback" },
-      { icon: Star, label: "Crossed Paths", path: "/crossed-paths" },
-      { icon: Receipt, label: "Subscriptions", path: "/subscription" },
+      { icon: Calendar, label: "Booking", path: "/" },
+      { icon: Search, label: "My Bookings", path: "/explore" },
     ];
 
     if (profile?.role === "admin") {
@@ -64,7 +60,7 @@ const Navigation = () => {
   const navItems = getNavItems();
 
   return (
-    <nav className="bg-dark-surface border-b border-border">
+    <nav className="border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
@@ -72,15 +68,7 @@ const Navigation = () => {
             onClick={() => navigate("/")}
             className="cursor-pointer flex items-center space-x-1 shrink-0"
           >
-            <img
-              className="w-10 h-8 mr-2 object-contain"
-              src="/Parishus logo.png"
-              alt="Logo"
-            />
-            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap"
-             style={{ fontSize: "30px", color: "#9dc0b3", fontFamily: 'Sergio Trendy'}}>
-              Parish
-            </h1>
+            <AppLogo />
           </div>
           {!user ? (
             <div className="flex items-center space-x-4">
@@ -98,11 +86,11 @@ const Navigation = () => {
                   return (
                     <Button
                       key={item.path}
-                      variant="ghost"
-                      className={`flex items-center space-x-1 ${
+                      variant="outline"
+                      className={`flex border bg-background border-none items-center space-x-1 ${
                         isActive
-                          ? "text-peach-gold bg-peach-gold/10"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-secondary"
                       }`}
                       onClick={() => navigate(item.path)}
                     >
@@ -120,26 +108,17 @@ const Navigation = () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
+                      className="relative h-8 w-8 border border-primary rounded-full"
                     >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={profile?.profile_photo_url || ""} />
-                        <AvatarFallback className="bg-peach-gold/20 text-peach-gold">
-                          {profile?.first_name?.[0]}
-                          {profile?.last_name?.[0]}
+                        <AvatarFallback className="bg-secondary text-primary">
+                          {profile?.full_name?.[0]}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuItem onClick={() => navigate("/profile")}>
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/user/dashboard")}>
-                      <LayoutDashboard  className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </DropdownMenuItem>
+                    
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out

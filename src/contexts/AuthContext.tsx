@@ -105,6 +105,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     console.info("User signed in:====>", data);
+    if (error) {
+      return { error };
+    }
+
+    if (!data.user) {
+      return { error: { message: "Invalid login attempt" } };
+    }
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
