@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from "@/hooks/useProfile";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
@@ -18,18 +18,19 @@ import {
 import AdminSidebar from "./AdminSidebar";
 import AddUser from "../addUser/AddUser"
 import AddRoom from "../addRoom/AddRoom";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  // const { signOut } = useAuth();
-  // const { profile } = useProfile();
+  const { signOut } = useAuth();
+  const { profile } = useProfile();
   const [showAddUser, setShowAddUser] = useState(false)
   const [showAddRoom, setShowAddRoom] = useState(false)
 
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
 
   return (
     <SidebarProvider>
@@ -73,14 +74,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   Add Room
                 </Button>
               </div>
-              <Button
+              {/* <Button
                 // onClick={signOut}
                 variant="outline"
                 size="sm"
                 className="flex items-center space-x-2 border bg-secondary border-primary hover:bg-primary text-primary hover:text-secondary"
               >
                 <Bell className="h-4 w-4" />
-              </Button>
+              </Button> */}
+              <NotificationCenter />
             </div>
           </header>
 

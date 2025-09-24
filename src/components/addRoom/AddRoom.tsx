@@ -123,9 +123,9 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
         .from("rooms")
         .insert({
           room_name: addRoomData.room_name,
-          morning_price: addRoomData.morning_price,
-          afternoon_price: addRoomData.afternoon_price,
-          night_price: addRoomData.night_price,
+          Morning_price: addRoomData.morning_price,
+          Afternoon_price: addRoomData.afternoon_price,
+          Night_price: addRoomData.night_price,
           amenities: addRoomData.amenities,
           room_pics: addRoomData.room_pics
         })
@@ -156,7 +156,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg text-primary">Add Room</DialogTitle>
           </DialogHeader>

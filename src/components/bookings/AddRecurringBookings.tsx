@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +37,7 @@ import {
   Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { error } from "console";
 
 type User = { id: string; full_name: string };
 type Room = {
@@ -64,7 +66,7 @@ export default function RecurringBookingDialog({
   >("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [discountPercent, setDiscountPercent] = useState<string>("0");
   const allWeekDays = [
     "Monday",
     "Tuesday",
@@ -133,7 +135,7 @@ export default function RecurringBookingDialog({
         )
       : 0;
 
-  const discount = revenueWithoutDiscount * (discountPercent / 100);
+  const discount = revenueWithoutDiscount * Number(discountPercent / 100);
   const priceAfterDiscount = revenueWithoutDiscount - discount;
 
   useEffect(() => {
@@ -153,23 +155,132 @@ export default function RecurringBookingDialog({
   }, []);
 
   const handleSave = async () => {
-    await supabase.from("bookings").insert([
-      {
-        user_id: selectedUser,
-        room_id: selectedRoom?.id,
-        time_slot: timeSlot,
-        initial_revenue: revenueWithoutDiscount,
-        discount: discount,
-        weekdays: weekDays,
-        final_revenue: priceAfterDiscount,
-        recurrence_pattern: recurrence,
-        start_date: startDate?.toISOString(),
-        end_date: endDate?.toISOString(),
-        status: "Recurring",
-        is_recurring: true,
-      },
-    ]);
-    onClose();
+    if (!selectedUser) {
+      toast({
+        title: "Error",
+        description: "User is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 2. Room check
+    if (!selectedRoom?.id) {
+      toast({
+        title: "Error",
+        description: "Room is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 3. Time slot
+    if (!timeSlot) {
+      toast({
+        title: "Error",
+        description: "Please select a time slot.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 4. Weekdays (for recurring bookings)
+    if (weekDays?.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one weekday.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 5. Recurrence pattern
+    if (!recurrence) {
+      toast({
+        title: "Error",
+        description: "Please select a recurrence pattern.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 6. Dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize to midnight
+
+    if (!startDate) {
+      toast({
+        title: "Error",
+        description: "Start date is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (new Date(startDate) < today) {
+      toast({
+        title: "Error",
+        description: "Start date cannot be in the past.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!endDate) {
+      toast({
+        title: "Error",
+        description: "End date is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (new Date(endDate) < today) {
+      toast({
+        title: "Error",
+        description: "End date cannot be in the past.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (new Date(endDate) < new Date(startDate)) {
+      toast({
+        title: "Error",
+        description: "End date cannot be before start date.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from("bookings").insert([
+        {
+          user_id: selectedUser,
+          room_id: selectedRoom?.id,
+          time_slot: timeSlot,
+          initial_revenue: revenueWithoutDiscount,
+          discount: discount,
+          weekdays: weekDays,
+          final_revenue: priceAfterDiscount,
+          recurrence_pattern: recurrence,
+          start_date: startDate?.toISOString(),
+          end_date: endDate?.toISOString(),
+          status: "Recurring",
+          is_recurring: true,
+        },
+      ]);
+
+      if (error) throw error;
+      onClose();
+      toast({
+        title: "Success",
+        description: "Recurring Booking saved",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error saving recurring booking.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -322,9 +433,16 @@ export default function RecurringBookingDialog({
           <div>
             <Label>Discount (%)</Label>
             <Input
+              min={0}
               type="number"
               value={discountPercent}
-              onChange={(e) => setDiscountPercent(Number(e.target.value))}
+              onChange={(e) => setDiscountPercent(e.target.value)}
+              onFocus={() => {
+                if (discountPercent === "0") setDiscountPercent("");
+              }}
+              onBlur={() => {
+                if (discountPercent === "") setDiscountPercent("0");
+              }}
             />
           </div>
 
@@ -343,10 +461,11 @@ export default function RecurringBookingDialog({
         </div>
 
         <DialogFooter>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="text-primary hover:text-secondary"
-            onClick={onClose}>
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button

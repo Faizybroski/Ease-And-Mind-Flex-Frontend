@@ -479,11 +479,16 @@ const AdminDashboard = () => {
                 key={idx}
                 className="flex border border-primary/40 hover:bg-muted/10 rounded-lg p-3 transition-all"
               >
-                <div className="flex-1 flex flex-col justify-between ml-3">
+                <div className="flex-1 flex flex-col justify-between">
                   {/* Row 1: Name + activity type */}
                   <div className=" items-center justify-between">
                     <p className="text-primary font-medium">{activity.user}</p>
-                    <p className="text-primary">{activity.email}</p>
+                    <p
+                      title={activity.email}
+                      className="text-primary truncate max-w-[215px]"
+                    >
+                      {activity.email}
+                    </p>
                   </div>
 
                   {/* Row 2: Room info (only for bookings) */}
@@ -498,15 +503,21 @@ const AdminDashboard = () => {
 
                   {/* Row 3: Time + Type */}
                   <div className="flex justify-between items-center text-sm mt-1">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span className="text-primary">
+                    {/* Time ago */}
+                    <div className="flex items-center space-x-1 flex-shrink-0">
+                      <Clock className="h-3 w-3 text-primary" />
+                      <span className="text-primary text-sm whitespace-nowrap">
                         {formatDistanceToNow(new Date(activity.at), {
                           addSuffix: true,
                         })}
                       </span>
                     </div>
-                    <span className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs font-medium">
+
+                    {/* Pill */}
+                    <span
+                      className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs whitespace-nowrap max-w-[140px] truncate flex-shrink-0 ml-2"
+                      title={activity.type.replace(/_/g, " ")}
+                    >
                       {activity.type.replace(/_/g, " ")}
                     </span>
                   </div>

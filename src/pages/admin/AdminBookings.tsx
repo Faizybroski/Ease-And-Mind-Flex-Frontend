@@ -126,7 +126,7 @@ const AdminBookings = () => {
       if (error) throw error;
       toast({
         title: "Success",
-        description: `Booking deleted successfully ${bookingId}`,
+        description: `Booking deleted successfully.`,
       });
       fetchBookings();
     } catch (error) {
@@ -197,7 +197,6 @@ const AdminBookings = () => {
       </div>
     );
   }
-
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -276,41 +275,63 @@ const AdminBookings = () => {
                   <TableBody>
                     {filteredBookings.map((booking) => (
                       <TableRow key={booking.id}>
-                        <TableCell>{booking.rooms.room_name}</TableCell>
-                        <TableCell>
+                        <TableCell
+                          className="w-[120px] truncate"
+                          title={booking.rooms.room_name}
+                        >
+                          {booking.rooms.room_name}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap max-w-[200px]">
                           <div>
-                            <div className="font-medium max-w-[200px]">
+                            <div
+                              className="font-medium max-w-[150px] truncate"
+                              title={booking.profiles.full_name}
+                            >
                               {booking.profiles.full_name}
                             </div>
-                            <div className="text-sm text-muted-foreground max-w-[200px]">
+                            <div
+                              className="text-sm text-muted-foreground truncate"
+                              title={booking.profiles.email}
+                            >
                               {booking.profiles.email}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-[220px]">
                           {booking.is_recurring ? (
                             booking.start_date ? (
                               <div>
-                                {format(new Date(booking.start_date), "PPP")} →{" "}
+                                {format(
+                                  new Date(booking.start_date),
+                                  "dd/MM/yy"
+                                )}{" "}
+                                →{" "}
                                 {booking.end_date
-                                  ? format(new Date(booking.end_date), "PPP")
+                                  ? format(
+                                      new Date(booking.end_date),
+                                      "dd/MM/yy"
+                                    )
                                   : "Ongoing"}
                               </div>
                             ) : (
                               <div>-</div>
                             )
                           ) : (
-                            booking.date && <div>{format(new Date(booking.date), "PPP")}</div>
+                            booking.date && (
+                              <div>
+                                {format(new Date(booking.date), "dd/MM/yy")}
+                              </div>
+                            )
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-[70px]">
                           <div>{booking.time_slot}</div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-[70px]">
                           <div>{booking.final_revenue}</div>
                         </TableCell>
                         <TableCell>{getStatusColor(booking.status)}</TableCell>
-                        <TableCell>
+                        <TableCell className="w-[70px]">
                           <Button
                             size="sm"
                             variant="destructive"
@@ -343,7 +364,7 @@ const AdminBookings = () => {
               </CardHeader>
               <CardContent>
                 <div className="rounded-lg overflow-x-auto">
-                  <Table className="min-w-full">
+                  <Table className="min-w-full ">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Room</TableHead>
@@ -360,47 +381,69 @@ const AdminBookings = () => {
                         .filter((booking) => booking.status === status)
                         .map((booking) => (
                           <TableRow key={booking.id}>
-                            <TableCell>{booking.rooms.room_name}</TableCell>
-                            <TableCell>
+                            <TableCell
+                              className="w-[120px] truncate"
+                              title={booking.rooms.room_name}
+                            >
+                              {booking.rooms.room_name}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap max-w-[200px]">
                               <div>
-                                <div className="font-medium max-w-[150px]">
+                                <div
+                                  className="font-medium max-w-[150px] truncate"
+                                  title={booking.profiles.full_name}
+                                >
                                   {booking.profiles.full_name}
                                 </div>
-                                <div className="text-sm text-muted-foreground max-w-[150px]">
+                                <div
+                                  className="text-sm text-muted-foreground truncate"
+                                  title={booking.profiles.email}
+                                >
                                   {booking.profiles.email}
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>
-                          {booking.is_recurring ? (
-                            booking.start_date ? (
-                              <div>
-                                {format(new Date(booking.start_date), "PPP")} →{" "}
-                                {booking.end_date
-                                  ? format(new Date(booking.end_date), "PPP")
-                                  : "Ongoing"}
-                              </div>
-                            ) : (
-                              <div>-</div>
-                            )
-                          ) : (
-                            booking.date && <div>{format(new Date(booking.date), "PPP")}</div>
-                          )}
-                        </TableCell>
-                            <TableCell>
+                            <TableCell className="w-[220px]">
+                              {booking.is_recurring ? (
+                                booking.start_date ? (
+                                  <div>
+                                    {format(
+                                      new Date(booking.start_date),
+                                      "dd/MM/yy"
+                                    )}{" "}
+                                    →{" "}
+                                    {booking.end_date
+                                      ? format(
+                                          new Date(booking.end_date),
+                                          "dd/MM/yy"
+                                        )
+                                      : "Ongoing"}
+                                  </div>
+                                ) : (
+                                  <div>-</div>
+                                )
+                              ) : (
+                                booking.date && (
+                                  <div>
+                                    {format(new Date(booking.date), "dd/MM/yy")}
+                                  </div>
+                                )
+                              )}
+                            </TableCell>
+                            <TableCell className="w-[70px]">
                               <div>{booking.time_slot}</div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="w-[70px]">
                               <div>{booking.final_revenue}</div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="w-[70px]">
                               {getStatusColor(booking.status)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="w-[10px]">
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="border border-input bg-background text-primary hover:text-[white] hover:border-[destructive]"
+                                className="border border-input bg-background text-primary hover:text-[white] hover:border-destructive"
                                 onClick={() => {
                                   handleDeletebooking(booking.id);
                                 }}
