@@ -40,6 +40,8 @@ const AdminSettings = () => {
     cancelationPolicy: "7",
   });
 
+  const [roomCode, setRoomCode] = useState("");
+
   const [settingsId, setSettingsId] = useState(null);
 
   const { toast } = useToast();
@@ -82,8 +84,10 @@ const AdminSettings = () => {
         advancedBooking: data?.advancedBooking?.toString() || "0",
         cancelationPolicy: data?.cancelationPolicy?.toString() || "0",
       });
+
+      setRoomCode(data?.room_code);
     } catch (error) {
-      console.error("Error fetching business Hrs settings:", error);
+      console.error("Error fetching settings:", error);
     } finally {
       setLoading(false);
     }
@@ -101,6 +105,10 @@ const AdminSettings = () => {
       ...prev,
       [key]: value,
     }));
+  };
+
+  const updateRoomCode = async (val:  any) => {
+    setRoomCode(val);
   };
 
   const saveBusinessHrsSettings = async () => {
@@ -163,6 +171,33 @@ const AdminSettings = () => {
     }
   };
 
+  const saveRoomCode = async () => {
+    try {
+      const { error } = await supabase
+        .from("settings")
+        .update({
+          room_code: roomCode,
+        })
+        .eq("id", settingsId);
+
+      if (error) throw error;
+
+      fetchSettings();
+
+      toast({
+        title: "Success",
+        description: "Room Code saved successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive",
+      });
+      console.error("Error save settings", error);
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -200,6 +235,38 @@ const AdminSettings = () => {
           </div>
         </div>
       </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-primary">
+            <span>Room Code</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-primary" htmlFor="roomCode">
+              Room Code
+            </Label>
+            <Input
+              id="roomCode"
+              className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
+              value={roomCode}
+              onChange={(e) =>
+                updateRoomCode(e.target.value)
+              }
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto text-primary"
+              onClick={() => saveRoomCode()}
+            >
+              Save Room Code
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
