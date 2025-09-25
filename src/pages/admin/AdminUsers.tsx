@@ -631,20 +631,6 @@ const AdminUsers = () => {
     );
   }
 
-  if (!profile || profile.role !== "admin") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
-          <p className="text-muted-foreground">
-            You don't have permission to access this area.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
@@ -683,87 +669,93 @@ const AdminUsers = () => {
           <CardTitle>Users ({users.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg overflow-x-auto">
-            <Table className="min-w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-center">Name</TableHead>
-                  <TableHead className="text-center">Email</TableHead>
-                  <TableHead className="text-center">Bookings</TableHead>
-                  <TableHead className="text-center max-w-[100px]">
-                    Recurring Bookings
-                  </TableHead>
-                  <TableHead className="text-center border-b-2 border-border/30">
-                    <div className="flex items-center justify-center gap-1">
-                      Revenue <Euro className="h-4 w-4" />
-                    </div>
-                  </TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="text-center font-medium max-w-[150px]">
-                      {user?.full_name}
-                    </TableCell>
-                    <TableCell className="text-center max-w-[150px]">
-                      {user?.email}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {user?.simpleBookings}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {user?.recurringBookings}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {user?.totalRevenue}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {getStatusColor(user?.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center items-center space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="hover:bg-primary bg-secondary hover:text-secondary"
-                          onClick={() => {
-                            setSelectedUser(user?.id);
-                            setShowUserDetails(true);
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="hover:bg-primary hover:text-secondary bg-secondary"
-                          onClick={() => {
-                            setEditUserData(user);
-                            setShowEditModal(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="border border-input bg-secondary text-destructive hover:text-[white] hover:border-destructive"
-                          onClick={() => {
-                            handleDeleteUser(user?.user_id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+          {users.length === 0 ? (
+            <div className="text-center text-muted-foreground py-6">
+              No User found.
+            </div>
+          ) : (
+            <div className="rounded-lg overflow-x-auto">
+              <Table className="min-w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">Name</TableHead>
+                    <TableHead className="text-center">Email</TableHead>
+                    <TableHead className="text-center">Bookings</TableHead>
+                    <TableHead className="text-center max-w-[100px]">
+                      Recurring Bookings
+                    </TableHead>
+                    <TableHead className="text-center border-b-2 border-border/30">
+                      <div className="flex items-center justify-center gap-1">
+                        Revenue <Euro className="h-4 w-4" />
                       </div>
-                    </TableCell>
+                    </TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="text-center font-medium max-w-[150px]">
+                        {user?.full_name}
+                      </TableCell>
+                      <TableCell className="text-center max-w-[150px]">
+                        {user?.email}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {user?.simpleBookings}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {user?.recurringBookings}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {user?.totalRevenue}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {getStatusColor(user?.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="hover:bg-primary bg-secondary hover:text-secondary"
+                            onClick={() => {
+                              setSelectedUser(user?.id);
+                              setShowUserDetails(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="hover:bg-primary hover:text-secondary bg-secondary"
+                            onClick={() => {
+                              setEditUserData(user);
+                              setShowEditModal(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="border border-input bg-secondary text-destructive hover:text-[white] hover:border-destructive"
+                            onClick={() => {
+                              handleDeleteUser(user?.user_id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 

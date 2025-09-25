@@ -173,20 +173,6 @@ const AdminBilling = () => {
     );
   }
 
-  if (!profile || profile.role !== "admin") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
-          <p className="text-muted-foreground">
-            You don't have permission to access this area.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Welcome Header */}

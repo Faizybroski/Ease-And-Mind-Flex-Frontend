@@ -42,9 +42,9 @@ import AddRoom from "@/components/addRoom/AddRoom";
 interface Room {
   id: string;
   room_name: string;
-  morning_price: number; // lowercase to match DB
-  afternoon_price: number;
-  night_price: number;
+  Morning_price: number; // lowercase to match DB
+  Afternoon_price: number;
+  Night_price: number;
   room_pics: string;
   amenities: string | null;
   total_bookings: number; // calculated
@@ -172,20 +172,6 @@ const AdminRooms = () => {
     );
   }
 
-  if (!profile || profile.role !== "admin") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
-          <p className="text-muted-foreground">
-            You don't have permission to access this area.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <header className="flex justify-between">
@@ -211,107 +197,115 @@ const AdminRooms = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {rooms.map((room) => {
-          return (
-            <Card
-              key={room.id}
-              className="flex flex-col h-full border border-primary rounded-sm overflow-hidden shadow-sm"
-            >
-              <div className="relative w-full flex items-center justify-center flex-shrink-0 h-48">
-                <img
-                  src={room.room_pics}
-                  alt={room.room_name}
-                  className="w-full h-full object-contain"
-                />
-                {/* <div className="absolute inset-0 bg-black/70 z-10" /> */}
-              </div>
-
-              <CardContent className="flex flex-col flex-grow space-y-3 p-4">
-                <div className=" inset-0 flex flex-col justify-end">
-                  <h3 className="text-primary text-xl font-bold line-clamp-1">
-                    {room.room_name}
-                  </h3>
+        {rooms.length === 0 ? (
+          <div className="text-center text-muted-foreground py-6">
+            No Rooms found.
+          </div>
+        ) : (
+          rooms.map((room) => {
+            return (
+              <Card
+                key={room.id}
+                className="flex flex-col h-full border border-primary rounded-sm overflow-hidden shadow-sm"
+              >
+                <div className="relative w-full flex items-center justify-center flex-shrink-0 h-48">
+                  <img
+                    src={room.room_pics}
+                    alt={room.room_name}
+                    className="w-full h-full object-contain"
+                  />
+                  {/* <div className="absolute inset-0 bg-black/70 z-10" /> */}
                 </div>
 
-                <div className="items-center pl-2 pt-4 pb-4 border-t-2 border-b-2 border-primary">
-                  <div className="flex items-center mb-2">
-                    <Sun className="h-5 w-5 mr-3 text-primary" />
-                    <p className="flex items-center text-primary/90">
-                      <Euro className="h-5 w-5 text-primary" />
-                      {room.Morning_price}
-                    </p>
+                <CardContent className="flex flex-col flex-grow space-y-3 p-4">
+                  <div className=" inset-0 flex flex-col justify-end">
+                    <h3 className="text-primary text-xl font-bold line-clamp-1">
+                      {room.room_name}
+                    </h3>
                   </div>
-                  <div className="flex items-center mb-2">
-                    <CloudSun className="h-5 w-5 mr-3 text-primary" />
-                    <p className="flex items-center text-primary/90">
-                      <Euro className="h-5 w-5 text-primary" />
-                      {room.Afternoon_price}
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    <Moon className="h-5 w-5 mr-3 text-primary" />
-                    <p className="flex items-center text-primary/90">
-                      <Euro className="h-5 w-5 text-primary" />
-                      {room.Night_price}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex font-medium pt-2 pb-4 px-2 border-b-2 border-primary">
-                  <div className="flex items-center">
-                    <CalendarCheck className="h-5 w-5 text-primary mr-3" />
-                    <span className="text-primary/90">
-                      {room.total_bookings}
-                      {" bookings"}
-                    </span>
-                  </div>
-                </div>
-
-                {room.amenities && (
-                  <div className="flex font-medium pt-2 pb-4 px-2 border-b-2 border-primary">
+                  <div className="items-center pl-2 pt-4 pb-4 border-t-2 border-b-2 border-primary">
+                    <div className="flex items-center mb-2">
+                      <Sun className="h-5 w-5 mr-3 text-primary" />
+                      <p className="flex items-center text-primary/90">
+                        <Euro className="h-5 w-5 text-primary" />
+                        {room.Morning_price}
+                      </p>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <CloudSun className="h-5 w-5 mr-3 text-primary" />
+                      <p className="flex items-center text-primary/90">
+                        <Euro className="h-5 w-5 text-primary" />
+                        {room.Afternoon_price}
+                      </p>
+                    </div>
                     <div className="flex items-center">
-                      <ListChecks className="h-5 w-5 text-primary mr-3" />
-                      <span className="text-primary/90">{room.amenities}</span>
+                      <Moon className="h-5 w-5 mr-3 text-primary" />
+                      <p className="flex items-center text-primary/90">
+                        <Euro className="h-5 w-5 text-primary" />
+                        {room.Night_price}
+                      </p>
                     </div>
                   </div>
-                )}
 
-                <div className="flex font-medium items-center ">
-                  <Euro className="h-5 w-5 ml-2 mr-3 text-primary" />
-                  <div className="flex flex-col text-primary/90">
-                    {room.revenue_generated}
+                  <div className="flex font-medium pt-2 pb-4 px-2 border-b-2 border-primary">
+                    <div className="flex items-center">
+                      <CalendarCheck className="h-5 w-5 text-primary mr-3" />
+                      <span className="text-primary/90">
+                        {room.total_bookings}
+                        {" bookings"}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex-grow" />
+                  {room.amenities && (
+                    <div className="flex font-medium pt-2 pb-4 px-2 border-b-2 border-primary">
+                      <div className="flex items-center">
+                        <ListChecks className="h-5 w-5 text-primary mr-3" />
+                        <span className="text-primary/90">
+                          {room.amenities}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditRoomData(room);
-                      setShowEditModal(true);
-                    }}
-                    className="flex-1 text-secondary bg-primary hover:bg-secondary hover:text-primary hover:border hover:border-primary rounded-sm"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit Room
-                  </Button>
+                  <div className="flex font-medium items-center ">
+                    <Euro className="h-5 w-5 ml-2 mr-3 text-primary" />
+                    <div className="flex flex-col text-primary/90">
+                      {room.revenue_generated}
+                    </div>
+                  </div>
 
-                  <Button
-                    size="sm"
-                    onClick={() => handleDeleteRoom(room.id)}
-                    variant="destructive"
-                    className="border border-primary bg-background text-destructive hover:text-[white] hover:border-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                  <div className="flex-grow" />
+
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEditRoomData(room);
+                        setShowEditModal(true);
+                      }}
+                      className="flex-1 text-secondary bg-primary hover:bg-secondary hover:text-primary hover:border hover:border-primary rounded-sm"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit Room
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      onClick={() => handleDeleteRoom(room.id)}
+                      variant="destructive"
+                      className="border border-primary bg-background text-destructive hover:text-[white] hover:border-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
 
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
@@ -340,11 +334,11 @@ const AdminRooms = () => {
                 <Label>Morning Price</Label>
                 <Input
                   type="number"
-                  value={editRoomData.morning_price}
+                  value={editRoomData.Morning_price}
                   onChange={(e) =>
                     setEditRoomData({
                       ...editRoomData,
-                      morning_price: e.target.value,
+                      Morning_price: e.target.value,
                     })
                   }
                 />
@@ -353,11 +347,11 @@ const AdminRooms = () => {
                 <Label>Afternoon Price</Label>
                 <Input
                   type="number"
-                  value={editRoomData.afternoon_price}
+                  value={editRoomData.Afternoon_price}
                   onChange={(e) =>
                     setEditRoomData({
                       ...editRoomData,
-                      afternoon_price: e.target.value,
+                      Afternoon_price: e.target.value,
                     })
                   }
                 />
@@ -366,11 +360,11 @@ const AdminRooms = () => {
                 <Label>Night Price</Label>
                 <Input
                   type="number"
-                  value={editRoomData.night_price}
+                  value={editRoomData.Night_price}
                   onChange={(e) =>
                     setEditRoomData({
                       ...editRoomData,
-                      night_price: e.target.value,
+                      Night_price: e.target.value,
                     })
                   }
                 />
@@ -409,7 +403,7 @@ const AdminRooms = () => {
                       });
                       return;
                     }
-                    if (!editRoomData.morning_price) {
+                    if (!editRoomData.Morning_price) {
                       toast({
                         title: "Validation Error",
                         description: "Morning Price is required",
@@ -417,7 +411,7 @@ const AdminRooms = () => {
                       });
                       return;
                     }
-                    if (!editRoomData.afternoon_price) {
+                    if (!editRoomData.Afternoon_price) {
                       toast({
                         title: "Validation Error",
                         description: "Afternoon Price is required",
@@ -425,7 +419,7 @@ const AdminRooms = () => {
                       });
                       return;
                     }
-                    if (!editRoomData.night_price) {
+                    if (!editRoomData.Night_price) {
                       toast({
                         title: "Validation Error",
                         description: "Night Price is required",
@@ -438,23 +432,23 @@ const AdminRooms = () => {
                         .from("rooms")
                         .update({
                           room_name: editRoomData.room_name.trim(),
-                          morning_price: editRoomData.morning_price,
-                          afternoon_price: editRoomData.afternoon_price,
-                          night_price: editRoomData.night_price,
+                          Morning_price: editRoomData.Morning_price,
+                          Afternoon_price: editRoomData.Afternoon_price,
+                          Night_price: editRoomData.Night_price,
                           amenities: editRoomData.amenities.trim() || null,
                         })
                         .eq("id", editRoomData.id);
 
                       if (error) throw error;
                       if (!error) {
-                        toast({ title: "Room updated successfully" });
+                        toast({ title: "Success", description: "Room updated successfully" });
                         setShowEditModal(false);
                         fetchRooms();
                       }
                     } catch (error) {
                       toast({
                         title: "Error",
-                        description: "Error updating user",
+                        description: "Error updating room",
                         variant: "destructive",
                       });
                     }

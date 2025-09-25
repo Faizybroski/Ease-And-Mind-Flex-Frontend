@@ -184,20 +184,6 @@ const AdminBookings = () => {
     );
   }
 
-  if (!profile || profile.role !== "admin") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center space-y-4">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
-          <p className="text-muted-foreground">
-            You don't have permission to access this area.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
@@ -259,112 +245,13 @@ const AdminBookings = () => {
               <CardTitle>All Bookings ({filteredBookings.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="rounded-lg overflow-x-auto">
-                <Table className="min-w-full">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Room</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Day</TableHead>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Revenue</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredBookings.map((booking) => (
-                      <TableRow key={booking.id}>
-                        <TableCell
-                          className="w-[120px] truncate"
-                          title={booking.rooms.room_name}
-                        >
-                          {booking.rooms.room_name}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap max-w-[200px]">
-                          <div>
-                            <div
-                              className="font-medium max-w-[150px] truncate"
-                              title={booking.profiles.full_name}
-                            >
-                              {booking.profiles.full_name}
-                            </div>
-                            <div
-                              className="text-sm text-muted-foreground truncate"
-                              title={booking.profiles.email}
-                            >
-                              {booking.profiles.email}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="w-[220px]">
-                          {booking.is_recurring ? (
-                            booking.start_date ? (
-                              <div>
-                                {format(
-                                  new Date(booking.start_date),
-                                  "dd/MM/yy"
-                                )}{" "}
-                                →{" "}
-                                {booking.end_date
-                                  ? format(
-                                      new Date(booking.end_date),
-                                      "dd/MM/yy"
-                                    )
-                                  : "Ongoing"}
-                              </div>
-                            ) : (
-                              <div>-</div>
-                            )
-                          ) : (
-                            booking.date && (
-                              <div>
-                                {format(new Date(booking.date), "dd/MM/yy")}
-                              </div>
-                            )
-                          )}
-                        </TableCell>
-                        <TableCell className="w-[70px]">
-                          <div>{booking.time_slot}</div>
-                        </TableCell>
-                        <TableCell className="w-[70px]">
-                          <div>{booking.final_revenue}</div>
-                        </TableCell>
-                        <TableCell>{getStatusColor(booking.status)}</TableCell>
-                        <TableCell className="w-[70px]">
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="border border-primary bg-background text-primary hover:text-[white] hover:border-destructive"
-                            onClick={() => {
-                              handleDeletebooking(booking.id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Other Status Tabs */}
-        {["Upcoming", "Canceled", "Completed", "Recurring"].map((status) => (
-          <TabsContent key={status} value={status} className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {status.charAt(0).toUpperCase() + status.slice(1)} Bookings (
-                  {filteredBookings.filter((b) => b.status === status).length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+              {filteredBookings.length === 0 ? (
+                <div className="text-center text-muted-foreground py-6">
+                  No bookings found.
+                </div>
+              ) : (
                 <div className="rounded-lg overflow-x-auto">
-                  <Table className="min-w-full ">
+                  <Table className="min-w-full">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Room</TableHead>
@@ -377,89 +264,209 @@ const AdminBookings = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredBookings
-                        .filter((booking) => booking.status === status)
-                        .map((booking) => (
-                          <TableRow key={booking.id}>
-                            <TableCell
-                              className="w-[120px] truncate"
-                              title={booking.rooms.room_name}
-                            >
-                              {booking.rooms.room_name}
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap max-w-[200px]">
-                              <div>
-                                <div
-                                  className="font-medium max-w-[150px] truncate"
-                                  title={booking.profiles.full_name}
-                                >
-                                  {booking.profiles.full_name}
-                                </div>
-                                <div
-                                  className="text-sm text-muted-foreground truncate"
-                                  title={booking.profiles.email}
-                                >
-                                  {booking.profiles.email}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="w-[220px]">
-                              {booking.is_recurring ? (
-                                booking.start_date ? (
-                                  <div>
-                                    {format(
-                                      new Date(booking.start_date),
-                                      "dd/MM/yy"
-                                    )}{" "}
-                                    →{" "}
-                                    {booking.end_date
-                                      ? format(
-                                          new Date(booking.end_date),
-                                          "dd/MM/yy"
-                                        )
-                                      : "Ongoing"}
-                                  </div>
-                                ) : (
-                                  <div>-</div>
-                                )
-                              ) : (
-                                booking.date && (
-                                  <div>
-                                    {format(new Date(booking.date), "dd/MM/yy")}
-                                  </div>
-                                )
-                              )}
-                            </TableCell>
-                            <TableCell className="w-[70px]">
-                              <div>{booking.time_slot}</div>
-                            </TableCell>
-                            <TableCell className="w-[70px]">
-                              <div>{booking.final_revenue}</div>
-                            </TableCell>
-                            <TableCell className="w-[70px]">
-                              {getStatusColor(booking.status)}
-                            </TableCell>
-                            <TableCell className="w-[10px]">
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="border border-input bg-background text-primary hover:text-[white] hover:border-destructive"
-                                onClick={() => {
-                                  handleDeletebooking(booking.id);
-                                }}
+                      {filteredBookings.map((booking) => (
+                        <TableRow key={booking.id}>
+                          <TableCell
+                            className="w-[120px] truncate"
+                            title={booking.rooms.room_name}
+                          >
+                            {booking.rooms.room_name}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap max-w-[200px]">
+                            <div>
+                              <div
+                                className="font-medium max-w-[150px] truncate"
+                                title={booking.profiles.full_name}
                               >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                {booking.profiles.full_name}
+                              </div>
+                              <div
+                                className="text-sm text-muted-foreground truncate"
+                                title={booking.profiles.email}
+                              >
+                                {booking.profiles.email}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="w-[220px]">
+                            {booking.is_recurring ? (
+                              booking.start_date ? (
+                                <div>
+                                  {format(
+                                    new Date(booking.start_date),
+                                    "dd/MM/yy"
+                                  )}{" "}
+                                  →{" "}
+                                  {booking.end_date
+                                    ? format(
+                                        new Date(booking.end_date),
+                                        "dd/MM/yy"
+                                      )
+                                    : "Ongoing"}
+                                </div>
+                              ) : (
+                                <div>-</div>
+                              )
+                            ) : (
+                              booking.date && (
+                                <div>
+                                  {format(new Date(booking.date), "dd/MM/yy")}
+                                </div>
+                              )
+                            )}
+                          </TableCell>
+                          <TableCell className="w-[70px]">
+                            <div>{booking.time_slot}</div>
+                          </TableCell>
+                          <TableCell className="w-[70px]">
+                            <div>{booking.final_revenue}</div>
+                          </TableCell>
+                          <TableCell>
+                            {getStatusColor(booking.status)}
+                          </TableCell>
+                          <TableCell className="w-[70px]">
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="border border-primary bg-background text-primary hover:text-[white] hover:border-destructive"
+                              onClick={() => {
+                                handleDeletebooking(booking.id);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Other Status Tabs */}
+        {["Upcoming", "Canceled", "Completed", "Recurring"].map((status) => {
+          const bookingsByStatus = filteredBookings.filter(
+            (b) => b.status === status
+          );
+
+          return (
+            <TabsContent key={status} value={status} className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {status.charAt(0).toUpperCase() + status.slice(1)} Bookings
+                    ({bookingsByStatus.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {bookingsByStatus.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-6">
+                      No bookings found.
+                    </div>
+                  ) : (
+                    <div className="rounded-lg overflow-x-auto">
+                      <Table className="min-w-full ">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Room</TableHead>
+                            <TableHead>User</TableHead>
+                            <TableHead>Day</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead>Revenue</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Action</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {bookingsByStatus.map((booking) => (
+                            <TableRow key={booking.id}>
+                              <TableCell
+                                className="w-[120px] truncate"
+                                title={booking.rooms.room_name}
+                              >
+                                {booking.rooms.room_name}
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap max-w-[200px]">
+                                <div>
+                                  <div
+                                    className="font-medium max-w-[150px] truncate"
+                                    title={booking.profiles.full_name}
+                                  >
+                                    {booking.profiles.full_name}
+                                  </div>
+                                  <div
+                                    className="text-sm text-muted-foreground truncate"
+                                    title={booking.profiles.email}
+                                  >
+                                    {booking.profiles.email}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="w-[220px]">
+                                {booking.is_recurring ? (
+                                  booking.start_date ? (
+                                    <div>
+                                      {format(
+                                        new Date(booking.start_date),
+                                        "dd/MM/yy"
+                                      )}{" "}
+                                      →{" "}
+                                      {booking.end_date
+                                        ? format(
+                                            new Date(booking.end_date),
+                                            "dd/MM/yy"
+                                          )
+                                        : "Ongoing"}
+                                    </div>
+                                  ) : (
+                                    <div>-</div>
+                                  )
+                                ) : (
+                                  booking.date && (
+                                    <div>
+                                      {format(
+                                        new Date(booking.date),
+                                        "dd/MM/yy"
+                                      )}
+                                    </div>
+                                  )
+                                )}
+                              </TableCell>
+                              <TableCell className="w-[70px]">
+                                <div>{booking.time_slot}</div>
+                              </TableCell>
+                              <TableCell className="w-[70px]">
+                                <div>{booking.final_revenue}</div>
+                              </TableCell>
+                              <TableCell className="w-[70px]">
+                                {getStatusColor(booking.status)}
+                              </TableCell>
+                              <TableCell className="w-[10px]">
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="border border-input bg-background text-primary hover:text-[white] hover:border-destructive"
+                                  onClick={() =>
+                                    handleDeletebooking(booking.id)
+                                  }
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          );
+        })}
       </Tabs>
     </div>
   );
