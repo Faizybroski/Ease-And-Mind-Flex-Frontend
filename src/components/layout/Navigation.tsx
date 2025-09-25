@@ -27,6 +27,7 @@ import {
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 import { useProfile } from "@/hooks/useProfile";
 import AppLogo from "@/components/ui/logo"
+import AuthPage from  "@/components/auth/AuthPage"
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -57,6 +58,10 @@ const Navigation = () => {
     return baseItems;
   };
 
+  const showAuthFun = () => {
+    navigate('auth');
+  }
+
   const navItems = getNavItems();
 
   return (
@@ -72,7 +77,7 @@ const Navigation = () => {
           </div>
           {!user ? (
             <div className="flex items-center space-x-4">
-              <Button onClick={() => navigate("/")} variant="outline">
+              <Button onClick={() => showAuthFun()} variant="outline">
                 Sign In
               </Button>
             </div>

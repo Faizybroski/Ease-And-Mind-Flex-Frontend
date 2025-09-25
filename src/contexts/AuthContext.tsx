@@ -153,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           break;
         case "user":
         default:
-          navigate("/user/dashboard");
+          navigate("/");
           break;
       }
     }, 100);
