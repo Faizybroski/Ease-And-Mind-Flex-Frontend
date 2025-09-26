@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client"; // adjust to your set
 import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Popover,
   PopoverContent,
@@ -72,12 +73,19 @@ const Dashboard = () => {
     "instant"
   );
 
+  const navigate = useNavigate();
   const weekDates = getWeekDates(selectedDate);
   const now = new Date();
 
   const handleRoomSelect = (room: any) => {
     if (!selectedSlot) return;
 
+    if (!profile) {
+      toast({
+        variant: "destructive", title: "Error", description: "You must be signed in for book a room."
+      })
+      navigate('/auth')
+    }
 
     const dateStr = selectedSlot.day.toLocaleDateString("en-CA");
     const timeslot = selectedSlot.slot.name;
@@ -467,7 +475,7 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground">
                       {room.amenities}
                     </p>
-                    <p className="font-semibold">
+                    <p className="font-semibold text-primary">
                       Price:{" "}
                       {selectedSlot?.slot.name === "Morning"
                         ? room.Morning_price

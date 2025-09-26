@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,7 +17,7 @@ import {
   Plus,
 } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
-import AddUser from "../addUser/AddUser"
+import AddUser from "../addUser/AddUser";
 import AddRoom from "../addRoom/AddRoom";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 
@@ -27,10 +28,16 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { signOut } = useAuth();
   const { profile } = useProfile();
-  const [showAddUser, setShowAddUser] = useState(false)
-  const [showAddRoom, setShowAddRoom] = useState(false)
+  const navigate = useNavigate();
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [showAddRoom, setShowAddRoom] = useState(false);
 
   // const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <SidebarProvider>
@@ -61,15 +68,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
             <div className="flex items-center justify-between space-x-4">
               <div className="text-right flex gap-3">
-                <Button 
+                <Button
                   onClick={() => setShowAddUser(true)}
-                  className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary">
+                  className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
+                >
                   <UserPlus className="h-4 w-4" />
                   Send Invite
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowAddRoom(true)}
-                  className="text-sm bg-primary border border-primary font-medium text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary">
+                  className="text-sm bg-primary border border-primary font-medium text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary"
+                >
                   <Plus className="h-4 w-4" />
                   Add Room
                 </Button>
@@ -83,6 +92,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <Bell className="h-4 w-4" />
               </Button> */}
               <NotificationCenter />
+              <Button
+                size="sm"
+                onClick={handleSignOut}
+                className="border bg-secondary border-primary hover:bg-primary text-primary hover:text-secondary"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </header>
 

@@ -122,12 +122,9 @@ const Navigation = () => {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    
-                    <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuContent className="flex items-center justify-center w-max hover:bg-primary hover:text-secondary bg-secondary text-primary border border-primary cursor-pointer" align="end" forceMount onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
