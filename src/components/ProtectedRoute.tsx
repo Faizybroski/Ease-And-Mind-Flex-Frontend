@@ -34,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         return;
       }
 
-      if (currentPath === "/suspended-user" && profile.status === "active") {
+      if (currentPath === "/suspended-user" && profile.status === "Active") {
         navigate("/", { replace: true });
         return;
       }

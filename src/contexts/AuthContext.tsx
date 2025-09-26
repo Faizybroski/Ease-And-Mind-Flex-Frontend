@@ -90,6 +90,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       },
     });
 
+    navigate('/')
+
     console.log("📝 SignUp result:", { error });
     return { error };
   };

@@ -24,6 +24,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard"
 import Bookings from "./pages/MyBookings"
 
+import NotFound from "./pages/NotFound"
+
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -116,6 +118,7 @@ const App = () => (
               />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="*" element={<NotFound />}/>
             </Routes>
           </div>
         </AuthProvider>

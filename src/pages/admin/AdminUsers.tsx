@@ -39,6 +39,7 @@ import {
   CreditCard,
   User,
   Edit,
+  Loader2,
   Eye,
   Euro,
   Filter,
@@ -71,6 +72,10 @@ interface UserDetailsModalProps {
   onUserUpdate: () => void;
 }
 
+const SpanLoader = () => (
+  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground inline-block" />
+);
+
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   userId,
   open,
@@ -83,6 +88,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   const [recurringBookings, setRecurringBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -99,6 +105,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   const fetchUser = async (userId: string) => {
     try {
+      setLoadingProfile(true);
       const { data, error } = await supabase
         .from("profiles")
         .select(`*`)
@@ -118,13 +125,14 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoadingProfile(false);
     }
   };
 
   const fetchBookings = async () => {
     if (!userId) return;
     try {
+      setLoadingProfile(true);
       const { data, error } = await supabase
         .from("bookings")
         .select(
@@ -176,6 +184,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         description: "Error loading bookings",
         variant: "destructive",
       });
+    } finally {
+      setLoadingProfile(false);
     }
   };
 
@@ -287,14 +297,20 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   <Label className="text-sm font-medium text-primary">
                     Email:{" "}
                   </Label>
-                  <span className="text-sm text-primary/70">{user?.email}</span>
+                  <span className="text-sm text-primary/70">
+                    {loadingProfile ? <SpanLoader /> : user?.email}
+                  </span>
                 </div>
                 <div>
                   <Label className="text-sm font-medium  text-primary">
                     Total Bookings:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
-                    {user?.simpleBookings}
+                    {loadingProfile ? (
+                      <SpanLoader />
+                    ) : (
+                      user?.simpleBookings ?? 0
+                    )}
                   </span>
                 </div>
                 <div>
@@ -302,19 +318,27 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     Total Recurring Bookings:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
-                    {user?.recurringBookings}
+                    {loadingProfile ? (
+                      <SpanLoader />
+                    ) : (
+                      user?.recurringBookings ?? 0
+                    )}
                   </span>
                 </div>
                 <div className="flex gap-2">
                   <Label className="text-sm font-medium text-primary">
                     Revenue:
                   </Label>
-                  <div className="flex items-center">
-                    <Euro className="h-4 w-4 text-primary/70" />
-                    <span className="text-sm text-primary/70">
-                      {user?.totalRevenue}
-                    </span>
-                  </div>
+                  {loadingProfile ? (
+                    <SpanLoader />
+                  ) : (
+                    <>
+                      <Euro className="h-4 w-4 text-primary/70" />
+                      <span className="text-sm text-primary/70">
+                        {user?.totalRevenue ?? 0}
+                      </span>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
