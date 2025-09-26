@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,9 +26,10 @@ import {
   X,
 } from "lucide-react";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
+import Code from "@/components/codeDialog/codeDialog"
 import { useProfile } from "@/hooks/useProfile";
-import AppLogo from "@/components/ui/logo"
-import AuthPage from  "@/components/auth/AuthPage"
+import AppLogo from "@/components/ui/logo";
+import AuthPage from "@/components/auth/AuthPage";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -35,6 +37,8 @@ const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [booking, setBooking] = useState(false);
+  const [showCode, setShowCode] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -58,9 +62,48 @@ const Navigation = () => {
     return baseItems;
   };
 
+  useEffect(() => {
+    fetchTodayBookings();
+  }, [profile]);
+
+  const fetchTodayBookings = async () => {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+    const weekdayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const weekday = weekdayNames[new Date().getDay()]; // e.g. "friday"
+
+    try {
+      const { data: bookings, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("user_id", profile.id)
+        .or(
+          `and(is_recurring.eq.false,date.eq.${today}),and(is_recurring.eq.true,start_date.lte.${today},end_date.gte.${today},weekdays.cs.{"${weekday}"})`
+        );
+
+      if (error) throw error;
+
+      console.log("booooking fetched", bookings)
+
+      if (bookings.length > 0) {
+        setBooking(true);
+      }
+    } catch (error) {
+      console.error("error fetching bookings for today.", error);
+    }
+  };
+
   const showAuthFun = () => {
-    navigate('auth');
-  }
+    navigate("/auth");
+  };
 
   const navItems = getNavItems();
 
@@ -108,6 +151,7 @@ const Navigation = () => {
 
               {/* Right Side */}
               <div className="flex items-center space-x-4">
+                {booking && <Button className="border border-primary bg-primary text-secondary hover:bg-secondary hover:text-primary" onClick={() => setShowCode(true)}>Code</Button>}
                 <NotificationCenter />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -122,9 +166,14 @@ const Navigation = () => {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="flex items-center justify-center w-max hover:bg-primary hover:text-secondary bg-secondary text-primary border border-primary cursor-pointer" align="end" forceMount onClick={handleSignOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                  <DropdownMenuContent
+                    className="flex items-center justify-center w-max hover:bg-primary hover:text-secondary bg-secondary text-primary border border-primary cursor-pointer"
+                    align="end"
+                    forceMount
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
                   </DropdownMenuContent>
                 </DropdownMenu>
 
@@ -175,6 +224,7 @@ const Navigation = () => {
           </div>
         )}
       </div>
+      <Code open={showCode} onOpenChange={setShowCode}/>
     </nav>
   );
 };
