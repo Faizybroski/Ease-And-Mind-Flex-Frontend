@@ -7,7 +7,7 @@
 @layer base {
   :root {
     /* Dark theme base colors */
-    --background: 0 0% 100%;
+    --background: 0 0% 100%; /* pure white */
     --foreground: 0 0% 50%;
 
     --card: 0 14% 99%;
@@ -53,17 +53,12 @@
     --dark-surface: 0 0% 8%;
     --dark-surface-alt: 0 0% 12%;
     --mystery-purple: 270 50% 60%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--dark-brown)), hsl(var(--light-brown)));
-    --gradient-mystery: linear-gradient(135deg, hsl(var(--mystery-purple)), hsl(var(--dark-brown)));
-    --gradient-dark: linear-gradient(135deg, hsl(var(--dark-surface)), hsl(var(--dark-surface-alt)));
-    
+
     /* Shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(158 23% 68% / 0.3);
     --shadow-glow: 0 0 40px hsl(158 23% 68% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(158 23% 68% / 0.4);
-    
+
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -131,8 +126,25 @@
     @apply border-border;
   }
 
+  html,
   body {
-    @apply bg-background text-foreground;
+    min-height: 100%;
+    min-width: 100%;
+    background: #ffffff;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+  }
+
+  html,
+  body,
+  #__next,
+  #root {
+    background: #fff !important;
+  }
+
+  body {
+    @apply text-foreground;
   }
 }
 
@@ -158,17 +170,14 @@
   -webkit-line-clamp: 3;
 }
 
-
-#profileWrapper{
-
-    @media (max-width: 445px) {
+#profileWrapper {
+  @media (max-width: 445px) {
     flex-direction: column;
     gap: 1rem;
   }
 }
-#notificationSheet{
-
-    @media (min-width: 320px) and (max-width: 640px) {
+#notificationSheet {
+  @media (min-width: 320px) and (max-width: 640px) {
     width: 330px;
   }
 }

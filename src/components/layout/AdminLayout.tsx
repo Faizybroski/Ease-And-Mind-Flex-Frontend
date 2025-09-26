@@ -34,7 +34,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background/95 to-muted/20">
+      <div className="min-h-screen flex w-full ">
         <AdminSidebar />
 
         <div className="flex-1 flex flex-col">
@@ -87,7 +87,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 overflow-auto bg-gradient-to-b from-background/50 to-muted/10 p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
             <div className="w-full max-w-full mx-auto">{children}</div>
           </main>
         </div>

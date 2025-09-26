@@ -267,7 +267,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
-              <span className="text-[50px] font-bold leading-none text-primary">
+              <span className="text-2xl sm:text-3xl lg:text-5xl font-bold leading-none text-primary">
                 {user?.full_name}
               </span>
             </DialogTitle>
@@ -330,8 +330,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </CardHeader>
               <CardContent>
                 {bookings.length > 0 ? (
-                  <div className="rounded-lg">
-                    <Table>
+                  <div className="rounded-lg overflow-x-auto">
+                    <Table className="min-w-[600px]">
                       <TableHeader>
                         <TableRow>
                           <TableHead>Room</TableHead>
@@ -343,7 +343,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                       <TableBody>
                         {bookings.map((booking) => (
                           <TableRow key={booking?.id}>
-                            <TableCell>{booking?.rooms?.room_name}</TableCell>
+                            <TableCell
+                              className="truncate max-w-[120px] sm:max-w-[200px]"
+                              title={booking?.rooms?.room_name}
+                            >
+                              {booking?.rooms?.room_name}
+                            </TableCell>
                             <TableCell>
                               {format(new Date(booking?.date), "PPP")}
                             </TableCell>
@@ -372,8 +377,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </CardHeader>
               <CardContent>
                 {recurringBookings.length > 0 ? (
-                  <div className="rounded-lg">
-                    <Table>
+                  <div className="rounded-lg overflow-x-auto">
+                    <Table className="min-w-[600px]">
                       <TableHeader>
                         <TableRow>
                           <TableHead>Room</TableHead>
@@ -386,7 +391,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                       <TableBody>
                         {recurringBookings.map((booking) => (
                           <TableRow key={booking?.id}>
-                            <TableCell>{booking?.rooms?.room_name}</TableCell>
+                            <TableCell
+                              className="truncate max-w-[120px] sm:max-w-[200px]"
+                              title={booking?.rooms?.room_name}
+                            >
+                              {booking?.rooms?.room_name}
+                            </TableCell>
                             <TableCell>
                               {booking?.start_date
                                 ? `${format(
@@ -417,7 +427,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </Card>
 
             {/* Actions */}
-            <div className="flex justify-end space-x-2 pt-4 border-t">
+            <div className="flex justify-end space-x-2 pt-4 border-t border-primary">
               <Button
                 size="sm"
                 variant="outline"
@@ -634,32 +644,28 @@ const AdminUsers = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <header className="flex justify-between">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-primary mb-2">All Users</h1>
-            <p className="text-primary text-sm">Manage Your Users</p>
-          </div>
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-primary mb-2">All Users</h1>
+          <p className="text-primary text-sm">Manage Your Users</p>
         </div>
-        <div className="flex items-center justify-between space-x-4 gap-4">
-          <div className="text-right flex gap-3">
-            <Button
-              onClick={() => {
-                setShowRecurringBookingsDialog(true);
-              }}
-              className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
-            >
-              Add Recurring Reservation
-            </Button>
-            <Button
-              onClick={() => {
-                setShowAddUser(true);
-              }}
-              className="text-sm bg-primary border border-primary font-medium text-secondary hover:bg-secondary hover:text-primary"
-            >
-              Send Invite
-            </Button>
-          </div>
+        <div className="flex flex-wrap gap-3 justify-end">
+          <Button
+            onClick={() => {
+              setShowRecurringBookingsDialog(true);
+            }}
+            className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
+          >
+            Add Recurring Reservation
+          </Button>
+          <Button
+            onClick={() => {
+              setShowAddUser(true);
+            }}
+            className="text-sm bg-primary border border-primary font-medium text-secondary hover:bg-secondary hover:text-primary"
+          >
+            Send Invite
+          </Button>
         </div>
       </header>
 
@@ -675,16 +681,14 @@ const AdminUsers = () => {
             </div>
           ) : (
             <div className="rounded-lg overflow-x-auto">
-              <Table className="min-w-full">
+              <Table className="min-w-full text-sm">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-center">Name</TableHead>
                     <TableHead className="text-center">Email</TableHead>
                     <TableHead className="text-center">Bookings</TableHead>
-                    <TableHead className="text-center max-w-[100px]">
-                      Recurring Bookings
-                    </TableHead>
-                    <TableHead className="text-center border-b-2 border-border/30">
+                    <TableHead className="text-center">Recurring</TableHead>
+                    <TableHead className="text-center">
                       <div className="flex items-center justify-center gap-1">
                         Revenue <Euro className="h-4 w-4" />
                       </div>
@@ -696,10 +700,10 @@ const AdminUsers = () => {
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="text-center font-medium max-w-[150px]">
+                      <TableCell className="text-center font-medium break-words max-w-[150px]">
                         {user?.full_name}
                       </TableCell>
-                      <TableCell className="text-center max-w-[150px]">
+                      <TableCell className="text-center break-words max-w-[150px]">
                         {user?.email}
                       </TableCell>
                       <TableCell className="text-center">
@@ -715,7 +719,7 @@ const AdminUsers = () => {
                         {getStatusColor(user?.status)}
                       </TableCell>
                       <TableCell>
-                        <div className="flex justify-center items-center space-x-2">
+                        <div className="flex justify-center items-center gap-2">
                           <Button
                             size="sm"
                             variant="outline"
@@ -727,7 +731,7 @@ const AdminUsers = () => {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button
+                          {/* <Button
                             size="sm"
                             variant="outline"
                             className="hover:bg-primary hover:text-secondary bg-secondary"
@@ -737,7 +741,7 @@ const AdminUsers = () => {
                             }}
                           >
                             <Edit className="h-4 w-4" />
-                          </Button>
+                          </Button> */}
                           <Button
                             size="sm"
                             variant="destructive"
@@ -766,7 +770,7 @@ const AdminUsers = () => {
         onUserUpdate={fetchUsers}
       />
 
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+      {/* <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-lg text-primary">
@@ -836,13 +840,6 @@ const AdminUsers = () => {
                       return;
                     }
                     try {
-                      // const { error } = await supabase
-                      //   .from("profiles")
-                      //   .update({
-                      //     full_name: editUserData.full_name.trim(),
-                      //     email: editUserData.email.trim(),
-                      //   })
-                      //   .eq("id", editUserData.id);
 
                       const { error } = await supabase.rpc("update_user_info", {
                         target_user: editUserData.user_id,
@@ -873,7 +870,7 @@ const AdminUsers = () => {
             </div>
           )}
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       <RecurringBookingDialog
         open={showRecurringBookingsDialog}

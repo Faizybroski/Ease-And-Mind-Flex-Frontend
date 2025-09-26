@@ -22,6 +22,7 @@ import AuthPage from "@/components/auth/AuthPage";
 import ResetPassword from "./pages/ResetPassword";
 
 import Dashboard from "./pages/Dashboard"
+import Bookings from "./pages/MyBookings"
 
 import { Navigate } from "react-router-dom";
 
@@ -42,6 +43,14 @@ const App = () => (
                   <ProtectedRoute>
                     <Navigation />
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/my-bookings"
+               element={
+                  <ProtectedRoute>
+                    <Navigation />
+                    <Bookings />
                   </ProtectedRoute>
                 } 
               />

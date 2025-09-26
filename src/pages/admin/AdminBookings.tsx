@@ -200,9 +200,9 @@ const AdminBookings = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="all" className="space-y-4">
-        <div className="flex">
+        <div className="flex w-max overflow-x-auto">
           <TabsList className="flex justify-between w-full">
-            <div className="flex justify-start flex-wrap gap-2">
+            <div className="flex justify-start flex-wrap gap-2 overflow-x-auto">
               <TabsTrigger value="all">All Bookings</TabsTrigger>
               <TabsTrigger value="Upcoming">Upcoming</TabsTrigger>
               <TabsTrigger value="Canceled">Canceled</TabsTrigger>
@@ -251,7 +251,7 @@ const AdminBookings = () => {
                 </div>
               ) : (
                 <div className="rounded-lg overflow-x-auto">
-                  <Table className="min-w-full">
+                  <Table className="min-w-full table-fixed">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Room</TableHead>
@@ -267,7 +267,7 @@ const AdminBookings = () => {
                       {filteredBookings.map((booking) => (
                         <TableRow key={booking.id}>
                           <TableCell
-                            className="w-[120px] truncate"
+                            className="truncate max-w-[90px] sm:max-w-[120px] md:max-w-[160px]"
                             title={booking.rooms.room_name}
                           >
                             {booking.rooms.room_name}
@@ -275,20 +275,20 @@ const AdminBookings = () => {
                           <TableCell className="whitespace-nowrap max-w-[200px]">
                             <div>
                               <div
-                                className="font-medium max-w-[150px] truncate"
+                                className="font-medium truncate max-w-full"
                                 title={booking.profiles.full_name}
                               >
                                 {booking.profiles.full_name}
                               </div>
                               <div
-                                className="text-sm text-muted-foreground truncate"
+                                className="text-sm text-muted-foreground truncate max-w-full"
                                 title={booking.profiles.email}
                               >
                                 {booking.profiles.email}
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell className="w-[220px]">
+                          <TableCell className="truncate max-w-[140px] sm:max-w-[200px] md:max-w-[260px]">
                             {booking.is_recurring ? (
                               booking.start_date ? (
                                 <div>
@@ -354,7 +354,7 @@ const AdminBookings = () => {
 
           return (
             <TabsContent key={status} value={status} className="space-y-4">
-              <Card>
+              <Card className="overflow-x-auto">
                 <CardHeader>
                   <CardTitle>
                     {status.charAt(0).toUpperCase() + status.slice(1)} Bookings
@@ -368,7 +368,7 @@ const AdminBookings = () => {
                     </div>
                   ) : (
                     <div className="rounded-lg overflow-x-auto">
-                      <Table className="min-w-full ">
+                      <Table className="min-w-full  table-fixed">
                         <TableHeader>
                           <TableRow>
                             <TableHead>Room</TableHead>
@@ -384,7 +384,7 @@ const AdminBookings = () => {
                           {bookingsByStatus.map((booking) => (
                             <TableRow key={booking.id}>
                               <TableCell
-                                className="w-[120px] truncate"
+                                className="truncate max-w-[90px] sm:max-w-[120px] md:max-w-[160px]"
                                 title={booking.rooms.room_name}
                               >
                                 {booking.rooms.room_name}
@@ -392,20 +392,20 @@ const AdminBookings = () => {
                               <TableCell className="whitespace-nowrap max-w-[200px]">
                                 <div>
                                   <div
-                                    className="font-medium max-w-[150px] truncate"
+                                    className="font-medium truncate max-w-full"
                                     title={booking.profiles.full_name}
                                   >
                                     {booking.profiles.full_name}
                                   </div>
                                   <div
-                                    className="text-sm text-muted-foreground truncate"
+                                    className="text-sm text-muted-foreground truncate max-w-full"
                                     title={booking.profiles.email}
                                   >
                                     {booking.profiles.email}
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="w-[220px]">
+                              <TableCell className="truncate max-w-[140px] sm:max-w-[200px] md:max-w-[260px]">
                                 {booking.is_recurring ? (
                                   booking.start_date ? (
                                     <div>

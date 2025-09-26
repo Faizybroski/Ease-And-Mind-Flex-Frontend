@@ -44,7 +44,7 @@ const Navigation = () => {
   const getNavItems = () => {
     const baseItems = [
       { icon: Calendar, label: "Booking", path: "/" },
-      { icon: Search, label: "My Bookings", path: "/explore" },
+      { icon: Search, label: "My Bookings", path: "/my-bookings" },
     ];
 
     if (profile?.role === "admin") {

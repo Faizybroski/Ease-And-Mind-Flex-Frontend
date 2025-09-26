@@ -94,7 +94,7 @@ export default function RecurringBookingDialog({
         .toLocaleDateString("en-US", { weekday: "long" })
         .toLowerCase();
 
-      if (weekDays.includes(day)) {
+      if (weekDays.map((d) => d.toLowerCase()).includes(day)) {
         total++;
       }
 

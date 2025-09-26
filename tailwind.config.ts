@@ -73,11 +73,7 @@ export default {
 				'dark-surface-alt': 'hsl(var(--dark-surface-alt))',
 				'mystery-purple': 'hsl(var(--mystery-purple))'
 			},
-			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-mystery': 'var(--gradient-mystery)',
-				'gradient-dark': 'var(--gradient-dark)'
-			},
+			backgroundImage: {},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',
 				'glow': 'var(--shadow-glow)',

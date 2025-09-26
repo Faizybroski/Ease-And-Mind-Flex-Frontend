@@ -29,7 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         currentPath,
       });
 
-      if (profile.status !== "active" && currentPath !== "/suspended-user") {
+      if (profile.status !== "Active" && currentPath !== "/suspended-user") {
         navigate("/suspended-user", { replace: true });
         return;
       }
@@ -94,10 +94,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
 
     // Users
-    if (profile.role === "user") {
-        navigate("/", { replace: true });
-      return;
-    }
+    // if (profile.role === "user") {
+    //     navigate("/", { replace: true });
+    //   return;
+    // }
   }
 }, [user, profile, authLoading, profileLoading, location.pathname, navigate]);
 

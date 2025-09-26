@@ -308,7 +308,7 @@ const AdminDashboard = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Welcome Header */}
@@ -339,11 +339,11 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className=" flex text-3xl font-bold text-primary mb-1 items-center">
-              <Euro className="h-8 w-8 text-primary text-bold" />
+              <Euro className="h-8 w-8 text-primary text-bold mr-1" />
               {stats.totalRevenue.toLocaleString()}
             </div>
-            <p className="text-sm text-primary flex items-center space-x-1">
-              <span>{stats.percentTotalRevenue} from last month</span>
+            <p className="text-sm text-primary ">
+              {stats.percentTotalRevenue} from last month
             </p>
           </CardContent>
         </Card>
@@ -362,8 +362,8 @@ const AdminDashboard = () => {
             <div className="text-3xl font-bold text-primary mb-1">
               {stats.bookingShedules.toLocaleString()}
             </div>
-            <p className="text-sm text-primary flex items-center space-x-1">
-              <span>{stats.percentageBookingSchedule} from last month</span>
+            <p className="text-sm text-primary">
+              {stats.percentageBookingSchedule} from last month
             </p>
           </CardContent>
         </Card>
@@ -382,8 +382,8 @@ const AdminDashboard = () => {
             <div className="text-3xl font-bold text-primary mb-1">
               {stats.activeBookings.toLocaleString()}
             </div>
-            <p className="text-sm text-primary flex items-center space-x-1">
-              <span>{stats.percentageActiveBookings} from last month</span>
+            <p className="text-sm text-primary">
+              {stats.percentageActiveBookings} from last month
             </p>
           </CardContent>
         </Card>
@@ -402,30 +402,29 @@ const AdminDashboard = () => {
             <div className="flex items-center text-3xl font-bold text-primary mb-1">
               {stats.bookingToday.toLocaleString()}
             </div>
-            <p className="text-sm text-primary flex items-center space-x-1">
-              <span>{stats.percentageAverageBooking} from last month</span>
+            <p className="text-sm text-primary">
+              {stats.percentageAverageBooking} from last month
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="flex gap-4">
-        <Card className="w-2/3 overflow-x-auto border border-primary/20">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Bookings This Week */}
+        <Card className="lg:col-span-2 overflow-x-auto border border-primary/20">
           <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <CardTitle className="flex">
-                <span className="bg-primary/30 rounded-full p-2 mr-2">
-                  <Star className="h-4 w-4 text-primary" />
-                </span>{" "}
-                <span className="text-primary">Bookings This Week</span>
-              </CardTitle>
-            </div>
+            <CardTitle className="flex items-center">
+              <span className="bg-primary/30 rounded-full p-2 mr-2">
+                <Star className="h-4 w-4 text-primary" />
+              </span>
+              <span className="text-primary">Bookings This Week</span>
+            </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
             {bookings.map((booking) => (
               <div
                 key={booking.id}
-                className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4 px-2 py-2 border border-primary/50 hover:bg-muted/10 rounded-md"
+                className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 px-2 py-2 border border-primary/50 hover:bg-muted/10 rounded-md"
               >
                 <div className="flex-1">
                   <p className="font-medium text-primary">
@@ -435,11 +434,11 @@ const AdminDashboard = () => {
                     Booked {booking.rooms.room_name}
                   </span>
                 </div>
-                <div className="w-32 flex items-center space-x-1">
+                <div className="flex items-center space-x-1">
                   <Clock className="h-4 w-4 text-primary" />
                   <span className="text-primary">{booking.time_slot}</span>
                 </div>
-                <div className="w-32 flex items-center space-x-1">
+                <div className="flex items-center space-x-1">
                   <Calendar className="h-4 w-4 text-primary" />
                   <span className="text-primary">{booking.date}</span>
                 </div>
@@ -448,16 +447,15 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="w-1/3 border border-primary/20">
+        {/* Recent Activity */}
+        <Card className="border border-primary/20">
           <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <CardTitle className="flex">
-                <span className="bg-primary/30 rounded-full p-2 mr-2">
-                  <Clock className="h-4 w-4 text-primary" />
-                </span>{" "}
-                <span className="text-primary">Recent Activity</span>
-              </CardTitle>
-            </div>
+            <CardTitle className="flex items-center">
+              <span className="bg-primary/30 rounded-full p-2 mr-2">
+                <Clock className="h-4 w-4 text-primary" />
+              </span>
+              <span className="text-primary">Recent Activity</span>
+            </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
             {recentActivity.map((activity, idx) => (
@@ -466,18 +464,18 @@ const AdminDashboard = () => {
                 className="flex border border-primary/40 hover:bg-muted/10 rounded-lg p-3 transition-all"
               >
                 <div className="flex-1 flex flex-col justify-between">
-                  {/* Row 1: Name + activity type */}
-                  <div className=" items-center justify-between">
+                  {/* Row 1: Name + email */}
+                  <div>
                     <p className="text-primary font-medium">{activity.user}</p>
                     <p
                       title={activity.email}
-                      className="text-primary truncate max-w-[215px]"
+                      className="text-primary truncate w-full sm:max-w-[215px]"
                     >
                       {activity.email}
                     </p>
                   </div>
 
-                  {/* Row 2: Room info (only for bookings) */}
+                  {/* Row 2: Booking info */}
                   {activity.room && (
                     <div className="text-sm text-foreground">
                       Booked {activity.room}
@@ -488,8 +486,7 @@ const AdminDashboard = () => {
                   )}
 
                   {/* Row 3: Time + Type */}
-                  <div className="flex justify-between items-center text-sm mt-1">
-                    {/* Time ago */}
+                  <div className="flex justify-between items-center text-sm mt-1 flex-wrap gap-1">
                     <div className="flex items-center space-x-1 flex-shrink-0">
                       <Clock className="h-3 w-3 text-primary" />
                       <span className="text-primary text-sm whitespace-nowrap">
@@ -498,10 +495,8 @@ const AdminDashboard = () => {
                         })}
                       </span>
                     </div>
-
-                    {/* Pill */}
                     <span
-                      className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs whitespace-nowrap max-w-[140px] truncate flex-shrink-0 ml-2"
+                      className="capitalize text-primary text-center border border-primary/20 rounded-full px-3 py-1 text-xs whitespace-nowrap truncate max-w-full sm:max-w-[140px]"
                       title={activity.type.replace(/_/g, " ")}
                     >
                       {activity.type.replace(/_/g, " ")}
