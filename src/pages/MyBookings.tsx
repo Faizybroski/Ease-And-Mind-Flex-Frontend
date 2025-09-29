@@ -323,7 +323,7 @@ const Bookings = () => {
                         : booking.payment_status === "Failed"
                         ? "text-red-800"
                         : "text-yellow-800"
-                    }`}>{booking.payment_status}</span>
+                    }`}>{booking?.payment_status || "Null"}</span>
               </div>
 
               {/* Right side: Actions */}
