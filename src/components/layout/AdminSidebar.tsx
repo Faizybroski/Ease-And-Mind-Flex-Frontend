@@ -1,8 +1,6 @@
-import React from 'react';
-import { NavLink, 
-  useLocation 
-} from 'react-router-dom';
-import { useProfile } from '@/hooks/useProfile';
+import React from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useProfile } from "@/hooks/useProfile";
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
   Users,
@@ -21,8 +19,8 @@ import {
   CreditCard,
   Building2,
   Shield,
-} from 'lucide-react';
-import AppLogo from "@/components/ui/logo"
+} from "lucide-react";
+import AppLogo from "@/components/ui/logo";
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -31,8 +29,8 @@ const AdminSidebar = () => {
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-primary text-primary-foreground shadow-md font-medium" 
+    isActive
+      ? "bg-primary text-primary-foreground shadow-md font-medium"
       : "hover:bg-muted/50 hover:text-foreground transition-all duration-200";
 
   // Define navigation items based on role
@@ -43,7 +41,7 @@ const AdminSidebar = () => {
       { title: "Rooms", url: "/admin/rooms", icon: Building2 },
       { title: "Users", url: "/admin/users", icon: Users },
       { title: "Billing & Invoicing", url: "/admin/billing", icon: CreditCard },
-      { title: "Settings", url: "/admin/settings", icon: Settings }
+      { title: "Settings", url: "/admin/settings", icon: Settings },
     ];
 
     return baseItems;
@@ -61,61 +59,43 @@ const AdminSidebar = () => {
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            {/* <SidebarMenu className="space-y-2 px-3">
+            <SidebarMenu className="space-y-2 px-3">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end 
-                      className={({ isActive }) => `
-                        ${getNavCls({ isActive })}
-                        flex items-center space-x-3 px-4 py-5 rounded-lg text-sm font-medium shadow
-                        ${isActive ? 'shadow-lg' : ''}
-                      `}
-                    >
-                      <item.icon className="h-6 w-6 flex-shrink-0 text-primary text-lg" />
-                      <span className="truncate text-primary text-md">{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
+                  <NavLink to={item.url} end>
+                    {({ isActive }) => (
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        className={`
+                          flex items-center space-x-3 px-4 py-5 rounded-lg text-sm font-medium shadow transition-all duration-200
+                          ${
+                            isActive
+                              ? "bg-primary text-primary shadow-lg font-large"
+                              : "hover:bg-secondary hover:text-foreground"
+                          }
+                        `}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <item.icon
+                            className={`h-6 w-6 flex-shrink-0 text-primary ${
+                              isActive ? "h-8 w-8" : "text-primary"
+                            }`}
+                          />
+                          <span
+                            className={`truncate text-md ${
+                              isActive ? "text-primary" : "text-primary"
+                            }`}
+                          >
+                            {item.title}
+                          </span>
+                        </div>
+                      </SidebarMenuButton>
+                    )}
+                  </NavLink>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu> */}
-            <SidebarMenu className="space-y-2 px-3">
-  {navigationItems.map((item) => (
-    <SidebarMenuItem key={item.title}>
-      <NavLink to={item.url} end>
-        {({ isActive }) => (
-          <SidebarMenuButton
-            asChild
-            isActive={isActive}
-            className={`
-              flex items-center space-x-3 px-4 py-5 rounded-lg text-sm font-medium shadow transition-all duration-200
-              ${isActive
-                ? "bg-primary text-primary shadow-lg font-large"
-                : "hover:bg-secondary hover:text-foreground"}
-            `}
-          >
-            <div className="flex items-center space-x-3">
-              <item.icon
-                className={`h-6 w-6 flex-shrink-0 text-primary ${
-                  isActive ? "h-8 w-8" : "text-primary"
-                }`}
-              />
-              <span
-                className={`truncate text-md ${
-                  isActive ? "text-primary" : "text-primary"
-                }`}
-              >
-                {item.title}
-              </span>
-            </div>
-          </SidebarMenuButton>
-        )}
-      </NavLink>
-    </SidebarMenuItem>
-  ))}
-</SidebarMenu>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

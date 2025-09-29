@@ -43,7 +43,7 @@ const Code: React.FC<codeDialogProps> = ({ open, onOpenChange }) => {
   };
 
   return (
-<Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-6 max-w-md">
         <DialogHeader className="flex items-center gap-2">
           <Lock className="text-primary w-5 h-5" />

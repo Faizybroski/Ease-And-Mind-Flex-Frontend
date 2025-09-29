@@ -21,10 +21,10 @@ import { AdminLogin } from "./components/adminLogin/AdminLogin";
 import AuthPage from "@/components/auth/AuthPage";
 import ResetPassword from "./pages/ResetPassword";
 
-import Dashboard from "./pages/Dashboard"
-import Bookings from "./pages/MyBookings"
+import Dashboard from "./pages/Dashboard";
+import Bookings from "./pages/MyBookings";
 
-import NotFound from "./pages/NotFound"
+import NotFound from "./pages/NotFound";
 
 import { Navigate } from "react-router-dom";
 
@@ -40,85 +40,46 @@ const App = () => (
           <div className="min-h-screen bg-background text-foreground">
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
-              <Route path="/"
-               element={
+              <Route
+                path="/"
+                element={
                   <ProtectedRoute>
                     <Navigation />
                     <Dashboard />
                   </ProtectedRoute>
-                } 
+                }
               />
-              <Route path="/my-bookings"
-               element={
+              <Route
+                path="/my-bookings"
+                element={
                   <ProtectedRoute>
                     <Navigation />
                     <Bookings />
                   </ProtectedRoute>
-                } 
-              />
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <ProtectedAdminRoute requireAdmin={false}>
-                    <AdminLayout>
-                      <AdminDashboard />
-                    </AdminLayout>
-                  </ProtectedAdminRoute>
                 }
               />
               <Route
-                path="/admin/users"
+                path="/admin"
                 element={
-                  <ProtectedAdminRoute requireAdmin={false}>
-                    <AdminLayout>
-                      <AdminUsers />
-                    </AdminLayout>
+                  <ProtectedAdminRoute requireAdmin>
+                    <AdminLayout />
                   </ProtectedAdminRoute>
                 }
-              />
-              <Route
-                path="/admin/bookings"
-                element={
-                  <ProtectedAdminRoute requireAdmin={false}>
-                    <AdminLayout>
-                      <AdminBookings />
-                    </AdminLayout>
-                  </ProtectedAdminRoute>
-                }
-              />
-              <Route
-                path="/admin/rooms"
-                element={
-                  <ProtectedAdminRoute requireAdmin={false}>
-                    <AdminLayout>
-                      <AdminRooms />
-                    </AdminLayout>
-                  </ProtectedAdminRoute>
-                }
-              />
-              <Route
-                path="/admin/billing"
-                element={
-                  <ProtectedAdminRoute requireAdmin={false}>
-                    <AdminLayout>
-                      <AdminBilling />
-                    </AdminLayout>
-                  </ProtectedAdminRoute>
-                }
-              />
-              <Route
-                path="/admin/settings"
-                element={
-                  <ProtectedAdminRoute requireAdmin={false}>
-                    <AdminLayout>
-                      <AdminSettings />
-                    </AdminLayout>
-                  </ProtectedAdminRoute>
-                }
-              />
+              >
+                {/* Default /admin → dashboard */}
+                <Route index element={<Navigate to="dashboard" replace />} />
+
+                {/* Nested admin pages */}
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="bookings" element={<AdminBookings />} />
+                <Route path="rooms" element={<AdminRooms />} />
+                <Route path="billing" element={<AdminBilling />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="*" element={<NotFound />}/>
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </AuthProvider>

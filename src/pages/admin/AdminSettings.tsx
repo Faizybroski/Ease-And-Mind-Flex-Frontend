@@ -1,28 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Settings,
-  Database,
-  Mail,
-  Bell,
-  Shield,
-  Globe,
-  AlertTriangle,
-} from "lucide-react";
 
 const AdminSettings = () => {
-  const { profile } = useProfile();
   const [loading, setLoading] = useState(true);
   const [businessHrs, setBusinessHrs] = useState({
     morningSessionStart: "08:00",
@@ -107,7 +91,7 @@ const AdminSettings = () => {
     }));
   };
 
-  const updateRoomCode = async (val:  any) => {
+  const updateRoomCode = async (val: any) => {
     setRoomCode(val);
   };
 
@@ -196,7 +180,7 @@ const AdminSettings = () => {
       });
       console.error("Error save settings", error);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -251,9 +235,7 @@ const AdminSettings = () => {
               id="roomCode"
               className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
               value={roomCode}
-              onChange={(e) =>
-                updateRoomCode(e.target.value)
-              }
+              onChange={(e) => updateRoomCode(e.target.value)}
             />
           </div>
           <div className="flex justify-end">
@@ -393,8 +375,8 @@ const AdminSettings = () => {
             <Input
               id="advancedBooking"
               type="number"
-              min="1"
-              max="50"
+              min={1}
+              max={30}
               className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
               value={bookingRules.advancedBooking}
               onChange={(e) =>
@@ -409,8 +391,8 @@ const AdminSettings = () => {
             <Input
               id="cancelationPolicy"
               type="number"
-              min="1"
-              max="50"
+              min={1}
+              max={30}
               className="w-full border border-primary rounded-lg px-3 py-2 bg-background text-foreground"
               value={bookingRules.cancelationPolicy}
               onChange={(e) =>

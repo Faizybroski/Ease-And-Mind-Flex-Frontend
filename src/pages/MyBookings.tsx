@@ -38,6 +38,7 @@ interface Booking {
   initial_revenue: number;
   final_revenue: number;
   discount: number;
+  payment_status: string;
   profiles?: {
     full_name?: string;
   };
@@ -47,10 +48,8 @@ interface Booking {
 }
 
 const Bookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("upcoming");
   const [userProfileId, setUserProfileId] = useState<string | null>(null);
 
@@ -84,7 +83,7 @@ const Bookings = () => {
     if (userProfileId) {
       fetchMyBookings(userProfileId);
     }
-  }, [activeTab, userProfileId]);
+  }, [userProfileId]);
 
   const fetchMyBookings = async (profileId?: string) => {
     const currentProfileId = profileId || userProfileId;
@@ -143,6 +142,20 @@ const Bookings = () => {
           <Button
             variant="destructive"
             onClick={async () => {
+              const {data, error: dataError} = await supabase
+              .from('bookings')
+              .select('payment_status')
+              .eq('id', bookingId)
+              .eq('user_id', userProfileId)
+                .single();
+
+              if (data.payment_status === "Completed") {
+                toast({
+                  title: 'Error', description:"Failed to canceled booking becuase the payment is not refundable.", variant: "destructive",
+                })
+                return;
+              }
+              if (dataError) throw dataError;
               const { error } = await supabase
                 .from("bookings")
                 .update({
@@ -199,147 +212,163 @@ const Bookings = () => {
     }
 
     return (
-<div className="space-y-4">
-  {bookings.map((booking) => {
-    const isCreator = booking.user_id === userProfileId;
-    const isRecurring = booking.is_recurring;
+      <div className="space-y-4">
+        {bookings.map((booking) => {
+          const isCreator = booking.user_id === userProfileId;
+          const isRecurring = booking.is_recurring;
 
-    return (
-      <Card
-        key={booking.id}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center 
-        bg-secondary border border-primary rounded-md shadow-sm p-4 gap-4"
-      >
-        {/* Left side: Booking Details */}
-        <div className="flex flex-col sm:flex-row flex-wrap w-full items-start sm:items-center justify-between gap-4">
-          {/* Room Name */}
-          <div className="flex flex-col min-w-[150px]">
-            <h3 className="text-primary text-lg font-bold break-words">
-              {booking.rooms?.room_name}
-            </h3>
-          </div>
-
-          {/* Booking Info */}
-          <div className="flex flex-col text-sm text-primary min-w-[200px] max-w-full">
-            {isRecurring ? (
-              <>
-                <div className="flex items-center flex-wrap">
-                  <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
-                  {booking.start_date
-                    ? new Date(booking.start_date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "N/A"}{" "}
-                  →{" "}
-                  {booking.end_date
-                    ? new Date(booking.end_date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "Ongoing"}
-                </div>
-                <div>
-                  <span className="font-medium">Pattern:</span>{" "}
-                  {booking.recurrence_pattern}
-                </div>
-                {booking.weekdays && (
-                  <div>
-                    <span className="font-medium">Weekdays:</span>{" "}
-                    {booking.weekdays.join(", ")}
-                  </div>
-                )}
-                <div>
-                  <span className="font-medium">Time Slot:</span>{" "}
-                  {booking.time_slot}
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center flex-wrap">
-                <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
-                {booking.date
-                  ? new Date(booking.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  : "N/A"}{" "}
-                - {booking.time_slot}
-              </div>
-            )}
-          </div>
-
-          {/* Revenue */}
-          <div className="flex flex-col text-sm text-primary min-w-[160px]">
-            {isRecurring ? (
-              <>
-                <div>
-                  <span className="font-medium">Initial Revenue:</span>{" "}
-                  {booking.initial_revenue ?? 0}
-                </div>
-                <div>
-                  <span className="font-medium">Discount:</span>{" "}
-                  {booking.discount ?? 0}
-                </div>
-                <div>
-                  <span className="font-medium">Final Revenue:</span>{" "}
-                  {booking.final_revenue ?? 0}
-                </div>
-              </>
-            ) : (
-              <div>
-                <span className="font-medium">Revenue:</span>{" "}
-                {booking.final_revenue ?? 0}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right side: Actions */}
-        <div className="w-full md:w-[200px] flex justify-start md:justify-end">
-          {booking.status === "Upcoming" ? (
-            <div className="flex gap-2 items-center">
-              {/* Status */}
-              <Button
-                className={`px-2 py-0.5 cursor-default ${
-                  booking.status === "Upcoming"
-                    ? "bg-blue-200 text-blue-800 hover:bg-blue-200 hover:text-blue-800"
-                    : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
-                }`}
-              >
-                {booking.status}
-              </Button>
-
-              {/* Cancel button */}
-              {isCreator && (
-                <Button
-                  onClick={() => cancelBooking(booking.id)}
-                  className="text-destructive bg-secondary border border-destructive hover:bg-destructive hover:text-secondary"
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          ) : (
-            <Button
-              className={`block w-full md:w-auto text-center px-2 py-0.5 cursor-default ${
-                booking.status === "Completed"
-                  ? "bg-green-200 text-green-800 hover:bg-green-200 hover:text-green-800"
-                  : booking.status === "Canceled"
-                  ? "bg-red-200 text-red-800 hover:bg-red-200 hover:text-red-800"
-                  : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
-              }`}
+          return (
+            <Card
+              key={booking.id}
+              className="flex flex-col md:flex-row justify-between items-start md:items-center bg-secondary border border-primary rounded-md shadow-sm p-4 gap-4"
             >
-              {booking.status || "Pending"}
-            </Button>
-          )}
-        </div>
-      </Card>
-    );
-  })}
-</div>
+              {/* Left side: Booking Details */}
+              <div className="flex flex-col sm:flex-row flex-wrap w-full items-start sm:items-center justify-between gap-4">
+                {/* Room Name */}
+                <div className="flex flex-col min-w-[150px]">
+                  <h3 className="text-primary text-lg font-bold break-words">
+                    {booking.rooms?.room_name}
+                  </h3>
+                </div>
+
+                {/* Booking Info */}
+                <div className="flex flex-col text-sm text-primary min-w-[200px] max-w-full">
+                  {isRecurring ? (
+                    <>
+                      <div className="flex items-center flex-wrap">
+                        <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
+                        {booking.start_date
+                          ? new Date(booking.start_date).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )
+                          : "N/A"}{" "}
+                        →{" "}
+                        {booking.end_date
+                          ? new Date(booking.end_date).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )
+                          : "Ongoing"}
+                      </div>
+                      <div>
+                        <span className="font-medium">Pattern:</span>{" "}
+                        {booking.recurrence_pattern}
+                      </div>
+                      {booking.weekdays && (
+                        <div>
+                          <span className="font-medium">Weekdays:</span>{" "}
+                          {booking.weekdays.join(", ")}
+                        </div>
+                      )}
+                      <div>
+                        <span className="font-medium">Time Slot:</span>{" "}
+                        {booking.time_slot}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center flex-wrap">
+                      <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
+                      {booking.date
+                        ? new Date(booking.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "N/A"}{" "}
+                      - {booking.time_slot}
+                    </div>
+                  )}
+                </div>
+
+                {/* Revenue */}
+                <div className="flex flex-col text-sm text-primary min-w-[160px]">
+                  {isRecurring ? (
+                    <>
+                      <div>
+                        <span className="font-medium">Initial Revenue:</span>{" "}
+                        {booking.initial_revenue ?? 0}
+                      </div>
+                      <div>
+                        <span className="font-medium">Discount:</span>{" "}
+                        {booking.discount ?? 0}
+                      </div>
+                      <div>
+                        <span className="font-medium">Final Revenue:</span>{" "}
+                        {booking.final_revenue ?? 0}
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <span className="font-medium">Revenue:</span>{" "}
+                      {booking.final_revenue ?? 0}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-sm text-primary min-w-[150px]">
+                <span className="font-medium">Payment Status:</span>{" "}
+                <span className={`${
+                      booking.payment_status === "Completed"
+                        ? "text-green-800"
+                        : booking.payment_status === "Failed"
+                        ? "text-red-800"
+                        : "text-yellow-800"
+                    }`}>{booking.payment_status}</span>
+              </div>
+
+              {/* Right side: Actions */}
+              <div className="w-full md:w-[200px] flex justify-start md:justify-end">
+                {booking.status === "Upcoming" ? (
+                  <div className="flex gap-2 items-center">
+                    {/* Status */}
+                    <Button
+                      className={`px-2 py-0.5 cursor-default ${
+                        booking.status === "Upcoming"
+                          ? "bg-blue-200 text-blue-800 hover:bg-blue-200 hover:text-blue-800"
+                          : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
+                      }`}
+                    >
+                      {booking.status}
+                    </Button>
+
+                    {/* Cancel button */}
+                    {isCreator && (
+                      <Button
+                        onClick={() => cancelBooking(booking.id)}
+                        className="text-destructive bg-secondary border border-destructive hover:bg-destructive hover:text-secondary"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Button
+                    className={`block w-full md:w-auto text-center px-2 py-0.5 cursor-default ${
+                      booking.status === "Completed"
+                        ? "bg-green-200 text-green-800 hover:bg-green-200 hover:text-green-800"
+                        : booking.status === "Canceled"
+                        ? "bg-red-200 text-red-800 hover:bg-red-200 hover:text-red-800"
+                        : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
+                    }`}
+                  >
+                    {booking.status || "Pending"}
+                  </Button>
+                )}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     );
   };
 
@@ -365,7 +394,7 @@ const Bookings = () => {
             </div>
             <Button
               onClick={() => navigate("/")}
-              className="bg-secondary hover:bg-secondary/90 mt-4 sm:mt-0"
+              className="text-primary border border-primary bg-secondary hover:bg-primary hover:text-secondary mt-4 sm:mt-0"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Booking

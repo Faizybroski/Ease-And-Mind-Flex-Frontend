@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Event {
   id: string;
@@ -51,20 +50,21 @@ export const useMyUpcomingEvents = () => {
       }
 
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
         .single();
 
       if (profileError || !profile?.id) {
-        console.error('Error fetching profile:', profileError);
+        console.error("Error fetching profile:", profileError);
         setLoading(false);
         return;
       }
 
       const { data: events, error: eventError } = await supabase
-        .from('events')
-        .select(`
+        .from("events")
+        .select(
+          `
           *,
           profiles:creator_id (
             first_name,
@@ -76,24 +76,26 @@ export const useMyUpcomingEvents = () => {
             status,
             user_id
           )
-        `)
-        .eq('rsvps.user_id', profile.id)
-        .eq('rsvps.status', 'confirmed')
-        .gt('date_time', new Date().toISOString())
-        .order('date_time', { ascending: true })
+        `
+        )
+        .eq("rsvps.user_id", profile.id)
+        .eq("rsvps.status", "confirmed")
+        .gt("date_time", new Date().toISOString())
+        .order("date_time", { ascending: true })
         .limit(2);
 
       if (eventError) {
-        console.error('Error fetching upcoming events:', eventError);
+        console.error("Error fetching upcoming events:", eventError);
         setMyUpcomingEvents([]);
         setLoading(false);
         return;
       }
 
-      const enrichedEvents = (events || []).map(event => ({
+      const enrichedEvents = (events || []).map((event) => ({
         ...event,
-        rsvp_count: event.rsvps?.filter(r => r.status === 'confirmed').length || 0,
-        user_rsvp: event.rsvps?.filter(r => r.user_id === profile.id) || []
+        rsvp_count:
+          event.rsvps?.filter((r) => r.status === "confirmed").length || 0,
+        user_rsvp: event.rsvps?.filter((r) => r.user_id === profile.id) || [],
       }));
 
       setMyUpcomingEvents(enrichedEvents);

@@ -4,14 +4,16 @@ export const sendEventInvite = async ({
   to,
   subject,
   text,
-  html
+  html,
 }: {
   to: string[];
   subject: string;
   text?: string;
   html?: string;
 }) => {
-  const session = supabase.auth.getSession ? (await supabase.auth.getSession()).data.session : null;
+  const session = supabase.auth.getSession
+    ? (await supabase.auth.getSession()).data.session
+    : null;
 
   if (!session) {
     throw new Error("User session not found");

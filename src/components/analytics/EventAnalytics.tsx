@@ -13,22 +13,22 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 
-import { useProfile } from "@/hooks/useProfile";
-
 interface AnalyticsData {
   metric: string;
   count: number;
 }
 
 interface EventAnalyticsDashboardProps {
-    eventId: string;
-    subscriptionStatus: 'loading' | 'free' | 'premium';   
+  eventId: string;
+  subscriptionStatus: "loading" | "free" | "premium";
 }
 
-export default function EventAnalyticsDashboard({ eventId, subscriptionStatus }: EventAnalyticsDashboardProps) {
+export default function EventAnalyticsDashboard({
+  eventId,
+  subscriptionStatus,
+}: EventAnalyticsDashboardProps) {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
   const [loading, setLoading] = useState(true);
-  const { profile } = useProfile();
   const isFreeTier = subscriptionStatus === "free";
   const navigate = useNavigate();
 
@@ -72,12 +72,13 @@ export default function EventAnalyticsDashboard({ eventId, subscriptionStatus }:
     );
   }
 
-
   if (isFreeTier) {
     return (
       <Card className="bg-dark-surface shadow-lg rounded-lg max-w-3xl mx-auto p-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">Upgrade to Premium</CardTitle>
+          <CardTitle className="text-xl font-bold">
+            Upgrade to Premium
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-base leading-relaxed max-w-md mx-auto mb-6">
@@ -104,7 +105,9 @@ export default function EventAnalyticsDashboard({ eventId, subscriptionStatus }:
   return (
     <Card className="bg-dark-surface shadow-lg rounded-lg max-w-3xl mx-auto p-6">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold mb-4">Event Analytics</CardTitle>
+        <CardTitle className="text-2xl font-semibold mb-4">
+          Event Analytics
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -149,7 +152,12 @@ export default function EventAnalyticsDashboard({ eventId, subscriptionStatus }:
               radius={[8, 8, 0, 0]}
               animationDuration={800}
             >
-              <LabelList dataKey="count" position="top" fill="#ffbf69" fontWeight="700" />
+              <LabelList
+                dataKey="count"
+                position="top"
+                fill="#ffbf69"
+                fontWeight="700"
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

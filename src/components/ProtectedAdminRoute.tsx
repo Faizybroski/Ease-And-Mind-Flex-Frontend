@@ -1,17 +1,17 @@
-import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/hooks/useProfile';
-import { Navigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import React from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 interface ProtectedAdminRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
 }
 
-const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({ 
-  children, 
-  requireAdmin = false 
+const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
+  children,
+  requireAdmin = false,
 }) => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
@@ -27,20 +27,13 @@ const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
     );
   }
 
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (!profile) {
+  // 🚫 Once loading is done, enforce access rules
+  if (!user || !profile) {
     return <Navigate to="/" replace />;
   }
 
   // Check if user has admin access
-  const hasAdminAccess = profile.role === 'admin';
-
-  if (!hasAdminAccess) {
-    return <Navigate to="/" replace />;
-  }
+  const hasAdminAccess = profile.role === "admin";
 
   if (requireAdmin && !hasAdminAccess) {
     return (

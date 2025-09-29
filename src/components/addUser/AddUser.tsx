@@ -1,8 +1,5 @@
-// import { useAuth } from "@/contexts/AuthContext";
-// import { useProfile } from "@/hooks/useProfile";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +22,6 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
   });
 
   const addUserfun = async () => {
-    
     if (!addUserData.name.trim()) {
       toast({
         title: "Error",
@@ -43,20 +39,19 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
       return;
     }
     try {
-      toast({ 
+      toast({
         title: "Success",
-        description: "User Added successfully"
-       });
+        description: "User Added successfully",
+      });
       onOpenChange(false);
     } catch (error) {
-      toast({ 
+      toast({
         title: "Error",
         description: "Failed to Add User",
-        variant: "destructive"
+        variant: "destructive",
       });
-      console.error("Error adding user", error)
+      console.error("Error adding user", error);
     }
-    
   };
 
   return (
@@ -95,15 +90,16 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="bg-secondary text-primary border border-primary hover:bg-primary hover:text-secondary"
-                onClick={() => onOpenChange(false)}>
+                onClick={() => onOpenChange(false)}
+              >
                 Cancel
               </Button>
               <Button
                 variant="outline"
-                className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary" 
+                className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary"
                 onClick={addUserfun}
               >
                 Add User

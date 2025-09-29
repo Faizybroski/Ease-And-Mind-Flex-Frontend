@@ -50,22 +50,24 @@ export const usePlans = () => {
       if (profileError || !profileCheck) {
         throw new Error("Profile not found");
       }
-      const { data: functionResponse, error: functionError } = await supabase.functions.invoke(
-      "stripe-plans-management",
-      {
-        body: {
-          name: plan.name,
-          description: plan.description,
-          price: parseFloat(plan.price),
-          interval: plan.interval,
-          creator_id:profile.id,
-        },
-      }
-    );
+      const { data: functionResponse, error: functionError } =
+        await supabase.functions.invoke("stripe-plans-management", {
+          body: {
+            name: plan.name,
+            description: plan.description,
+            price: parseFloat(plan.price),
+            interval: plan.interval,
+            creator_id: profile.id,
+          },
+        });
 
-    if (functionError || !functionResponse || !functionResponse.stripe_price_id) {
-      throw new Error(functionError?.message || "Stripe function error");
-    }
+      if (
+        functionError ||
+        !functionResponse ||
+        !functionResponse.stripe_price_id
+      ) {
+        throw new Error(functionError?.message || "Stripe function error");
+      }
       localStorage.setItem("planUpdated", Date.now().toString());
       window.dispatchEvent(new CustomEvent("planUpdated"));
       await fetchPlans();

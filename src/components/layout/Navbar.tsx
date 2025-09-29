@@ -18,24 +18,15 @@ export const Navbar = () => {
           />
           <h1
             className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap"
-            style={{ fontSize: "30px", color: "#9dc0b3", fontFamily: "Sergio Trendy" }}
+            style={{
+              fontSize: "30px",
+              color: "#9dc0b3",
+              fontFamily: "Sergio Trendy",
+            }}
           >
             Parish
           </h1>
         </div>
-
-        {/* Menu */}
-        {/* <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <a href="#how" className="text-black transition-colors">How it works</a>
-          <a href="#events" className="text-black transition-colors">Events</a>
-          <a href="#faq" className="text-black transition-colors">FAQ</a>
-          <span
-            onClick={() => navigate("/contact-us")}
-            className="text-black cursor-pointer transition-colors"
-          >
-            Contact Us
-          </span>
-        </nav> */}
 
         {/* Button */}
         <Button

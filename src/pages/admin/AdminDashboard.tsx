@@ -2,81 +2,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  formatDistanceToNow,
-  format,
-  subMonths,
-  getMonth,
-  getYear,
-} from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+import { formatDistanceToNow } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-// import { sendEventInvite } from "@/lib/sendInvite";
 import {
-  AlertTriangle,
-  Ban,
-  BarChart3,
   Euro,
   Calendar,
-  CheckCircle,
-  CheckCircle2,
   Clock,
   CalendarCheck,
   DollarSign,
-  Download,
-  Eye,
-  Mail,
-  MapPin,
-  RefreshCw,
-  Search,
   Star,
-  Trash2,
-  TrendingUp,
-  UserCheck,
-  Users,
-  XCircle,
-  UserX,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
-  const { user, signOut } = useAuth();
-  const { profile } = useProfile();
-  const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
 
   const [stats, setStats] = useState({
@@ -108,15 +46,23 @@ const AdminDashboard = () => {
       const isoStartOfMonth = startOfMonth.toISOString().split("T")[0];
       const isoEndOfMonth = endOfMonth.toISOString().split("T")[0];
 
+      const { data: totalRevenue, error: revenueError } = await supabase.rpc("get_completed_revenue");
+
+      console.log("Total revenue:", totalRevenue);
+
+      if (revenueError) throw revenueError;
+
       // 1. Booking schedules → any booking overlapping this month
-      const { data: monthlyBookings, error: monthlyError } = await supabase
-        .from("bookings")
-        .select("id")
-        .or(
-          `and(start_date.lte.${isoEndOfMonth},end_date.gte.${isoStartOfMonth}),and(date.gte.${isoStartOfMonth},date.lte.${isoEndOfMonth})`
-        );
+      const { data: monthlyBookings, error: monthlyError } = await supabase.rpc(
+        "get_monthly_bookings",
+        {
+          start_of_month: isoStartOfMonth,
+          end_of_month: isoEndOfMonth,
+        }
+      );
 
       if (monthlyError) throw monthlyError;
+      console.log("Monthly Bookings:", monthlyBookings);
 
       // 2. Active bookings (Completed this month)
       const { data: activeBookings, error: activeError } = await supabase
@@ -127,6 +73,7 @@ const AdminDashboard = () => {
         );
 
       if (activeError) throw activeError;
+      console.log("Active Bookings:", activeBookings);
 
       // 3. Bookings of today
       const { data: todayBookings, error: todayError } = await supabase
@@ -135,10 +82,12 @@ const AdminDashboard = () => {
         .eq("date", isoToday);
 
       if (todayError) throw todayError;
+      console.log("Today's Bookings:", todayBookings);
 
       // Update state
       setStats((prev) => ({
         ...prev,
+        totalRevenue: totalRevenue || 0,
         bookingShedules: monthlyBookings?.length || 0,
         activeBookings: activeBookings?.length || 0,
         bookingToday: todayBookings?.length || 0,
@@ -150,7 +99,7 @@ const AdminDashboard = () => {
         description: "Failed to load booking stats.",
         variant: "destructive",
       });
-    }
+    } 
   };
 
   const fetchDashboardData = async () => {
@@ -342,9 +291,6 @@ const AdminDashboard = () => {
               <Euro className="h-8 w-8 text-primary text-bold mr-1" />
               {stats.totalRevenue.toLocaleString()}
             </div>
-            <p className="text-sm text-primary ">
-              {stats.percentTotalRevenue} from last month
-            </p>
           </CardContent>
         </Card>
 
@@ -362,9 +308,6 @@ const AdminDashboard = () => {
             <div className="text-3xl font-bold text-primary mb-1">
               {stats.bookingShedules.toLocaleString()}
             </div>
-            <p className="text-sm text-primary">
-              {stats.percentageBookingSchedule} from last month
-            </p>
           </CardContent>
         </Card>
 
@@ -372,7 +315,7 @@ const AdminDashboard = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/20 to-transparent rounded-bl-full" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Active Bookings
+              Completed Bookings
             </CardTitle>
             <div className="p-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -382,9 +325,6 @@ const AdminDashboard = () => {
             <div className="text-3xl font-bold text-primary mb-1">
               {stats.activeBookings.toLocaleString()}
             </div>
-            <p className="text-sm text-primary">
-              {stats.percentageActiveBookings} from last month
-            </p>
           </CardContent>
         </Card>
 
@@ -402,9 +342,6 @@ const AdminDashboard = () => {
             <div className="flex items-center text-3xl font-bold text-primary mb-1">
               {stats.bookingToday.toLocaleString()}
             </div>
-            <p className="text-sm text-primary">
-              {stats.percentageAverageBooking} from last month
-            </p>
           </CardContent>
         </Card>
       </div>

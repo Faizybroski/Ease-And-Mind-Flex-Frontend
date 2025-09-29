@@ -3,33 +3,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Calendar,
-  Search,
-  User,
-  LogOut,
-  Heart,
-  Star,
-  CreditCard,
-  LayoutDashboard,
-  MessageSquare,
-  UtensilsCrossed,
-  Receipt,
-  Menu,
-  X,
-} from "lucide-react";
+import { Calendar, Search, LogOut, Menu, X } from "lucide-react";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
-import Code from "@/components/codeDialog/codeDialog"
+import Code from "@/components/codeDialog/codeDialog";
 import { useProfile } from "@/hooks/useProfile";
 import AppLogo from "@/components/ui/logo";
-import AuthPage from "@/components/auth/AuthPage";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -50,15 +34,6 @@ const Navigation = () => {
       { icon: Calendar, label: "Booking", path: "/" },
       { icon: Search, label: "My Bookings", path: "/my-bookings" },
     ];
-
-    if (profile?.role === "admin") {
-      baseItems.push({
-        icon: CreditCard,
-        label: "Subscription",
-        path: "/subscription",
-      });
-    }
-
     return baseItems;
   };
 
@@ -91,7 +66,7 @@ const Navigation = () => {
 
       if (error) throw error;
 
-      console.log("booooking fetched", bookings)
+      console.log("booooking fetched", bookings);
 
       if (bookings.length > 0) {
         setBooking(true);
@@ -151,7 +126,14 @@ const Navigation = () => {
 
               {/* Right Side */}
               <div className="flex items-center space-x-4">
-                {booking && <Button className="border border-primary bg-primary text-secondary hover:bg-secondary hover:text-primary" onClick={() => setShowCode(true)}>Code</Button>}
+                {booking && (
+                  <Button
+                    className="border border-primary bg-primary text-secondary hover:bg-secondary hover:text-primary"
+                    onClick={() => setShowCode(true)}
+                  >
+                    Code
+                  </Button>
+                )}
                 <NotificationCenter />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -224,7 +206,7 @@ const Navigation = () => {
           </div>
         )}
       </div>
-      <Code open={showCode} onOpenChange={setShowCode}/>
+      <Code open={showCode} onOpenChange={setShowCode} />
     </nav>
   );
 };

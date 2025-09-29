@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate, useLocation } from "react-router-dom";
-import AuthPage from "@/components/auth/AuthPage";
 import { Loader2 } from "lucide-react";
 import { AdminLogin } from "@/components/adminLogin/AdminLogin";
 
@@ -80,26 +79,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       });
     }
   }, [user, profile, navigate, location.pathname, authLoading, profileLoading]);
-  
+
   useEffect(() => {
-  if (!authLoading && !profileLoading && user && profile) {
-    const currentPath = location.pathname;
+    if (!authLoading && !profileLoading && user && profile) {
+      const currentPath = location.pathname;
 
-    // Admins
-    if (profile.role === "admin") {
-      if (!currentPath.startsWith("/admin")) {
-        navigate("/admin/dashboard", { replace: true });
+      // Admins
+      if (profile.role === "admin") {
+        if (!currentPath.startsWith("/admin")) {
+          navigate("/admin/dashboard", { replace: true });
+        }
+        return;
       }
-      return;
     }
-
-    // Users
-    // if (profile.role === "user") {
-    //     navigate("/", { replace: true });
-    //   return;
-    // }
-  }
-}, [user, profile, authLoading, profileLoading, location.pathname, navigate]);
+  }, [user, profile, authLoading, profileLoading, location.pathname, navigate]);
 
   // NOW we can do conditional logic and early returns
   if (authLoading || profileLoading) {

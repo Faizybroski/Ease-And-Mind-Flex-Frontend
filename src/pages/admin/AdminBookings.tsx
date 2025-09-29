@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { format, previousDay } from "date-fns";
-import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -15,27 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import {
-  UserCheck,
-  Search,
-  Users,
-  Filter,
-  CalendarIcon,
-  CheckCircle,
-  AlertTriangle,
-  Trash2,
-  XCircle,
-  Clock,
-} from "lucide-react";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -64,8 +42,6 @@ interface Bookings {
 }
 
 const AdminBookings = () => {
-  const { user, signOut } = useAuth();
-  const { profile } = useProfile();
   const [bookings, setBookings] = useState<Bookings[]>([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -200,9 +176,9 @@ const AdminBookings = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="all" className="space-y-4">
-        <div className="flex w-max overflow-x-auto">
+        <div className="flex w-full overflow-x-auto">
           <TabsList className="flex justify-between w-full">
-            <div className="flex justify-start flex-wrap gap-2 overflow-x-auto">
+            <div className="flex justify-start flex gap-2 overflow-x-auto">
               <TabsTrigger value="all">All Bookings</TabsTrigger>
               <TabsTrigger value="Upcoming">Upcoming</TabsTrigger>
               <TabsTrigger value="Canceled">Canceled</TabsTrigger>

@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useProfile } from "@/hooks/useProfile";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Check, X, Calendar, Users, Heart, Wallet } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import "@/index.css";
 import {
   Sheet,
@@ -64,7 +63,7 @@ const NotificationCenter = () => {
 
       // setNotifications(data || []);
       // setUnreadCount(data?.filter((n) => !n.is_read).length || 0);
-      console.log("notification")
+      console.log("notification");
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
@@ -115,7 +114,7 @@ const NotificationCenter = () => {
       //   prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
       // );
       // setUnreadCount((prev) => Math.max(0, prev - 1));
-      console.log("notification")
+      console.log("notification");
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -136,7 +135,7 @@ const NotificationCenter = () => {
 
       // setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       // setUnreadCount(0);
-      console.log("notification")
+      console.log("notification");
     } catch (error) {
       console.error("Error marking all as read:", error);
     } finally {

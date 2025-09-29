@@ -16,36 +16,33 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
+      const { error } = await updatePassword(password);
 
-    
+      if (error) throw error;
 
-    const { error } = await updatePassword(password);
-
-    if (error) throw error; 
-    
-    if (!error) {
+      if (!error) {
+        toast({
+          title: "Password updated",
+          description: "You can now log in with your new password.",
+        });
+        window.location.href = "/";
+      }
+      setLoading(false);
+    } catch (error) {
       toast({
-        title: "Password updated",
-        description: "You can now log in with your new password.",
-      });
-      window.location.href = "/"; 
-    }
-    setLoading(false);
-  } catch (error) {
-    toast({
         title: "Error",
         description: "Failed to update password.",
         variant: "destructive",
       });
-      console.error("Error adding room", error)
-  }
+      console.error("Error adding room", error);
+    }
   };
 
   return (
     <div className="max-w-sm mx-auto mt-20">
       <h2 className="text-xl font-semibold mb-4">Reset Your Password</h2>
       <form onSubmit={handleUpdatePassword} className="space-y-4">
-       <div className="relative">
+        <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
             placeholder="Enter new password"
@@ -58,7 +55,11 @@ export default function ResetPassword() {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-3"
           >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
           </button>
         </div>
         <Button type="submit" disabled={loading} className="w-full">

@@ -22,7 +22,7 @@ export const AdminLogin = () => {
     try {
       const { error } = await signIn(email.trim(), password.trim(), "admin");
       if (error) throw error;
-      if (!error)  {
+      if (!error) {
         toast({
           title: "Welcome back!",
           description: "Signed in successfully.",
@@ -34,7 +34,7 @@ export const AdminLogin = () => {
         description: "Failed to login.",
         variant: "destructive",
       });
-      console.error("Error login", error)
+      console.error("Error login", error);
     } finally {
       setLoading(false);
     }

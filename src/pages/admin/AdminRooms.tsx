@@ -7,28 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import {
-  Calendar,
-  Clock,
-  MapPin,
-  Users,
-  Search,
   Plus,
-  Heart,
-  UserCheck,
   Sun,
-  Briefcase,
   CloudSun,
-  AlertTriangle,
   Moon,
   ListChecks,
   CalendarCheck,
   Euro,
-  Check,
-  ListCheck,
   Edit,
   Trash2,
-  Eye,
-  Share2,
 } from "lucide-react";
 import {
   Dialog,
@@ -441,7 +428,10 @@ const AdminRooms = () => {
 
                       if (error) throw error;
                       if (!error) {
-                        toast({ title: "Success", description: "Room updated successfully" });
+                        toast({
+                          title: "Success",
+                          description: "Room updated successfully",
+                        });
                         setShowEditModal(false);
                         fetchRooms();
                       }

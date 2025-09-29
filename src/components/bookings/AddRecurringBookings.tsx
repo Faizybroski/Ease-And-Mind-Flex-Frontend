@@ -24,20 +24,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  UserCheck,
-  Search,
-  Users,
-  Filter,
-  CalendarIcon,
-  CheckCircle,
-  AlertTriangle,
-  Trash2,
-  XCircle,
-  Clock,
-} from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { error } from "console";
 
 type User = { id: string; full_name: string };
 type Room = {

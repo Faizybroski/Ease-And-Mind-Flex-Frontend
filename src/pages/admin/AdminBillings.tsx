@@ -1,84 +1,22 @@
-// import { useAuth } from "@/contexts/AuthContext";
-// import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import React, { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-// import { format, subMonths, getMonth, getYear } from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-// import { sendEventInvite } from "@/lib/sendInvite";
-import {
-  AlertTriangle,
-  Ban,
-  BarChart3,
-  Euro,
-  Calendar,
-  CheckCircle,
-  CheckCircle2,
-  Clock,
-  DollarSign,
-  Download,
-  Eye,
-  Mail,
-  MapPin,
-  RefreshCw,
-  Search,
-  Star,
-  Trash2,
-  TrendingUp,
-  UserCheck,
-  Users,
-  XCircle,
-  UserX,
-} from "lucide-react";
+import { Euro, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import UserBillingDetailsPage from "@/pages/admin/UserBillingDetailsPage"
-
-const profile = {
-  role: "admin",
-  firstName: "Hasan",
-  lastName: "Munir",
-};
+import UserBillingDetailsPage from "@/pages/admin/UserBillingDetailsPage";
 
 const AdminBilling = () => {
-  // const { user, signOut } = useAuth();
-  // const { profile } = useProfile();
+  const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [data, setdata] = useState([]);
+  const [billing, setBilling] = useState([]);
 
   useEffect(() => {
     if (profile && profile.role === "admin") {
@@ -88,62 +26,19 @@ const AdminBilling = () => {
 
   const fetchBillingData = async () => {
     try {
-      setdata([
-        {
-          id: 1,
-          profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
-          name: "John Doe",
-          email: "ali.raza@example.com",
-          totalBookings: 2,
-          revenue: 1200,
-        },
-        {
-          id: 2,
-          profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
-          name: "Jane Smith",
-          email: "fatima.khan@example.com",
-          totalBookings: 4,
-          revenue: 921,
-        },
-        {
-          id: 3,
-          profilePic: "https://randomuser.me/api/portraits/men/65.jpg",
-          name: "Mike Johnson",
-          email: "ahmed.malik@example.com",
-          totalBookings: 10,
-          revenue: 123,
-        },
-        {
-          id: 4,
-          name: "Ayesha Khan",
-          profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
-          email: "ayesha.siddiqui@example.com",
-          totalBookings: 7,
-          revenue: 675,
-        },
-        {
-          id: 5,
-          name: "Bilal Ahmad",
-          profilePic: "https://randomuser.me/api/portraits/men/32.jpg",
-          email: "hina.qureshi@example.com",
-          totalBookings: 83,
-          revenue: 786,
-        },
-        {
-          id: 6,
-          profilePic: "https://randomuser.me/api/portraits/men/65.jpg",
-          name: "Mike Johnson",
-          email: "usman.tariq@example.com",
-          totalBookings: 101,
-          revenue: 908,
-        },
-      ]);
+      const { data, error } = await supabase.rpc("get_user_billing");
+
+      console.log("data ====> ", data);
+      setBilling(data || []);
+      if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error("Error loading billing data:", error);
-      toast({ 
+      toast({
         title: "Error",
-        description: "Error loading billing data.", 
-        variant: "destructive"
+        description: "Error loading billing data.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -159,7 +54,7 @@ const AdminBilling = () => {
   };
 
   if (selectedId) {
-    return <UserBillingDetailsPage userId={selectedId} onBack={handleBack} />
+    return <UserBillingDetailsPage userId={selectedId} onBack={handleBack} />;
   }
 
   if (loading) {
@@ -191,36 +86,36 @@ const AdminBilling = () => {
 
       <Card className="border-none bg-transparent shadow-none">
         <CardContent className="p-0 m-0 overflow-x-auto flex flex-col gap-2">
-          {data.map((user) => (
+          {billing.map((bill) => (
             <div
-              key={user.id}
+              key={bill.id}
               className="grid grid-cols-1 md:grid-cols-3 items-center p-3 border border-primary/50 hover:bg-secondary rounded-md gap-4"
             >
               <div>
-                <p className="font-medium text-primary">{user.name}</p>
-                <span className="text-sm text-foreground">{user.email}</span>
+                <p className="font-medium text-primary">{bill.full_name}</p>
+                <span className="text-sm text-foreground">{bill.email}</span>
               </div>
               <div className="flex space-x-6">
-              <div className="flex items-center space-x-1">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="text-primary/70">
-                  {user.totalBookings}
-                  {" bookings"}
-                </span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Euro className="h-4 w-4 text-primary" />
-                <span className="text-primary/70">
-                  {user.revenue}
-                  {" spent"}
-                </span>
-              </div>
+                <div className="flex items-center space-x-1">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="text-primary/70">
+                    {bill.total_bookings}
+                    {" bookings"}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Euro className="h-4 w-4 text-primary" />
+                  <span className="text-primary/70">
+                    {bill.revenue}
+                    {" spent"}
+                  </span>
+                </div>
               </div>
               <div className="flex justify-end">
                 <Button
                   variant="outline"
                   className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary"
-                  onClick={() => handleViewMore(user.id)}
+                  onClick={() => handleViewMore(bill.user_id)}
                 >
                   View More
                 </Button>

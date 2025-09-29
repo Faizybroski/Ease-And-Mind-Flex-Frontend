@@ -177,7 +177,7 @@ const Profile = () => {
         description: "Failed to upload photo",
         variant: "destructive",
       });
-      console.error("Error uploading photo", error)
+      console.error("Error uploading photo", error);
     } finally {
       setUploading(false);
     }
@@ -234,7 +234,7 @@ const Profile = () => {
         description: "Failed to update profile",
         variant: "destructive",
       });
-      console.error("Error updating profile", error)
+      console.error("Error updating profile", error);
     } finally {
       setLoading(false);
     }
@@ -305,7 +305,7 @@ const Profile = () => {
         description: "Failed to update preferences",
         variant: "destructive",
       });
-      console.error("Error updating preferences", error)
+      console.error("Error updating preferences", error);
     } finally {
       setLoading(false);
     }
@@ -349,7 +349,7 @@ const Profile = () => {
         description: "Failed to update social links",
         variant: "destructive",
       });
-      console.error("Error updating social links", error)
+      console.error("Error updating social links", error);
     } finally {
       setLoading(false);
     }
@@ -954,29 +954,7 @@ const Profile = () => {
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                  {/* <Button 
-                  onClick={() => navigate('/rsvps')}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  View RSVPs
-                </Button> */}
-                  {/* <Button 
-                  onClick={() => navigate('/my-visits')}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  My Visits
-                </Button> */}
-                  {/* <Button 
-                  onClick={() => navigate('/crossed-paths')}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Crossed Paths
-                </Button> */}
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4"></div>
               </CardContent>
             </Card>
           )}

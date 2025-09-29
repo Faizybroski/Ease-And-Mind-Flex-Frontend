@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
-export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export const useProfile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -24,19 +24,19 @@ export const useProfile = () => {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
         .maybeSingle();
 
-        console.log(user.id)
+      console.log(user.id);
 
-      console.info("profile===>", data)
+      console.info("profile===>", data);
 
       if (error) throw error;
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error("Error fetching profile:", error);
       setProfile(null);
     } finally {
       setLoading(false);
@@ -48,12 +48,12 @@ export const useProfile = () => {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('user_id', user.id)
+        .eq("user_id", user.id)
         .select()
         .single();
 
@@ -69,6 +69,6 @@ export const useProfile = () => {
     profile,
     loading,
     updateProfile,
-    refetch: fetchProfile
+    refetch: fetchProfile,
   };
 };

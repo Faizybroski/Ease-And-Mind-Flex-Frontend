@@ -1,17 +1,17 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { X, Users, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { X, Users, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationBannerProps {
   crossedPathsCount: number;
   onDismiss: () => void;
 }
 
-const NotificationBanner: React.FC<NotificationBannerProps> = ({ 
-  crossedPathsCount, 
-  onDismiss 
+const NotificationBanner: React.FC<NotificationBannerProps> = ({
+  crossedPathsCount,
+  onDismiss,
 }) => {
   const navigate = useNavigate();
 
@@ -30,13 +30,14 @@ const NotificationBanner: React.FC<NotificationBannerProps> = ({
                 New Crossed Paths Discovered!
               </h3>
               <p className="text-sm text-muted-foreground">
-                You've crossed paths with {crossedPathsCount} new people at restaurants within the last 14 days.
+                You've crossed paths with {crossedPathsCount} new people at
+                restaurants within the last 14 days.
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button
-              onClick={() => navigate('/crossed-paths')}
+              onClick={() => navigate("/crossed-paths")}
               size="sm"
               className="bg-peach-gold hover:bg-peach-gold/90 text-background"
             >

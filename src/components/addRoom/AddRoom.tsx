@@ -1,9 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -13,16 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  Upload,
-  Plus,
-  X,
-  Users,
-  DollarSign,
-} from "lucide-react";
+import { Upload } from "lucide-react";
 
 interface AddRoomProps {
   open: boolean;
@@ -40,7 +29,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
 
   const handleImageUpload = async (
     room: React.ChangeEvent<HTMLInputElement>
@@ -78,7 +67,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
         description: "Failed to upload photo",
         variant: "destructive",
       });
-      console.log("Error uploading photo", error)
+      console.log("Error uploading photo", error);
     } finally {
       setUploading(false);
     }
@@ -127,32 +116,37 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
           Afternoon_price: addRoomData.afternoon_price,
           Night_price: addRoomData.night_price,
           amenities: addRoomData.amenities,
-          room_pics: addRoomData.room_pics
+          room_pics: addRoomData.room_pics,
         })
         .select()
         .single();
 
-        if (error) throw error;
+      if (error) throw error;
 
       if (!error) {
-        toast({ 
+        toast({
           title: "Success",
           description: "Room Added successfully",
-         });
+        });
         onOpenChange(false);
       }
       setLoading(false);
     } catch (error) {
-      toast({ 
+      toast({
         title: "Error",
         description: "Failed to Add Room",
-        variant: "destructive"
-       });
-       console.error("Error adding room", error)
+        variant: "destructive",
+      });
+      console.error("Error adding room", error);
     }
   };
 
-  const isValid = addRoomData.room_name && addRoomData.morning_price && addRoomData.afternoon_price && addRoomData.night_price && addRoomData.room_pics
+  const isValid =
+    addRoomData.room_name &&
+    addRoomData.morning_price &&
+    addRoomData.afternoon_price &&
+    addRoomData.night_price &&
+    addRoomData.room_pics;
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -178,6 +172,8 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               <Label>Morning Price</Label>
               <Input
                 type="number"
+                placeholder="1"
+                min={1}
                 value={addRoomData.morning_price}
                 onChange={(e) =>
                   setAddRoomData({
@@ -191,6 +187,8 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               <Label>Afternoon Price</Label>
               <Input
                 type="number"
+                placeholder="1"
+                min={1}
                 value={addRoomData.afternoon_price}
                 onChange={(e) =>
                   setAddRoomData({
@@ -204,6 +202,8 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               <Label>Night Price</Label>
               <Input
                 type="number"
+                placeholder="1"
+                min={1}
                 value={addRoomData.night_price}
                 onChange={(e) =>
                   setAddRoomData({

@@ -1,53 +1,10 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import AddUser from "@/components/addUser/AddUser";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { toast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import {
-  AlertTriangle,
-  Ban,
-  Calendar,
-  CheckCircle,
-  CreditCard,
-  User,
-  Edit,
-  Eye,
-  Clock,
-  Euro,
-  Filter,
-  Mail,
-  MapPin,
-  Search,
-  Trash2,
-  UserCheck,
-  Users,
-  UserX,
-} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, User, Clock, Euro } from "lucide-react";
 
 interface User {
   id: number | string;
@@ -59,80 +16,29 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
   // You can fetch details with react-query or props
   // Example mock data for now:
   const [bookings, setBookings] = useState([]);
-  const [user, setUser] = useState<User | null>(null);
+  const userProfile = bookings[0]?.profiles;
 
   const fetchBookings = async () => {
     try {
-      setBookings([
-        {
-          id: 1,
-          room: "Room A",
-          timeSession: "Morning",
-          time: "08:00 - 01:00",
-          day: "Monday",
-          date: "2025-09-15",
-          revenue: 120,
-        },
-        {
-          id: 2,
-          room: "Room B",
-          timeSession: "Afternoon",
-          time: "01:00 - 06:00",
-          day: "Tuesday",
-          date: "2025-09-16",
-          revenue: 200,
-        },
-        {
-          id: 3,
-          room: "Room C",
-          timeSession: "Night",
-          time: "06:00 - 10:00",
-          day: "Wednesday",
-          date: "2025-09-17",
-          revenue: 95,
-        },
-        {
-          id: 4,
-          room: "Room A",
-          timeSession: "Morning",
-          time: "08:00 - 01:00",
-          day: "Thursday",
-          date: "2025-09-18",
-          revenue: 300,
-        },
-        {
-          id: 5,
-          room: "Room B",
-          timeSession: "Afternoon",
-          time: "01:00 - 06:00",
-          day: "Friday",
-          date: "2025-09-19",
-          revenue: 180,
-        },
-        {
-          id: 6,
-          room: "Room C",
-          timeSession: "Night",
-          time: "06:00 - 10:00",
-          day: "Saturday",
-          date: "2025-09-20",
-          revenue: 250,
-        },
-        {
-          id: 7,
-          room: "Room A",
-          timeSession: "Morning",
-          time: "08:00 - 01:00",
-          day: "Sunday",
-          date: "2025-09-21",
-          revenue: 140,
-        },
-      ]);
-      setUser({
-        id: userId,
-        name: "John Doe",
-        email: "john@example.com",
-      });
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(
+          `
+          *,
+          profiles:user_id (
+            id,
+            full_name,
+            email
+          ),
+          rooms:room_id(room_name)
+        `
+        )
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      console.table(data);
+
+      setBookings(data);
     } catch {
       console.log("error");
     }
@@ -148,12 +54,14 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">{user?.name}</h1>
-          <p className="text-primary text-sm">{user?.email}</p>
+          <h1 className="text-3xl font-bold text-primary mb-2">
+            {userProfile?.full_name}
+          </h1>
+          <p className="text-primary text-sm">{userProfile?.email}</p>
         </div>
-        <Button 
+        <Button
           className="text-primary bg-secondary hover:bg-primary border border-primary hover:text-secondary"
-          variant="outline" 
+          variant="outline"
           onClick={onBack}
         >
           ← Back
@@ -167,43 +75,58 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
               key={booking.id}
               className="grid grid-cols-1 md:grid-cols-3 items-center p-3 border border-primary/50 hover:bg-secondary rounded-md gap-4"
             >
+              {/* Left column */}
               <div>
-                <p className="text-lg text-primary">{booking.room}</p>
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 text-primary mr-2"/>
-                  <span className="text-sm text-primary/70">{booking.timeSession}{" "}</span>
-                  <span className="text-sm text-primary/70">{booking.time}</span>
-                </div>
-              </div>
-              <div className="flex space-x-6 justify-between">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <span className="text-primary/70">
-                    {booking.day}{" "}
-                    {booking.date}
+                <p className="text-lg text-primary font-medium">
+                  {booking.rooms.room_name}
+                </p>
+                <div className="flex items-center mt-1">
+                  <Clock className="w-4 h-4 text-primary mr-2" />
+                  <span className="text-sm text-primary/70">
+                    {booking.time_slot}
                   </span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Euro className="h-4 w-4 text-primary" />
-                  <p className="text-primary/70 ">
-                    {booking.revenue}
-                    <p>revenue</p>
-                  </p>
-                </div>
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  className="text-primary bg-secondary hover:bg-primary border border-primary hover:text-secondary"
-                >
-                  View
-                </Button>
-                <Button
-                  variant="outline"
-                  className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary"
-                >
-                  Send Invoice
-                </Button>
+
+              {/* Middle column */}
+              <div className="flex flex-col md:flex-row md:justify-center md:space-x-6 space-y-2 md:space-y-0 text-sm">
+                {/* Date */}
+                <div className="flex items-center space-x-1 min-w-[200px] truncate">
+                  <Calendar className="h-4 w-4 text-primary shrink-0" />
+                  {booking.date && (
+                    <span className="text-primary/70">{booking.date}</span>
+                  )}
+                  {booking.start_date && booking.end_date && (
+                    <span className="text-primary/70">
+                      {booking.start_date} - {booking.end_date}
+                    </span>
+                  )}
+                </div>
+
+                {/* Revenue */}
+                <div className="flex items-center space-x-1 min-w-[120px]">
+                  <Euro className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-primary/70">
+                    {booking.final_revenue}
+                  </span>
+                  <span className="text-xs text-primary/50">revenue</span>
+                </div>
+
+                {/* Payment info (only if not recurring) */}
+                {!booking.is_recurring && (
+                  <>
+                    <div className="flex items-center space-x-1 min-w-[150px]">
+                      <span className="text-primary/70">
+                        Payment: {booking.payment_status}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1 min-w-[150px]">
+                      <span className="text-primary/70">
+                        Type: {booking.payment_type}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}

@@ -5,15 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-import { ChevronLeft, ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import AppLogo from "../ui/logo";
 
-export const LoginSignup = ({ startStep = 0 }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+export const LoginSignup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -279,7 +276,7 @@ export const LoginSignup = ({ startStep = 0 }) => {
                       description: "Failed to send reset link.",
                       variant: "destructive",
                     });
-                    console.error("Error sending password reset link", error)
+                    console.error("Error sending password reset link", error);
                   }
                 }}
                 className="text-primary text-sm underline"

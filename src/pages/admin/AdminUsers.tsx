@@ -1,8 +1,6 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import React, { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,15 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import AddUser from "@/components/addUser/AddUser";
 import {
   Table,
@@ -30,27 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { format, previousDay } from "date-fns";
-import {
-  AlertTriangle,
-  Ban,
-  Calendar,
-  CheckCircle,
-  CreditCard,
-  User,
-  Edit,
-  Loader2,
-  Eye,
-  Euro,
-  Filter,
-  Mail,
-  MapPin,
-  Search,
-  Trash2,
-  UserCheck,
-  Users,
-  UserX,
-} from "lucide-react";
+import { format } from "date-fns";
+import { Ban, User, Loader2, Eye, Euro, Trash2, UserCheck } from "lucide-react";
 import RecurringBookingDialog from "@/components/bookings/AddRecurringBookings";
 
 interface User {
@@ -82,8 +53,6 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   onOpenChange,
   onUserUpdate,
 }) => {
-  const { user: currentUser } = useAuth();
-  const { profile } = useProfile();
   const [bookings, setBookings] = useState([]);
   const [recurringBookings, setRecurringBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -506,8 +475,6 @@ const AdminUsers = () => {
     useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editUserData, setEditUserData] = useState(null);
 
   useEffect(() => {
     if (profile && profile.role === "admin") {
@@ -644,14 +611,14 @@ const AdminUsers = () => {
               >
                 Add Recurring Reservation
               </Button>
-              <Button
+              {/* <Button
                 onClick={() => {
                   setShowAddUser(true);
                 }}
                 className="text-sm bg-primary border border-primary font-medium text-secondary hover:bg-secondary hover:text-primary"
               >
                 Send Invite
-              </Button>
+              </Button> */}
             </div>
           </div>
         </header>
@@ -682,14 +649,14 @@ const AdminUsers = () => {
           >
             Add Recurring Reservation
           </Button>
-          <Button
+          {/* <Button
             onClick={() => {
               setShowAddUser(true);
             }}
             className="text-sm bg-primary border border-primary font-medium text-secondary hover:bg-secondary hover:text-primary"
           >
             Send Invite
-          </Button>
+          </Button> */}
         </div>
       </header>
 
@@ -755,17 +722,6 @@ const AdminUsers = () => {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          {/* <Button
-                            size="sm"
-                            variant="outline"
-                            className="hover:bg-primary hover:text-secondary bg-secondary"
-                            onClick={() => {
-                              setEditUserData(user);
-                              setShowEditModal(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button> */}
                           <Button
                             size="sm"
                             variant="destructive"
@@ -793,108 +749,6 @@ const AdminUsers = () => {
         onOpenChange={setShowUserDetails}
         onUserUpdate={fetchUsers}
       />
-
-      {/* <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-lg text-primary">
-              Edit User
-            </DialogTitle>
-          </DialogHeader>
-
-          {editUserData && (
-            <div className="space-y-4">
-              <div>
-                <Label>Name</Label>
-                <Input
-                  value={editUserData.full_name}
-                  onChange={(e) =>
-                    setEditUserData({
-                      ...editUserData,
-                      full_name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input
-                  value={editUserData.email}
-                  onChange={(e) =>
-                    setEditUserData({
-                      ...editUserData,
-                      email: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="border border-primary text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary"
-                  onClick={async () => {
-                    if (!editUserData) {
-                      toast({
-                        title: "Error",
-                        description: "No user is selected",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (!editUserData.full_name.trim()) {
-                      toast({
-                        title: "validation Error",
-                        description: "Name is required",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (!editUserData.email.trim()) {
-                      toast({
-                        title: "Validation Error",
-                        description: "Email is required",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    try {
-
-                      const { error } = await supabase.rpc("update_user_info", {
-                        target_user: editUserData.user_id,
-                        new_email: editUserData.email.trim(),
-                        new_full_name: editUserData.full_name.trim(),
-                      });
-
-                      if (error) throw error;
-                      toast({
-                        title: "Success",
-                        description: "User updated successfully",
-                      });
-                      setShowEditModal(false);
-                      fetchUsers();
-                    } catch (error) {
-                      toast({
-                        title: "Error",
-                        description: "Error updating profile",
-                        variant: "destructive",
-                      });
-                      console.error("Error updating profile", error);
-                    }
-                  }}
-                >
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog> */}
 
       <RecurringBookingDialog
         open={showRecurringBookingsDialog}

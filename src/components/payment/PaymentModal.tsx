@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
-  DialogDescription 
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { CreditCard, Calendar, MapPin, Users } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CreditCard, Calendar, MapPin, Users } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
 interface Event {
   id: string;
@@ -41,80 +41,90 @@ interface PaymentModalProps {
   onPaymentSuccess: () => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  event, 
-  onPaymentSuccess 
+const PaymentModal: React.FC<PaymentModalProps> = ({
+  isOpen,
+  onClose,
+  event,
+  onPaymentSuccess,
 }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [billingInfo, setBillingInfo] = useState<BillingInfo>({
-    fullName: '',
-    email: user?.email || '',
-    address: '',
-    city: '',
-    country: 'US',
-    zipCode: '',
+    fullName: "",
+    email: user?.email || "",
+    address: "",
+    city: "",
+    country: "US",
+    zipCode: "",
   });
 
-  const ticketPrice = 25.00; // You can make this configurable
+  const ticketPrice = 25.0; // You can make this configurable
   const quantity = 1;
   const total = ticketPrice * quantity;
 
   const handleInputChange = (field: keyof BillingInfo, value: string) => {
-    setBillingInfo(prev => ({ ...prev, [field]: value }));
+    setBillingInfo((prev) => ({ ...prev, [field]: value }));
   };
 
   const handlePayment = async () => {
     if (!user) {
-      toast({ 
+      toast({
         title: "Error",
-        description: "Please log in to continue", 
-        variant: "destructive"
-       });
+        description: "Please log in to continue",
+        variant: "destructive",
+      });
       return;
     }
 
     // Validate billing info
-    const requiredFields: (keyof BillingInfo)[] = ['fullName', 'email', 'address', 'city', 'zipCode'];
-    const missingFields = requiredFields.filter(field => !billingInfo[field]);
-    
+    const requiredFields: (keyof BillingInfo)[] = [
+      "fullName",
+      "email",
+      "address",
+      "city",
+      "zipCode",
+    ];
+    const missingFields = requiredFields.filter((field) => !billingInfo[field]);
+
     if (missingFields.length > 0) {
-      toast({ 
-        title: "Please fill in all required fields", 
-        description: `Missing: ${missingFields.join(', ')}`,
-        variant: "destructive" 
+      toast({
+        title: "Please fill in all required fields",
+        description: `Missing: ${missingFields.join(", ")}`,
+        variant: "destructive",
       });
       return;
     }
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-rsvp-payment', {
-        body: {
-          eventId: event.id,
-          billingInfo,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "create-rsvp-payment",
+        {
+          body: {
+            eventId: event.id,
+            billingInfo,
+          },
+        }
+      );
 
       if (error) throw error;
 
       if (data?.url) {
         // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
+        window.open(data.url, "_blank");
         onClose();
-        
+
         // Show success message
         toast({
           title: "Redirecting to payment",
-          description: "Complete your payment in the new tab to confirm your RSVP",
+          description:
+            "Complete your payment in the new tab to confirm your RSVP",
         });
-        
+
         onPaymentSuccess();
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast({
         title: "Payment failed",
         description: "Please try again",
@@ -142,14 +152,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* Billing Information Form */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Billing Information</h3>
-            
+
             <div className="space-y-3">
               <div>
                 <Label htmlFor="fullName">Full Name *</Label>
                 <Input
                   id="fullName"
                   value={billingInfo.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("fullName", e.target.value)
+                  }
                   placeholder="Enter your full name"
                 />
               </div>
@@ -160,7 +172,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   id="email"
                   type="email"
                   value={billingInfo.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="Enter your email"
                 />
               </div>
@@ -170,7 +182,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <Input
                   id="address"
                   value={billingInfo.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                   placeholder="Enter your address"
                 />
               </div>
@@ -181,7 +193,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   <Input
                     id="city"
                     value={billingInfo.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
                     placeholder="City"
                   />
                 </div>
@@ -190,7 +202,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   <Input
                     id="zipCode"
                     value={billingInfo.zipCode}
-                    onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("zipCode", e.target.value)
+                    }
                     placeholder="Zip code"
                   />
                 </div>
@@ -201,7 +215,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <Input
                   id="country"
                   value={billingInfo.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)}
+                  onChange={(e) => handleInputChange("country", e.target.value)}
                   placeholder="Country"
                 />
               </div>
@@ -211,7 +225,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* Order Summary */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Order Summary</h3>
-            
+
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">{event.name}</CardTitle>
@@ -219,9 +233,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <CardContent className="space-y-3">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>{format(new Date(event.date_time), 'PPP p')}</span>
+                  <span>{format(new Date(event.date_time), "PPP p")}</span>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
                   <span>{event.location_name}</span>
@@ -266,7 +280,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             Cancel
           </Button>
           <Button onClick={handlePayment} disabled={loading}>
-            {loading ? 'Processing...' : `Pay $${total.toFixed(2)} & RSVP`}
+            {loading ? "Processing..." : `Pay $${total.toFixed(2)} & RSVP`}
           </Button>
         </div>
       </DialogContent>

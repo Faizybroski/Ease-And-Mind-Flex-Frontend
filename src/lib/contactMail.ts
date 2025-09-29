@@ -5,7 +5,7 @@ export const sendContactMail = async ({
   subject,
   text,
   html,
-  replyTo
+  replyTo,
 }: {
   to: string[];
   subject: string;
