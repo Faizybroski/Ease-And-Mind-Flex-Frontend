@@ -613,7 +613,7 @@ const Dashboard = () => {
 
               {paymentType === "Monthly" && (
                 <Button
-                  className="w-full"
+                  className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
                   onClick={() => {
                     if (!selectedRoom) return;
                     if (!profile.id) return;
