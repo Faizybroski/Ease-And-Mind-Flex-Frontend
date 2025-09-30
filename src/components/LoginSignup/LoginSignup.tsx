@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import AppLogo from "../ui/logo";
 
-export const LoginSignup = () => {
+export const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -151,6 +151,7 @@ export const LoginSignup = () => {
   };
 
   return (
+      <div className="w-full max-w-md space-y-8">
     <div className="min-h-screen bg-background flex items-center justify-center">
       <Card className="w-full max-w-md p-6 bg-gradient-card border-primary shadow-card animate-fade-in">
         <div className="mb-6 flex justify-center">
@@ -303,6 +304,7 @@ export const LoginSignup = () => {
           </Button>
         </form>
       </Card>
+    </div>
     </div>
   );
 };

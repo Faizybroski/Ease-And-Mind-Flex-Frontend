@@ -18,7 +18,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import Navigation from "./components/layout/Navigation";
 
 import { AdminLogin } from "./components/adminLogin/AdminLogin";
-import AuthPage from "@/components/auth/AuthPage";
+import {Auth} from "@/components/loginSignup/LoginSignup";
 import ResetPassword from "./pages/ResetPassword";
 
 import Dashboard from "./pages/Dashboard";
@@ -39,7 +39,7 @@ const App = () => (
         <AuthProvider>
           <div className="min-h-screen bg-background text-foreground">
             <Routes>
-              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth" element={<Auth />} />
               <Route
                 path="/"
                 element={
