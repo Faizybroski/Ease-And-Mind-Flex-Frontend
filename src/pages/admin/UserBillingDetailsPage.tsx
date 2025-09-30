@@ -71,9 +71,9 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
       <Card className="border-none bg-transparent shadow-none p-0 m-0">
         <CardContent className="p-0 m-0 overflow-x-auto flex flex-col gap-2">
           {bookings.map((booking) => (
-            <div
+            <Card
               key={booking.id}
-              className="grid grid-cols-1 md:grid-cols-3 items-center p-3 border border-primary/50 hover:bg-secondary rounded-md gap-4"
+              className="grid grid-cols-1 md:grid-cols-4 items-center p-3 border border-primary/50 hover:bg-secondary rounded-md gap-4"
             >
               {/* Left column */}
               <div>
@@ -102,33 +102,62 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                     </span>
                   )}
                 </div>
-
-                {/* Revenue */}
-                <div className="flex items-center space-x-1 min-w-[120px]">
-                  <Euro className="h-4 w-4 text-primary shrink-0" />
-                  <span className="text-primary/70">
-                    {booking.final_revenue}
-                  </span>
-                  <span className="text-xs text-primary/50">revenue</span>
-                </div>
-
-                {/* Payment info (only if not recurring) */}
-                {!booking.is_recurring && (
-                  <>
-                    <div className="flex items-center space-x-1 min-w-[150px]">
-                      <span className="text-primary/70">
-                        Payment: {booking.payment_status}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1 min-w-[150px]">
-                      <span className="text-primary/70">
-                        Type: {booking.payment_type}
-                      </span>
-                    </div>
-                  </>
-                )}
               </div>
-            </div>
+
+              <div className="flex items-center space-x-1 min-w-[120px]">
+                <Euro className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-primary">{booking.final_revenue}</span>
+                <span className="text-xs text-primary/50">revenue</span>
+              </div>
+
+              {booking.is_recurring && (
+                <div className="flex">
+                  <span className="text-primary mr-1">Payment:</span>{" "}
+                  <p
+                    className={` ${
+                      booking.payment_status === "Completed"
+                        ? "text-green-600 font-medium"
+                        : booking.payment_status === "Canceled"
+                        ? "text-red-600 font-medium"
+                        : "text-yellow-600 font-medium"
+                    }`}
+                  >
+                    {booking.payment_status || "Null"}
+                  </p>
+                </div>
+              )}
+
+              {!booking.is_recurring && (
+                <div>
+                  <div className="flex">
+                    <span className="text-primary mr-1">Payment:</span>{" "}
+                    <p
+                      className={` ${
+                        booking.payment_status === "Completed"
+                          ? "text-green-600 font-medium"
+                          : booking.payment_status === "Canceled"
+                          ? "text-red-600 font-medium"
+                          : "text-yellow-600 font-medium"
+                      }`}
+                    >
+                      {booking.payment_status}
+                    </p>
+                  </div>
+                  <div className="flex">
+                    <span className="text-primary mr-1">Type:</span>{" "}
+                    <p
+                      className={`${
+                        booking.payment_type === "Instant"
+                          ? "text-green-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
+                      {booking.payment_type}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </Card>
           ))}
         </CardContent>
       </Card>

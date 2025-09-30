@@ -236,7 +236,6 @@ const AdminBookings = () => {
                         <TableHead>Time</TableHead>
                         <TableHead>Revenue</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -299,18 +298,6 @@ const AdminBookings = () => {
                           </TableCell>
                           <TableCell>
                             {getStatusColor(booking.status)}
-                          </TableCell>
-                          <TableCell className="w-[70px]">
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="border border-primary bg-background text-primary hover:text-[white] hover:border-destructive"
-                              onClick={() => {
-                                handleDeletebooking(booking.id);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}

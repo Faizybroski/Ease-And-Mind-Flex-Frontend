@@ -18,14 +18,10 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
 
   const [stats, setStats] = useState({
-    totalRevenue: 300,
-    percentTotalRevenue: "+20.1%",
-    bookingShedules: 5,
-    percentageBookingSchedule: "+12.5%",
-    activeBookings: 2,
-    percentageActiveBookings: "+5.2%",
-    bookingToday: 1,
-    percentageAverageBooking: "+20.1%",
+    totalRevenue: 0,
+    bookingShedules: 0,
+    activeBookings: 0,
+    bookingToday: 0,
   });
 
   const [bookings, setBookings] = useState([]);
