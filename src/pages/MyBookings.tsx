@@ -319,7 +319,7 @@ const Bookings = () => {
                 </div>
               </div>
 
-              <div className="text-sm text-primary min-w-[150px]">
+              <div className="text-sm text-primary min-w-[190px]">
                 <span className="font-medium">Payment Status:</span>{" "}
                 <span
                   className={`${
@@ -332,22 +332,21 @@ const Bookings = () => {
                 >
                   {booking?.payment_status || "Null"}
                 </span>
+                {!isRecurring && (
+                  <div className="text-sm text-primary min-w-[150px]">
+                    <span className="font-medium">Payment Type:</span>{" "}
+                    <span
+                      className={`${
+                        booking.payment_type === "Instant"
+                          ? "text-green-800"
+                          : "text-yellow-800"
+                      }`}
+                    >
+                      {booking?.payment_type || "Instantly"}
+                    </span>
+                  </div>
+                )}
               </div>
-
-              {!isRecurring && (
-                <div className="text-sm text-primary min-w-[150px]">
-                  <span className="font-medium">Payment Type:</span>{" "}
-                  <span
-                    className={`${
-                      booking.payment_type === "Instant"
-                        ? "text-green-800"
-                        : "text-yellow-800"
-                    }`}
-                  >
-                    {booking?.payment_type || "Instantly"}
-                  </span>
-                </div>
-              )}
 
               {/* Right side: Actions */}
               <div className="w-full md:w-[200px] flex justify-start md:justify-end">
@@ -375,17 +374,19 @@ const Bookings = () => {
                     )}
                   </div>
                 ) : (
-                  <Button
-                    className={`block w-full md:w-auto text-center px-2 py-0.5 cursor-default ${
-                      booking.status === "Completed"
-                        ? "bg-green-200 text-green-800 hover:bg-green-200 hover:text-green-800"
-                        : booking.status === "Canceled"
-                        ? "bg-red-200 text-red-800 hover:bg-red-200 hover:text-red-800"
-                        : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
-                    }`}
-                  >
-                    {booking.status || "Pending"}
-                  </Button>
+                  <div className="">
+                    <Button
+                      className={`block w-full md:w-auto text-center  py-0.5 cursor-default ${
+                        booking.status === "Completed"
+                          ? "bg-green-200 text-green-800 px-12 hover:bg-green-200 hover:text-green-800"
+                          : booking.status === "Canceled"
+                          ? "bg-red-200 text-red-800 px-12 hover:bg-red-200 hover:text-red-800"
+                          : "bg-yellow-200 text-yellow-800 px-[3.25rem] hover:bg-yellow-200 hover:text-yellow-800"
+                      }`}
+                    >
+                      {booking.status || "Pending"}
+                    </Button>
+                  </div>
                 )}
               </div>
             </Card>

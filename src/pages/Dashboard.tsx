@@ -189,6 +189,7 @@ const Dashboard = () => {
       const { data, error } = await supabase
         .from("settings")
         .select("*")
+        .neq('room_code')
         .single();
       if (error) {
         console.error(error);
