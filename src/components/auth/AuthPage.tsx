@@ -1,4 +1,4 @@
-import { LoginSignup } from "../loginSignup/LoginSignup";
+import { LoginSignup } from "@/components/loginSignup/LoginSignup";
 import React from "react";
 
 const AuthPage = () => {
