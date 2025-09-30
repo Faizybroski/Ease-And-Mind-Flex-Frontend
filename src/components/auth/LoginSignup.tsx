@@ -151,7 +151,6 @@ export const Auth = () => {
   };
 
   return (
-      <div className="w-full max-w-md space-y-8">
     <div className="min-h-screen bg-background flex items-center justify-center">
       <Card className="w-full max-w-md p-6 bg-gradient-card border-primary shadow-card animate-fade-in">
         <div className="mb-6 flex justify-center">
@@ -304,7 +303,6 @@ export const Auth = () => {
           </Button>
         </form>
       </Card>
-    </div>
     </div>
   );
 };

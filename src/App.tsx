@@ -18,7 +18,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import Navigation from "./components/layout/Navigation";
 
 import { AdminLogin } from "./components/adminLogin/AdminLogin";
-import {Auth} from "@/components/loginSignup/LoginSignup";
+import {Auth} from "@/components/auth/LoginSignup";
 import ResetPassword from "./pages/ResetPassword";
 
 import Dashboard from "./pages/Dashboard";
