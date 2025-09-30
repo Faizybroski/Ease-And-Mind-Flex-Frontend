@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const PaymentFields = ({
   bookingData,
@@ -177,8 +178,19 @@ const PaymentFields = ({
       <div className="p-3 border rounded">
         <CardElement options={{ hidePostalCode: true }} />
       </div>
-      <Button className="w-full" onClick={handlePay} disabled={loading}>
-        {loading ? "Processing…" : "Pay & Confirm Booking"}
+      <Button
+        className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
+        onClick={handlePay}
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "Pay & Confirm Booking"
+        )}
       </Button>
     </div>
   );

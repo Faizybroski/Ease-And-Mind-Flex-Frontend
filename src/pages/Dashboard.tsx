@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import PaymentFields from "@/components/paymentFields/PaymentFields";
+import { MonthlyPaymentWrapper } from "@/components/monthlyPaymentCard/MonthlyPaymentCard";
 
 type Settings = {
   morningSessionStart: string;
@@ -67,12 +69,17 @@ const Dashboard = () => {
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isStripePaymentDialogOpen, setIsStripePaymentDialogOpen] =
     useState(false);
-  const [paymentType, setPaymentType] = useState<"instant" | "monthly">(
-    "instant"
+  const [paymentType, setPaymentType] = useState<"Instant" | "Monthly">(
+    "Instant"
   );
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
+  const [
+    isMonthlyStripePaymentDialogOpen,
+    setIsMonthlyStripePaymentDialogOpen,
+  ] = useState(false);
+  const [isInstantLoading, setIsInstantLoading] = useState(false);
   const navigate = useNavigate();
   const weekDates = getWeekDates(selectedDate);
   const now = new Date();
@@ -279,30 +286,32 @@ const Dashboard = () => {
     price: number;
     date: string;
     slot: string;
-    userId: string;
-    paymentType: "Instant" | "Monthly";
+    paymentType: "Monthly";
   }) => {
     try {
-      const { error } = await supabase.from("bookings").insert([
-        {
-          room_id: bookingData.roomId,
-          user_id: bookingData.profileId,
-          date: bookingData.date,
-          time_slot: bookingData.slot,
-          final_revenue: bookingData.price,
-          initial_revenue: bookingData.price,
-          discount: 0,
-          payment_type: bookingData.paymentType,
-          status: "Upcoming",
-          is_recurring: false, // single booking
-        },
-      ]);
-      if (error) throw error;
+      // const { error } = await supabase.from("bookings").insert([
+      //   {
+      //     room_id: bookingData.roomId,
+      //     user_id: bookingData.profileId,
+      //     date: bookingData.date,
+      //     time_slot: bookingData.slot,
+      //     final_revenue: bookingData.price,
+      //     initial_revenue: bookingData.price,
+      //     discount: 0,
+      //     payment_type: bookingData.paymentType,
+      //     status: "Upcoming",
+      //     is_recurring: false, // single booking
+      //   },
+      // ]);
+      // if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Room booked successfuly",
-      });
+      // toast({
+      //   title: "Success",
+      //   description: "Room booked successfuly",
+      // });
+
+      setSelectedRoom(bookingData);
+      setIsMonthlyStripePaymentDialogOpen(true);
     } catch (err) {
       console.error("Error confirming booking:", err);
       toast({
@@ -313,59 +322,6 @@ const Dashboard = () => {
     }
   };
 
-  // const handleInstantBooking = async (bookingData: {
-  //   profileId: string;
-  //   profileEmail?: string;
-  //   profileName?: string;
-  //   roomId: string;
-  //   roomName: string;
-  //   price: number;
-  //   date: string;
-  //   slot: string;
-  //   userId: string;
-  //   paymentType: "instant" | "monthly";
-  // }) => {
-  //   if (!stripePromise || !clientSecret) {
-  //     try {
-  //       const {
-  //         data: { session },
-  //       } = await supabase.auth.getSession();
-  //       const token = session?.access_token;
-  //       const resp = await fetch(
-  //         "https://dzacjtnzwdvgzltnwcab.supabase.co/functions/v1/payment-intent",
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Authorization: token ? `Bearer ${token}` : "",
-  //           },
-  //           body: JSON.stringify({
-  //             price: selectedRoom.price,
-  //             roomId: selectedRoom.roomId,
-  //             date: selectedRoom.date,
-  //             slot: selectedRoom.slot,
-  //             paymentType,
-  //           }),
-  //         }
-  //       );
-  //       const data = await resp.json();
-  //       const cs = data.client_secret ?? data.clientSecret ?? null;
-  //       const pk = data.publishableKey ?? data.publishable_key ?? null;
-  //       if (!cs || !pk) throw new Error("Failed to create payment intent");
-  //       setClientSecret(cs);
-  //       setPublishableKey(pk);
-  //       setStripePromise(loadStripe(pk));
-  //       setIsPaymentDialogOpen(false);
-  //       setIsStripePaymentDialogOpen(true);
-  //     } catch (err: any) {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error",
-  //         description: err.message || "Payment setup failed",
-  //       });
-  //     }
-  //   }
-  // };
   const handleInstantBooking = async (bookingData: any) => {
     try {
       const {
@@ -673,7 +629,6 @@ const Dashboard = () => {
                     };
 
                     handleMonthlyBooking(bookingData);
-
                     setIsPaymentDialogOpen(false);
                   }}
                 >
@@ -682,8 +637,8 @@ const Dashboard = () => {
               )}
               {paymentType === "Instant" && (
                 <Button
-                  className="w-full"
-                  onClick={() => {
+                  className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
+                  onClick={async () => {
                     if (!selectedRoom) return;
                     if (!profile.id) return;
 
@@ -698,17 +653,31 @@ const Dashboard = () => {
                       slot: selectedRoom.slot,
                       paymentType,
                     };
+                    setIsInstantLoading(true);
 
-                    handleInstantBooking(bookingData);
+                    try {
+                      await handleInstantBooking(bookingData);
+                    } finally {
+                      setIsInstantLoading(false); // stop loading
+                    }
                   }}
+                  disabled={isInstantLoading}
                 >
-                  Confirm Booking
+                  {isInstantLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Confirm Booking"
+                  )}
                 </Button>
               )}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
       <Dialog
         open={isStripePaymentDialogOpen}
         onOpenChange={setIsStripePaymentDialogOpen}
@@ -718,7 +687,7 @@ const Dashboard = () => {
             <DialogTitle>Confirm Booking</DialogTitle>
             <DialogDescription>
               {selectedRoom &&
-                `${selectedRoom.name} on ${selectedRoom.date} (${selectedRoom.slot})`}
+                `${selectedRoom.name} on ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
             </DialogDescription>
           </DialogHeader>
           {stripePromise && clientSecret && (
@@ -743,6 +712,36 @@ const Dashboard = () => {
               />
             </Elements>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isMonthlyStripePaymentDialogOpen}
+        onOpenChange={setIsMonthlyStripePaymentDialogOpen}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Enter Card Details</DialogTitle>
+            <DialogDescription>
+              {selectedRoom &&
+                `${selectedRoom.name} on ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <MonthlyPaymentWrapper
+            bookingData={{
+              profileId: profile?.id,
+              profileEmail: profile?.email,
+              profileName: profile?.full_name,
+              roomId: selectedRoom?.roomId,
+              roomName: selectedRoom?.name,
+              price: selectedRoom?.price,
+              date: selectedRoom?.date,
+              slot: selectedRoom?.slot,
+              paymentType,
+            }}
+            onSuccess={() => setIsMonthlyStripePaymentDialogOpen(false)}
+          />
         </DialogContent>
       </Dialog>
     </div>

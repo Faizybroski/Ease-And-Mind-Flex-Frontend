@@ -36,6 +36,7 @@ interface Booking {
   recurrence_pattern: string;
   weekdays: [];
   initial_revenue: number;
+  payment_type: string;
   final_revenue: number;
   discount: number;
   payment_status: string;
@@ -142,17 +143,20 @@ const Bookings = () => {
           <Button
             variant="destructive"
             onClick={async () => {
-              const {data, error: dataError} = await supabase
-              .from('bookings')
-              .select('payment_status')
-              .eq('id', bookingId)
-              .eq('user_id', userProfileId)
+              const { data, error: dataError } = await supabase
+                .from("bookings")
+                .select("payment_status")
+                .eq("id", bookingId)
+                .eq("user_id", userProfileId)
                 .single();
 
               if (data.payment_status === "Completed") {
                 toast({
-                  title: 'Error', description:"Failed to canceled booking becuase the payment is not refundable.", variant: "destructive",
-                })
+                  title: "Error",
+                  description:
+                    "Failed to canceled booking becuase the payment is not refundable.",
+                  variant: "destructive",
+                });
                 return;
               }
               if (dataError) throw dataError;
@@ -317,14 +321,33 @@ const Bookings = () => {
 
               <div className="text-sm text-primary min-w-[150px]">
                 <span className="font-medium">Payment Status:</span>{" "}
-                <span className={`${
-                      booking.payment_status === "Completed"
-                        ? "text-green-800"
-                        : booking.payment_status === "Failed"
-                        ? "text-red-800"
-                        : "text-yellow-800"
-                    }`}>{booking?.payment_status || "Null"}</span>
+                <span
+                  className={`${
+                    booking.payment_status === "Completed"
+                      ? "text-green-800"
+                      : booking.payment_status === "Failed"
+                      ? "text-red-800"
+                      : "text-yellow-800"
+                  }`}
+                >
+                  {booking?.payment_status || "Null"}
+                </span>
               </div>
+
+              {!isRecurring && (
+                <div className="text-sm text-primary min-w-[150px]">
+                  <span className="font-medium">Payment Type:</span>{" "}
+                  <span
+                    className={`${
+                      booking.payment_type === "Instant"
+                        ? "text-green-800"
+                        : "text-yellow-800"
+                    }`}
+                  >
+                    {booking?.payment_type || "Instantly"}
+                  </span>
+                </div>
+              )}
 
               {/* Right side: Actions */}
               <div className="w-full md:w-[200px] flex justify-start md:justify-end">
