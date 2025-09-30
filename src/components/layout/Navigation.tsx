@@ -95,7 +95,7 @@ const Navigation = () => {
           </div>
           {!user ? (
             <div className="flex items-center space-x-4">
-              <Button onClick={() => showAuthFun()} variant="outline">
+              <Button onClick={() => showAuthFun()} variant="outline" className="text-primary">
                 Sign In
               </Button>
             </div>
@@ -135,7 +135,7 @@ const Navigation = () => {
                   </Button>
                 )}
                 <NotificationCenter />
-                <DropdownMenu>
+                {/* <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
@@ -157,7 +157,14 @@ const Navigation = () => {
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu> */}
+                <Button
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="border bg-secondary border-primary hover:bg-primary text-primary hover:text-secondary"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
 
                 {/* Hamburger Icon */}
                 <div className="md:hidden">
