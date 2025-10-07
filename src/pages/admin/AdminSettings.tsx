@@ -114,13 +114,13 @@ const AdminSettings = () => {
       fetchSettings();
 
       toast({
-        title: "Success",
-        description: "Business hours settings saved successfully",
+        title: "Succes",
+        description: "Openingstijden instellingen succesvol opgeslagen",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save settings",
+        title: "Fout",
+        description: "Instellingen konden niet worden opgeslagen",
         variant: "destructive",
       });
       console.error("Error save settings", error);
@@ -142,13 +142,13 @@ const AdminSettings = () => {
       fetchSettings();
 
       toast({
-        title: "Success",
-        description: "Booking rules settings saved successfully",
+        title: "Succes",
+        description: "Instellingen voor boekingsregels succesvol opgeslagen",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save settings",
+        title: "Fout",
+        description: "Instellingen konden niet worden opgeslagen",
         variant: "destructive",
       });
       console.error("Error save settings", error);
@@ -169,13 +169,13 @@ const AdminSettings = () => {
       fetchSettings();
 
       toast({
-        title: "Success",
-        description: "Room Code saved successfully",
+        title: "Succes",
+        description: "Kamercode succesvol opgeslagen",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save settings",
+        title: "Fout",
+        description: "Instellingen konden niet worden opgeslagen",
         variant: "destructive",
       });
       console.error("Error save settings", error);
@@ -190,16 +190,16 @@ const AdminSettings = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">
-                Booking Management
+                Instellingen
               </h1>
-              <p className="text-primary text-sm">Manage all Bookings</p>
+              <p className="text-primary text-sm">Beheer uw systeeminstellingen</p>
             </div>
           </div>
         </header>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Loading Bookings...</p>
+            <p className="text-muted-foreground">Instellingen laden...</p>
           </div>
         </div>
       </div>
@@ -215,7 +215,7 @@ const AdminSettings = () => {
             <h1 className="flex text-3xl font-bold text-primary mb-2">
               Settings
             </h1>
-            <p className="text-primary text-sm">Manage your system settings</p>
+            <p className="text-primary text-sm">Beheer uw systeeminstellingen</p>
           </div>
         </div>
       </header>
@@ -223,13 +223,13 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-primary">
-            <span>Room Code</span>
+            <span>Kamercode</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label className="text-primary" htmlFor="roomCode">
-              Room Code
+              Kamercode
             </Label>
             <Input
               id="roomCode"
@@ -244,7 +244,7 @@ const AdminSettings = () => {
               className="w-full sm:w-auto text-primary"
               onClick={() => saveRoomCode()}
             >
-              Save Room Code
+              Kamercode opslaan
             </Button>
           </div>
         </CardContent>
@@ -253,13 +253,13 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-primary">
-            Business Hours Settings
+            Openingstijden instellingen
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Label className="text-primary" htmlFor="morningSessionStart">
-              Morning Session
+              Ochtendsessie
             </Label>
             <div className="grid grid-cols-2 gap-4">
               <input
@@ -289,7 +289,7 @@ const AdminSettings = () => {
           {/* Afternoon Session */}
           <div>
             <Label className="text-primary" htmlFor="afternoonSessionStart">
-              Afternoon Session
+              Middagsessie
             </Label>
             <div className="grid grid-cols-2 gap-4">
               <input
@@ -322,7 +322,7 @@ const AdminSettings = () => {
           {/* Night Session */}
           <div>
             <Label className="text-primary" htmlFor="eveningSessionStart">
-              Night Session
+              Nachtsessie
             </Label>
             <div className="grid grid-cols-2 gap-4">
               <input
@@ -355,7 +355,7 @@ const AdminSettings = () => {
               variant="outline"
               onClick={() => saveBusinessHrsSettings()}
             >
-              Save Business Hours Settings
+              Openingstijden instellingen opslaan
             </Button>
           </div>
         </CardContent>
@@ -364,13 +364,13 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-primary">
-            <span>Booking Rules</span>
+            <span>Boekingsregels</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label className="text-primary" htmlFor="advancedBooking">
-              Advanced Booking
+              Vooraf boeken
             </Label>
             <Input
               id="advancedBooking"
@@ -386,7 +386,7 @@ const AdminSettings = () => {
           </div>
           <div className="space-y-2">
             <Label className="text-primary" htmlFor="cancelationPolicy">
-              Cancelation Policy
+              Annuleringsbeleid
             </Label>
             <Input
               id="cancelationPolicy"
@@ -407,7 +407,7 @@ const AdminSettings = () => {
               className="w-full sm:w-auto text-primary"
               onClick={() => saveBusinessRulesSettings()}
             >
-              Save Booking Policy Settings
+              Boekingsbeleid instellingen opslaan
             </Button>
           </div>
         </CardContent>

@@ -145,8 +145,8 @@ export default function RecurringBookingDialog({
   const handleSave = async () => {
     if (!selectedUser) {
       toast({
-        title: "Error",
-        description: "User is required",
+        title: "Fout",
+        description: "Gebruiker is vereist",
         variant: "destructive",
       });
       return;
@@ -155,8 +155,8 @@ export default function RecurringBookingDialog({
     // 2. Room check
     if (!selectedRoom?.id) {
       toast({
-        title: "Error",
-        description: "Room is required",
+        title: "Fout",
+        description: "Kamer is vereist",
         variant: "destructive",
       });
       return;
@@ -165,8 +165,8 @@ export default function RecurringBookingDialog({
     // 3. Time slot
     if (!timeSlot) {
       toast({
-        title: "Error",
-        description: "Please select a time slot.",
+        title: "Fout",
+        description: "Selecteer een tijdslot.",
         variant: "destructive",
       });
       return;
@@ -175,8 +175,8 @@ export default function RecurringBookingDialog({
     // 4. Weekdays (for recurring bookings)
     if (weekDays?.length === 0) {
       toast({
-        title: "Error",
-        description: "Please select at least one weekday.",
+        title: "Fout",
+        description: "Selecteer minimaal één weekdag.",
         variant: "destructive",
       });
       return;
@@ -185,8 +185,8 @@ export default function RecurringBookingDialog({
     // 5. Recurrence pattern
     if (!recurrence) {
       toast({
-        title: "Error",
-        description: "Please select a recurrence pattern.",
+        title: "Fout",
+        description: "Selecteer een herhalingspatroon.",
         variant: "destructive",
       });
       return;
@@ -198,16 +198,16 @@ export default function RecurringBookingDialog({
 
     if (!startDate) {
       toast({
-        title: "Error",
-        description: "Start date is required",
+        title: "Fout",
+        description: "Startdatum is vereist",
         variant: "destructive",
       });
       return;
     }
     if (new Date(startDate) < today) {
       toast({
-        title: "Error",
-        description: "Start date cannot be in the past.",
+        title: "Fout",
+        description: "De startdatum kan niet in het verleden liggen.",
         variant: "destructive",
       });
       return;
@@ -215,16 +215,16 @@ export default function RecurringBookingDialog({
 
     if (!endDate) {
       toast({
-        title: "Error",
-        description: "End date is required.",
+        title: "Fout",
+        description: "Einddatum is vereist.",
         variant: "destructive",
       });
       return;
     }
     if (new Date(endDate) < today) {
       toast({
-        title: "Error",
-        description: "End date cannot be in the past.",
+        title: "Fout",
+        description: "Einddatum kan niet in het verleden liggen.",
         variant: "destructive",
       });
       return;
@@ -232,8 +232,8 @@ export default function RecurringBookingDialog({
 
     if (new Date(endDate) < new Date(startDate)) {
       toast({
-        title: "Error",
-        description: "End date cannot be before start date.",
+        title: "Fout",
+        description: "De einddatum kan niet vóór de startdatum liggen.",
         variant: "destructive",
       });
       return;
@@ -259,13 +259,13 @@ export default function RecurringBookingDialog({
       if (error) throw error;
       onClose();
       toast({
-        title: "Success",
-        description: "Recurring Booking saved",
+        title: "Succes",
+        description: "Terugkerende boeking opgeslagen",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error saving recurring booking.",
+        title: "Fout",
+        description: "Fout bij het opslaan van terugkerende boeking.",
         variant: "destructive",
       });
     }
@@ -275,7 +275,7 @@ export default function RecurringBookingDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Booking</DialogTitle>
+          <DialogTitle>Boeking maken</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -284,7 +284,7 @@ export default function RecurringBookingDialog({
             <Label>User</Label>
             <Select onValueChange={setSelectedUser}>
               <SelectTrigger>
-                <SelectValue placeholder="Select user" />
+                <SelectValue placeholder="Selecteer gebruiker" />
               </SelectTrigger>
               <SelectContent>
                 {users.map((u) => (
@@ -298,14 +298,14 @@ export default function RecurringBookingDialog({
 
           {/* Room dropdown */}
           <div>
-            <Label>Room</Label>
+            <Label>Kamer</Label>
             <Select
               onValueChange={(id) =>
                 setSelectedRoom(rooms.find((r) => r.id === Number(id)) || null)
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select room" />
+                <SelectValue placeholder="Selecteer kamer" />
               </SelectTrigger>
               <SelectContent>
                 {rooms.map((r) => (
@@ -322,18 +322,18 @@ export default function RecurringBookingDialog({
             <Label>Time Slot</Label>
             <Select onValueChange={(val) => setTimeSlot(val as any)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select timeslot" />
+                <SelectValue placeholder="Selecteer tijdslot" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Morning">Morning</SelectItem>
-                <SelectItem value="Afternoon">Afternoon</SelectItem>
-                <SelectItem value="Night">Night</SelectItem>
+                <SelectItem value="Morning">Ochtend</SelectItem>
+                <SelectItem value="Afternoon">Middag</SelectItem>
+                <SelectItem value="Night">Nacht</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label>Weekdays</Label>
+            <Label>Weekdagen</Label>
             <div className="grid grid-cols-2 gap-2 mt-2">
               {allWeekDays.map((day) => (
                 <div key={day} className="flex items-center space-x-2">
@@ -355,7 +355,7 @@ export default function RecurringBookingDialog({
           </div>
 
           <div>
-            <Label>Start Date</Label>
+            <Label>Startdatum</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -363,7 +363,7 @@ export default function RecurringBookingDialog({
                   className="w-full justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {startDate ? startDate.toDateString() : "Pick a start date"}
+                  {startDate ? startDate.toDateString() : "Kies een startdatum"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -380,7 +380,7 @@ export default function RecurringBookingDialog({
 
           {/* End Date */}
           <div>
-            <Label>End Date</Label>
+            <Label>Einddatum</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -388,7 +388,7 @@ export default function RecurringBookingDialog({
                   className="w-full justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {endDate ? endDate.toDateString() : "Pick an end date"}
+                  {endDate ? endDate.toDateString() : "Kies een einddatum"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -404,22 +404,22 @@ export default function RecurringBookingDialog({
           </div>
 
           <div>
-            <Label>Recurrence</Label>
+            <Label>Herhaling</Label>
             <Select onValueChange={(val) => setRecurrence(val as any)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select Recurrence" />
+                <SelectValue placeholder="Selecteer Herhaling" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Weekly">Weekly</SelectItem>
-                <SelectItem value="Bi-Weekly">Bi-Weekly</SelectItem>
-                <SelectItem value="Monthly">Monthly</SelectItem>
+                <SelectItem value="Weekly">Wekelijks</SelectItem>
+                <SelectItem value="Bi-Weekly">Tweewekelijks</SelectItem>
+                <SelectItem value="Monthly">Maandelijks</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Discount */}
           <div>
-            <Label>Discount (%)</Label>
+            <Label>Korting (%)</Label>
             <Input
               min={0}
               type="number"
@@ -437,13 +437,13 @@ export default function RecurringBookingDialog({
           {/* Computed Summary */}
           <div className="space-y-1 text-sm">
             <p>
-              Revenue (before discount): <b>{revenueWithoutDiscount}</b>
+              Omzet (vóór korting): <b>{revenueWithoutDiscount}</b>
             </p>
             <p>
-              Discount: <b>{discount}</b>
+              Korting: <b>{discount}</b>
             </p>
             <p>
-              Final Revenue: <b>{priceAfterDiscount}</b>
+              Eindopbrengst: <b>{priceAfterDiscount}</b>
             </p>
           </div>
         </div>
@@ -454,14 +454,14 @@ export default function RecurringBookingDialog({
             className="text-primary hover:text-secondary"
             onClick={onClose}
           >
-            Cancel
+            Annuleren
           </Button>
           <Button
             onClick={handleSave}
             className="border border-primary text-secondary hover:text-primary hover:bg-secondary"
             disabled={!selectedUser || !selectedRoom || !timeSlot}
           >
-            Save Booking
+            Boeking opslaan
           </Button>
         </DialogFooter>
       </DialogContent>

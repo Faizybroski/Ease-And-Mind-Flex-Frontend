@@ -29,18 +29,17 @@ const NotFound = () => {
           404
         </h1>
         <p className="text-2xl font-medium mb-4 text-foreground animate-fadeIn">
-          Uh-oh! You’re lost in the void.
+          Oei! Je bent verdwaald in de leegte.
         </p>
         <p className="text-lg text-muted-foreground mb-8">
-          Looks like this page hasn’t been built yet. Maybe our ghost friend can
-          guide you home!
+          Het lijkt erop dat deze pagina nog niet is aangemaakt. Misschien kan onze spookvriend je wel naar huis leiden!
         </p>
 
         <a
           href="/"
           className="inline-flex items-center gap-2 bg-primary hover:bg-primary/80 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
         >
-          <Home size={20} /> Take Me Home
+          <Home size={20} /> Neem me mee naar huis
         </a>
       </div>
 

@@ -36,8 +36,8 @@ const AdminBilling = () => {
     } catch (error) {
       console.error("Error loading billing data:", error);
       toast({
-        title: "Error",
-        description: "Error loading billing data.",
+        title: "Fout",
+        description: "Fout bij het laden van factuurgegevens.",
         variant: "destructive",
       });
     } finally {
@@ -62,7 +62,7 @@ const AdminBilling = () => {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading admin dashboard...</p>
+          <p className="text-muted-foreground">Het beheerdersdashboard wordt geladen...</p>
         </div>
       </div>
     );
@@ -75,10 +75,10 @@ const AdminBilling = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">
-              Billing & Invoicing
+              Facturatie en facturering
             </h1>
             <p className="text-primary text-sm">
-              Manage Your Last Month Billing & Invoicing.
+              Beheer uw facturering van de afgelopen maand.
             </p>
           </div>
         </div>
@@ -100,14 +100,14 @@ const AdminBilling = () => {
                   <Calendar className="h-4 w-4 text-primary" />
                   <span className="text-primary/70">
                     {bill.total_bookings}
-                    {" bookings"}
+                    {" boekingen"}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Euro className="h-4 w-4 text-primary" />
                   <span className="text-primary/70">
                     {bill.revenue}
-                    {" spent"}
+                    {" besteed"}
                   </span>
                 </div>
               </div>
@@ -117,7 +117,7 @@ const AdminBilling = () => {
                   className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary"
                   onClick={() => handleViewMore(bill.user_id)}
                 >
-                  View More
+                  Bekijk meer
                 </Button>
               </div>
             </div>

@@ -68,7 +68,7 @@ const MonthlyPaymentForm = ({ bookingData, onSuccess }: any) => {
 
     if (error) {
       toast({
-        title: "Error",
+        title: "Fout",
         description: error.message,
         variant: "destructive",
       });
@@ -97,14 +97,14 @@ const MonthlyPaymentForm = ({ bookingData, onSuccess }: any) => {
 
     if (supabaseError) {
       toast({
-        title: "Error",
+        title: "Fout",
         description: supabaseError.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Success",
-        description: "Booking created successfully.",
+        title: "Succes",
+        description: "Reservering succesvol aangemaakt.",
         variant: "default",
       });
       onSuccess?.();
@@ -127,10 +127,10 @@ const MonthlyPaymentForm = ({ bookingData, onSuccess }: any) => {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Booking...
+              Reserveren...
             </>
           ) : (
-            "Book Monthly"
+            "Boek maandelijks"
           )}
         </Button>
       </form>

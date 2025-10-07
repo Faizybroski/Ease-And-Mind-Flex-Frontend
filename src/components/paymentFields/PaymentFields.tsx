@@ -27,8 +27,8 @@ const PaymentFields = ({
     if (!stripe || !elements || !clientSecret) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Payment system not ready",
+        title: "Fout",
+        description: "Betalingssysteem nog niet klaar.",
       });
       return;
     }
@@ -44,8 +44,8 @@ const PaymentFields = ({
       if (result.error) {
         toast({
           variant: "destructive",
-          title: "Payment failed",
-          description: result.error.message || "Card error",
+          title: "Betaling mislukt",
+          description: result.error.message || "Kaartfout",
         });
         console.log("Error payment in instant payment");
       } else if (
@@ -72,7 +72,7 @@ const PaymentFields = ({
           .single();
 
         if (bookingError || !bookingD) {
-          throw new Error(bookingError?.message || "Booking insert failed");
+          throw new Error(bookingError?.message || "Boeking invoegen mislukt");
         }
 
         console.info("boooooking IDDD  ====> ", bookingD.id);
@@ -95,20 +95,20 @@ const PaymentFields = ({
           console.info("Payment + booking updated:", data);
         }
 
-        toast({ title: "Success", description: "Room booked successfully" });
+        toast({ title: "Succes", description: "Kamer succesvol geboekt" });
         onPaid();
       } else {
         toast({
           variant: "destructive",
-          title: "Payment failed",
-          description: "Unexpected result",
+          title: "Betaling mislukt",
+          description: "Onverwacht resultaat",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Payment error",
+        title: "Fout",
+        description: error.message || "Betalingsfout",
       });
     } finally {
       setLoading(false);
@@ -120,13 +120,13 @@ const PaymentFields = ({
       <Input
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Cardholder name"
+        placeholder="Naam kaarthouder"
         className="w-full p-2 border rounded"
       />
       <Input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
+        placeholder="E-mail"
         className="w-full p-2 border rounded"
       />
       <div className="p-3 border rounded">
@@ -140,10 +140,10 @@ const PaymentFields = ({
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing...
+            Verwerken...
           </>
         ) : (
-          "Pay & Confirm Booking"
+          "Betaal en bevestig boeking"
         )}
       </Button>
     </div>

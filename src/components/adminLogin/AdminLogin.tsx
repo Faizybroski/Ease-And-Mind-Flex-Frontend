@@ -24,14 +24,14 @@ export const AdminLogin = () => {
       if (error) throw error;
       if (!error) {
         toast({
-          title: "Welcome back!",
-          description: "Signed in successfully.",
+          title: "Welkom terug",
+          description: "Succesvol aangemeld.",
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to login.",
+        title: "Fout",
+        description: "Inloggen mislukt.",
         variant: "destructive",
       });
       console.error("Error login", error);
@@ -53,22 +53,22 @@ export const AdminLogin = () => {
 
         <form onSubmit={handleEmailLogin} className="space-y-5">
           <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email*"
+              placeholder="Voer uw e-mailadres in *"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="space-y-1 relative">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Wachtwoord</Label>
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password*"
+              placeholder="Voer uw wachtwoord in *"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -93,10 +93,10 @@ export const AdminLogin = () => {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logging in...
+                Inloggen...
               </>
             ) : (
-              "Log In"
+              "Inloggen"
             )}
           </Button>
         </form>

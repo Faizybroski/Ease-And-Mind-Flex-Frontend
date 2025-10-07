@@ -48,7 +48,7 @@ const AdminLayout: React.FC = () => {
                   className="text-sm bg-primary border border-primary font-medium text-secondary hover:text-primary hover:border hover:border-primary hover:bg-secondary"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Room
+                  Kamer toevoegen
                 </Button>
               </div>
               <NotificationCenter />

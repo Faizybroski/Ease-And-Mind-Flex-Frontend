@@ -91,8 +91,8 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Error fetching stats:", error);
       toast({
-        title: "Error",
-        description: "Failed to load booking stats.",
+        title: "Fout",
+        description: "Het laden van de boekingsstatistieken is mislukt.",
         variant: "destructive",
       });
     } 
@@ -220,8 +220,8 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Error fetching dashboard bookings:", error);
       toast({
-        title: "Error",
-        description: "Error loading dashboard bookings",
+        title: "Fout",
+        description: "Fout bij het laden van dashboardboekingen",
         variant: "destructive",
       });
     } finally {
@@ -236,10 +236,10 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">
-                Welcome back, Admin!
+                Welkom terug, Admin!
               </h1>
               <p className="text-primary text-sm">
-                Here's what's happening with your coworking space today.
+                Dit is wat er momenteel gebeurt met uw coworkingruimte.
               </p>
             </div>
           </div>
@@ -247,7 +247,7 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-center min-h-screen bg-background">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Loading admin dashboard...</p>
+            <p className="text-muted-foreground">Het beheerdersdashboard wordt geladen...</p>
           </div>
         </div>
       </div>
@@ -261,10 +261,10 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">
-              Welcome back, Admin!
+              Welkom terug, Admin!
             </h1>
             <p className="text-primary text-sm">
-              Here's what's happening with your coworking space today.
+              Dit is wat er momenteel gebeurt met uw coworkingruimte.
             </p>
           </div>
         </div>
@@ -276,7 +276,7 @@ const AdminDashboard = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/20 to-transparent rounded-bl-full" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Revenue
+              Winst
             </CardTitle>
             <div className="p-2">
               <DollarSign className="h-5 w-5 text-primary" />
@@ -294,7 +294,7 @@ const AdminDashboard = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/20 to-transparent rounded-bl-full" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Bookings Schedule
+              Reserverings schema
             </CardTitle>
             <div className="p-2">
               <Calendar className="h-5 w-5 text-primary" />
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/20 to-transparent rounded-bl-full" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Completed Bookings
+              Voltooide boekingen
             </CardTitle>
             <div className="p-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -328,7 +328,7 @@ const AdminDashboard = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/20 to-transparent rounded-bl-full" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Bookings Today
+              Boekingen vandaag
             </CardTitle>
             <div className="p-2">
               <CalendarCheck className="h-5 w-5 text-primary" />
@@ -350,7 +350,7 @@ const AdminDashboard = () => {
               <span className="bg-primary/30 rounded-full p-2 mr-2">
                 <Star className="h-4 w-4 text-primary" />
               </span>
-              <span className="text-primary">Bookings This Week</span>
+              <span className="text-primary">Boekingen deze week</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
@@ -364,7 +364,7 @@ const AdminDashboard = () => {
                     {booking.profiles.full_name}
                   </p>
                   <span className="text-sm text-foreground">
-                    Booked {booking.rooms.room_name}
+                    Geboekt {booking.rooms.room_name}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -387,7 +387,7 @@ const AdminDashboard = () => {
               <span className="bg-primary/30 rounded-full p-2 mr-2">
                 <Clock className="h-4 w-4 text-primary" />
               </span>
-              <span className="text-primary">Recent Activity</span>
+              <span className="text-primary">Recente activiteit</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
@@ -411,11 +411,11 @@ const AdminDashboard = () => {
                   {/* Row 2: Booking info */}
                   {activity.room && (
                     <div className="text-sm text-foreground">
-                      Booked {activity.room}
+                      Geboekt {activity.room}
                     </div>
                   )}
                   {activity.type === "user_registered" && (
-                    <div className="text-sm text-foreground">Registered</div>
+                    <div className="text-sm text-foreground">Geregistreerd</div>
                   )}
 
                   {/* Row 3: Time + Type */}

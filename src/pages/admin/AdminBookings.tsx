@@ -77,8 +77,8 @@ const AdminBookings = () => {
     } catch (error) {
       console.error("Error fetch bookings:", error);
       toast({
-        title: "Error",
-        description: "Failed to fetch Bookings.",
+        title: "Fout",
+        description: "Het ophalen van boekingen is mislukt.",
         variant: "destructive",
       });
     } finally {
@@ -89,7 +89,7 @@ const AdminBookings = () => {
   const handleDeletebooking = async (bookingId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
+        "Weet u zeker dat u deze gebruiker wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
       )
     )
       return;
@@ -101,14 +101,14 @@ const AdminBookings = () => {
 
       if (error) throw error;
       toast({
-        title: "Success",
-        description: `Booking deleted successfully.`,
+        title: "Succes",
+        description: `Reservering succesvol verwijderd.`,
       });
       fetchBookings();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error deleting booking.",
+        title: "Fout",
+        description: "Fout bij het verwijderen van de boeking.",
         variant: "destructive",
       });
       console.error("Error deleting booking", error);
@@ -118,13 +118,13 @@ const AdminBookings = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Completed":
-        return <span className="text-green-700">Completed</span>;
+        return <span className="text-green-700">Voltooid</span>;
       case "Recurring":
-        return <span className="text-green-700">Recurring</span>;
+        return <span className="text-green-700">Terugkerend</span>;
       case "Canceled":
-        return <span className="text-red-700">Canceled</span>;
+        return <span className="text-red-700">Geannuleerd</span>;
       case "Upcoming":
-        return <span className="text-blue-700">Upcoming</span>;
+        return <span className="text-blue-700">Aankomende</span>;
     }
   };
 
@@ -144,16 +144,16 @@ const AdminBookings = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">
-                Booking Management
+                Boekingsbeheer
               </h1>
-              <p className="text-primary text-sm">Manage all Bookings</p>
+              <p className="text-primary text-sm">Beheer alle boekingen</p>
             </div>
           </div>
         </header>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Loading Bookings...</p>
+            <p className="text-muted-foreground">Boekingen laden...</p>
           </div>
         </div>
       </div>
@@ -167,9 +167,9 @@ const AdminBookings = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">
-              Booking Management
+              Boekingsbeheer
             </h1>
-            <p className="text-primary text-sm">Manage all Bookings</p>
+            <p className="text-primary text-sm">Beheer alle boekingen</p>
           </div>
         </div>
       </header>
@@ -179,11 +179,11 @@ const AdminBookings = () => {
         <div className="flex w-full overflow-x-auto">
           <TabsList className="flex justify-between w-full">
             <div className="flex justify-start flex gap-2 overflow-x-auto">
-              <TabsTrigger value="all">All Bookings</TabsTrigger>
-              <TabsTrigger value="Upcoming">Upcoming</TabsTrigger>
-              <TabsTrigger value="Canceled">Canceled</TabsTrigger>
-              <TabsTrigger value="Completed">Completed</TabsTrigger>
-              <TabsTrigger value="Recurring">Recurring</TabsTrigger>
+              <TabsTrigger value="all">Alle boekingen</TabsTrigger>
+              <TabsTrigger value="Upcoming">Aankomende</TabsTrigger>
+              <TabsTrigger value="Canceled">Geannuleerd</TabsTrigger>
+              <TabsTrigger value="Completed">Voltooid</TabsTrigger>
+              <TabsTrigger value="Recurring">Terugkerend</TabsTrigger>
             </div>
             <div className="flex">
               <Popover>
@@ -196,7 +196,9 @@ const AdminBookings = () => {
                     {date ? (
                       date.toDateString()
                     ) : (
-                      <span className="text-muted-foreground">Pick a date</span>
+                      <span className="text-muted-foreground">
+                        Kies een datum
+                      </span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -218,23 +220,23 @@ const AdminBookings = () => {
         <TabsContent value="all" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>All Bookings ({filteredBookings.length})</CardTitle>
+              <CardTitle>Alle boekingen ({filteredBookings.length})</CardTitle>
             </CardHeader>
             <CardContent>
               {filteredBookings.length === 0 ? (
                 <div className="text-center text-muted-foreground py-6">
-                  No bookings found.
+                  Geen boekingen gevonden.
                 </div>
               ) : (
                 <div className="rounded-lg overflow-x-auto">
                   <Table className="min-w-full table-fixed">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Room</TableHead>
-                        <TableHead>User</TableHead>
-                        <TableHead>Day</TableHead>
-                        <TableHead>Time</TableHead>
-                        <TableHead>Revenue</TableHead>
+                        <TableHead>Kamer</TableHead>
+                        <TableHead>Gebruiker</TableHead>
+                        <TableHead>Dag</TableHead>
+                        <TableHead>Tijd</TableHead>
+                        <TableHead>Winst</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -320,27 +322,26 @@ const AdminBookings = () => {
               <Card className="overflow-x-auto">
                 <CardHeader>
                   <CardTitle>
-                    {status.charAt(0).toUpperCase() + status.slice(1)} Bookings
-                    ({bookingsByStatus.length})
+                    {status.charAt(0).toUpperCase() + status.slice(1)}{" "}
+                    Reserveringen ({bookingsByStatus.length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {bookingsByStatus.length === 0 ? (
                     <div className="text-center text-muted-foreground py-6">
-                      No bookings found.
+                      Geen boekingen gevonden.
                     </div>
                   ) : (
                     <div className="rounded-lg overflow-x-auto">
                       <Table className="min-w-full  table-fixed">
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Room</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead>Day</TableHead>
-                            <TableHead>Time</TableHead>
-                            <TableHead>Revenue</TableHead>
+                            <TableHead>Kamer</TableHead>
+                            <TableHead>Gebruiker</TableHead>
+                            <TableHead>Dag</TableHead>
+                            <TableHead>Tijd</TableHead>
+                            <TableHead>Winst</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Action</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -406,18 +407,6 @@ const AdminBookings = () => {
                               </TableCell>
                               <TableCell className="w-[70px]">
                                 {getStatusColor(booking.status)}
-                              </TableCell>
-                              <TableCell className="w-[10px]">
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  className="border border-input bg-background text-primary hover:text-[white] hover:border-destructive"
-                                  onClick={() =>
-                                    handleDeletebooking(booking.id)
-                                  }
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
                               </TableCell>
                             </TableRow>
                           ))}

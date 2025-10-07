@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface AddRoomProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface AddRoomProps {
 }
 
 const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
+  const { t } = useTranslation();
   const [addRoomData, setAddRoomData] = useState({
     room_name: "",
     morning_price: 1,
@@ -58,13 +60,13 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
         room_pics: publicUrl,
       });
       toast({
-        title: "Photo uploaded!",
-        description: "Your event cover photo has been saved.",
+        title: "Foto geüpload!",
+        description: "Uw evenementfoto is opgeslagen.",
       });
     } catch (error) {
       toast({
-        title: "Upload failed",
-        description: "Failed to upload photo",
+        title: "Uploaden mislukt",
+        description: "Foto uploaden mislukt",
         variant: "destructive",
       });
       console.log("Error uploading photo", error);
@@ -76,32 +78,32 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
   const addRoomfun = async () => {
     if (!addRoomData.room_name.trim()) {
       toast({
-        title: "Error",
-        description: "Name is required",
+        title: "Fout",
+        description: "Naam is vereist",
         variant: "destructive",
       });
       return;
     }
     if (!addRoomData.morning_price) {
       toast({
-        title: "Error",
-        description: "Morning price is required",
+        title: "Fout",
+        description: "Ochtendprijs is vereist",
         variant: "destructive",
       });
       return;
     }
     if (!addRoomData.afternoon_price) {
       toast({
-        title: "Error",
-        description: "Afternoon price is required",
+        title: "Fout",
+        description: "Middagprijs is vereist",
         variant: "destructive",
       });
       return;
     }
     if (!addRoomData.night_price) {
       toast({
-        title: "Error",
-        description: "Night price is required",
+        title: "Fout",
+        description: "Nachtprijs is vereist",
         variant: "destructive",
       });
       return;
@@ -125,16 +127,16 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
 
       if (!error) {
         toast({
-          title: "Success",
-          description: "Room Added successfully",
+          title: "Succes",
+          description: "Kamer succesvol toegevoegd",
         });
         onOpenChange(false);
       }
       setLoading(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to Add Room",
+        title: "Fout",
+        description: "Kan geen kamer toevoegen",
         variant: "destructive",
       });
       console.error("Error adding room", error);
@@ -152,12 +154,14 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-lg text-primary">Add Room</DialogTitle>
+            <DialogTitle className="text-lg text-primary">
+              Kamer toevoegen
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <Label>Name</Label>
+              <Label>Naam</Label>
               <Input
                 value={addRoomData.room_name}
                 onChange={(e) =>
@@ -169,7 +173,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
-              <Label>Morning Price</Label>
+              <Label>Ochtendprijs</Label>
               <Input
                 type="number"
                 placeholder="1"
@@ -184,7 +188,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
-              <Label>Afternoon Price</Label>
+              <Label>Middagprijs</Label>
               <Input
                 type="number"
                 placeholder="1"
@@ -199,7 +203,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
-              <Label>Night Price</Label>
+              <Label>Nachtprijs</Label>
               <Input
                 type="number"
                 placeholder="1"
@@ -214,7 +218,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
-              <Label>Amenities</Label>
+              <Label>Voorzieningen</Label>
               <Input
                 value={addRoomData.amenities}
                 onChange={(e) =>
@@ -226,12 +230,12 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
-              <Label>Room Pics</Label>
+              <Label>Kamerfoto's</Label>
               {addRoomData.room_pics && (
                 <div className="relative">
                   <img
                     src={addRoomData.room_pics}
-                    alt="Room pic"
+                    alt="Kamerfoto"
                     className="w-full h-48 object-cover rounded-lg"
                   />
                 </div>
@@ -257,14 +261,15 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
                     {uploading ? (
                       <>
                         <Upload className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading...
+                        Uploaden...
                       </>
                     ) : (
                       <>
                         <Upload className="h-4 w-4 mr-2" />
                         {addRoomData.room_pics
-                          ? "Change Photo"
-                          : "Upload Room Photo"}
+                          ? "Foto wijzigen"
+                          : "Kamerfoto uploaden"
+                        }
                       </>
                     )}
                   </span>
@@ -278,7 +283,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
                 className="bg-secondary text-primary border border-primary hover:bg-primary hover:text-secondary"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Annuleren
               </Button>
               <Button
                 variant="outline"
@@ -286,7 +291,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
                 onClick={addRoomfun}
                 disabled={loading || !isValid}
               >
-                {loading ? "Adding..." : "Add Room"}
+                {loading ? "Toevoegen..." : "Kamer toevoegen"}
               </Button>
             </div>
           </div>

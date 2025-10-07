@@ -90,7 +90,7 @@ const Dashboard = () => {
     if (!profile) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Fout",
         description: "You must be signed in for book a room.",
       });
       navigate("/auth");
@@ -223,28 +223,28 @@ const Dashboard = () => {
   const timeslots = settings
     ? [
         {
-          name: "Morning",
+          name: "Ochtend",
           range: `${formatTime(settings.morningSessionStart)} - ${formatTime(
             settings.morningSessionEnd
           )}`,
           start: parseTime(settings.morningSessionStart),
         },
         {
-          name: "Afternoon",
+          name: "Middag",
           range: `${formatTime(settings.afternoonSessionStart)} - ${formatTime(
             settings.afternoonSessionEnd
           )}`,
           start: parseTime(settings.afternoonSessionStart),
         },
         {
-          name: "Evening",
+          name: "Avond",
           range: `${formatTime(settings.eveningSessionStart)} - ${formatTime(
             settings.eveningSessionEnd
           )}`,
           start: parseTime(settings.eveningSessionStart),
         },
         {
-          name: "Full Day",
+          name: "Hele dag",
           range: `${formatTime(settings.morningSessionStart)} - ${formatTime(
             settings.afternoonSessionEnd
           )}`,
@@ -307,7 +307,7 @@ const Dashboard = () => {
       // if (error) throw error;
 
       // toast({
-      //   title: "Success",
+      //   title: "Succes",
       //   description: "Room booked successfuly",
       // });
 
@@ -317,8 +317,8 @@ const Dashboard = () => {
       console.error("Error confirming booking:", err);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to book room. Try again.",
+        title: "Fout",
+        description: "Het boeken van een kamer is mislukt. Probeer het opnieuw.",
       });
     }
   };
@@ -352,7 +352,7 @@ const Dashboard = () => {
       const cs = data.client_secret ?? data.clientSecret ?? null;
       const pk = data.publishableKey ?? data.publishable_key ?? null;
 
-      if (!cs || !pk) throw new Error("Failed to create payment intent");
+      if (!cs || !pk) throw new Error("Het is niet gelukt om een ​​betalingsintentie aan te maken");
 
       // First update the state
       setClientSecret(cs);
@@ -368,8 +368,8 @@ const Dashboard = () => {
     } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: err.message || "Payment setup failed",
+        title: "Fout",
+        description: err.message || "Betalingsinstelling mislukt",
       });
     }
   };
@@ -380,9 +380,9 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-primary">Book Space</h1>
+            <h1 className="text-3xl font-bold text-primary">Boekruimte</h1>
             <p className="text-primary mt-1">
-              Select a time slot to see available spaces
+              Selecteer een tijdslot om beschikbare plaatsen te bekijken
             </p>
           </div>
 
@@ -512,7 +512,7 @@ const Dashboard = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="text-primary">Available Rooms</DialogTitle>
+            <DialogTitle className="text-primary">Beschikbare kamers</DialogTitle>
             <DialogDescription>
               {selectedSlot &&
                 `${
@@ -522,9 +522,9 @@ const Dashboard = () => {
           </DialogHeader>
 
           {loadingRooms ? (
-            <p>Loading rooms...</p>
+            <p>Kamers laden...</p>
           ) : availableRooms.length === 0 ? (
-            <p className="text-muted-foreground">No rooms available.</p>
+            <p className="text-muted-foreground">Geen kamers beschikbaar.</p>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
               {availableRooms.map((room) => (
@@ -546,7 +546,7 @@ const Dashboard = () => {
                       {room.amenities}
                     </p>
                     <p className="font-semibold text-primary">
-                      Price:{" "}
+                      Prijs:{" "}
                       {selectedSlot?.slot.name === "Morning"
                         ? room.Morning_price
                         : selectedSlot?.slot.name === "Afternoon"
@@ -578,16 +578,16 @@ const Dashboard = () => {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Choose method</DialogTitle>
+            <DialogTitle>Kies methode</DialogTitle>
             <DialogDescription>
               {selectedRoom &&
-                `${selectedRoom.name} on ${selectedRoom.date} (${selectedRoom.slot})`}
+                `${selectedRoom.name} op ${selectedRoom.date} (${selectedRoom.slot})`}
             </DialogDescription>
           </DialogHeader>
 
           {selectedRoom && (
             <div className="space-y-4">
-              <p className="font-semibold">Price: {selectedRoom.price}</p>
+              <p className="font-semibold">Prijs: {selectedRoom.price}</p>
 
               <div className="space-y-2">
                 <label className="flex items-center space-x-2">
@@ -598,7 +598,7 @@ const Dashboard = () => {
                     checked={paymentType === "Instant"}
                     onChange={() => setPaymentType("Instant")}
                   />
-                  <span>Instant Payment</span>
+                  <span>Directe betaling</span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input
@@ -608,7 +608,7 @@ const Dashboard = () => {
                     checked={paymentType === "Monthly"}
                     onChange={() => setPaymentType("Monthly")}
                   />
-                  <span>Pay after a month</span>
+                  <span>Betaal na een maand</span>
                 </label>
               </div>
 
@@ -633,7 +633,7 @@ const Dashboard = () => {
                     setIsPaymentDialogOpen(false);
                   }}
                 >
-                  Confirm Booking
+                  Bevestig boeking
                 </Button>
               )}
               {paymentType === "Instant" && (
@@ -667,10 +667,10 @@ const Dashboard = () => {
                   {isInstantLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Loading...
+                      Laden...
                     </>
                   ) : (
-                    "Confirm Booking"
+                    "Bevestig boeking"
                   )}
                 </Button>
               )}
@@ -685,10 +685,10 @@ const Dashboard = () => {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirm Booking</DialogTitle>
+            <DialogTitle>Bevestig boeking</DialogTitle>
             <DialogDescription>
               {selectedRoom &&
-                `${selectedRoom.name} on ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
+                `${selectedRoom.name} op ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
             </DialogDescription>
           </DialogHeader>
           {stripePromise && clientSecret && (
@@ -722,10 +722,10 @@ const Dashboard = () => {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Enter Card Details</DialogTitle>
+            <DialogTitle>Voer kaartgegevens in</DialogTitle>
             <DialogDescription>
               {selectedRoom &&
-                `${selectedRoom.name} on ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
+                `${selectedRoom.name} op ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
             </DialogDescription>
           </DialogHeader>
 

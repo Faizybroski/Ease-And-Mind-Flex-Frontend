@@ -64,7 +64,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
           variant="outline"
           onClick={onBack}
         >
-          ← Back
+          ← Rug
         </Button>
       </header>
 
@@ -112,7 +112,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
 
               {booking.is_recurring && (
                 <div className="flex">
-                  <span className="text-primary mr-1">Payment:</span>{" "}
+                  <span className="text-primary mr-1">Betaling:</span>{" "}
                   <p
                     className={` ${
                       booking.payment_status === "Completed"
@@ -122,7 +122,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                         : "text-yellow-600 font-medium"
                     }`}
                   >
-                    {booking.payment_status || "Null"}
+                    {booking.payment_status || "Nul"}
                   </p>
                 </div>
               )}
@@ -130,7 +130,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
               {!booking.is_recurring && (
                 <div>
                   <div className="flex">
-                    <span className="text-primary mr-1">Payment:</span>{" "}
+                    <span className="text-primary mr-1">Betaling:</span>{" "}
                     <p
                       className={` ${
                         booking.payment_status === "Completed"

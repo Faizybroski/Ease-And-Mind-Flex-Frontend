@@ -136,8 +136,8 @@ const Bookings = () => {
 
   const cancelBooking = (bookingId: string) => {
     toast({
-      title: "Are you sure?",
-      description: "This will cancel your booking.",
+      title: "Weet je het zeker?",
+      description: "Hiermee wordt uw boeking geannuleerd.",
       action: (
         <div className="flex gap-2">
           <Button
@@ -152,9 +152,9 @@ const Bookings = () => {
 
               if (data.payment_status === "Completed") {
                 toast({
-                  title: "Error",
+                  title: "Fout",
                   description:
-                    "Failed to canceled booking becuase the payment is not refundable.",
+                    "Het annuleren van de boeking is mislukt omdat de betaling niet restitueerbaar is.",
                   variant: "destructive",
                 });
                 return;
@@ -173,14 +173,14 @@ const Bookings = () => {
 
               if (error) {
                 toast({
-                  title: "Error",
-                  description: error.message || "Failed to canceled booking",
+                  title: "Fout",
+                  description: error.message || "Het is niet gelukt om de boeking te annuleren",
                   variant: "destructive",
                 });
               } else {
                 toast({
-                  title: "Booking canceled",
-                  description: "Your booking has been canceled successfully",
+                  title: "Boeking geannuleerd",
+                  description: "Uw boeking is succesvol geannuleerd",
                 });
                 fetchMyBookings();
               }
@@ -193,8 +193,8 @@ const Bookings = () => {
             onClick={() => {
               // just dismiss toast
               toast({
-                title: "Cancelled",
-                description: "Event cancelation cancelled.",
+                title: "Geannuleerd",
+                description: "Boekings annulering geannuleerd.",
               });
             }}
           >
@@ -210,7 +210,7 @@ const Bookings = () => {
       return (
         <div className="text-center py-12">
           <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No bookings found</h3>
+          <h3 className="text-lg font-semibold mb-2">Geen boekingen gevonden</h3>
         </div>
       );
     }
@@ -264,17 +264,17 @@ const Bookings = () => {
                           : "Ongoing"}
                       </div>
                       <div>
-                        <span className="font-medium">Pattern:</span>{" "}
+                        <span className="font-medium">Patroon:</span>{" "}
                         {booking.recurrence_pattern}
                       </div>
                       {booking.weekdays && (
                         <div>
-                          <span className="font-medium">Weekdays:</span>{" "}
+                          <span className="font-medium">Weekdagen:</span>{" "}
                           {booking.weekdays.join(", ")}
                         </div>
                       )}
                       <div>
-                        <span className="font-medium">Time Slot:</span>{" "}
+                        <span className="font-medium">Tijdslot:</span>{" "}
                         {booking.time_slot}
                       </div>
                     </>
@@ -298,21 +298,21 @@ const Bookings = () => {
                   {isRecurring ? (
                     <>
                       <div>
-                        <span className="font-medium">Initial Revenue:</span>{" "}
+                        <span className="font-medium">Initiële inkomsten:</span>{" "}
                         {booking.initial_revenue ?? 0}
                       </div>
                       <div>
-                        <span className="font-medium">Discount:</span>{" "}
+                        <span className="font-medium">Korting:</span>{" "}
                         {booking.discount ?? 0}
                       </div>
                       <div>
-                        <span className="font-medium">Final Revenue:</span>{" "}
+                        <span className="font-medium">Eindopbrengst:</span>{" "}
                         {booking.final_revenue ?? 0}
                       </div>
                     </>
                   ) : (
                     <div>
-                      <span className="font-medium">Revenue:</span>{" "}
+                      <span className="font-medium">Winst:</span>{" "}
                       {booking.final_revenue ?? 0}
                     </div>
                   )}
@@ -320,7 +320,7 @@ const Bookings = () => {
               </div>
 
               <div className="text-sm text-primary min-w-[190px]">
-                <span className="font-medium">Payment Status:</span>{" "}
+                <span className="font-medium">Betalings status:</span>{" "}
                 <span
                   className={`${
                     booking.payment_status === "Completed"
@@ -334,7 +334,7 @@ const Bookings = () => {
                 </span>
                 {!isRecurring && (
                   <div className="text-sm text-primary min-w-[150px]">
-                    <span className="font-medium">Payment Type:</span>{" "}
+                    <span className="font-medium">Betaal methode:</span>{" "}
                     <span
                       className={`${
                         booking.payment_type === "Instant"
@@ -369,7 +369,7 @@ const Bookings = () => {
                         onClick={() => cancelBooking(booking.id)}
                         className="text-destructive bg-secondary border border-destructive hover:bg-destructive hover:text-secondary"
                       >
-                        Cancel
+                        Annuleren
                       </Button>
                     )}
                   </div>
@@ -384,7 +384,7 @@ const Bookings = () => {
                           : "bg-yellow-200 text-yellow-800 px-[3.25rem] hover:bg-yellow-200 hover:text-yellow-800"
                       }`}
                     >
-                      {booking.status || "Pending"}
+                      {booking.status || "In behandeling"}
                     </Button>
                   </div>
                 )}
@@ -401,7 +401,7 @@ const Bookings = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="h-8 w-8 animate-spin mx-auto border-4 border-peach-gold border-t-transparent rounded-full" />
-          <p className="text-muted-foreground">Loading bookings...</p>
+          <p className="text-muted-foreground">Boekingen laden...</p>
         </div>
       </div>
     );
@@ -413,26 +413,26 @@ const Bookings = () => {
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-primary">My Bookings</h1>
-              <p className="text-primary mt-1">Manage your bookings</p>
+              <h1 className="text-3xl font-bold text-primary">Mijn boekingen</h1>
+              <p className="text-primary mt-1">Beheer uw boekingen</p>
             </div>
             <Button
               onClick={() => navigate("/")}
               className="text-primary border border-primary bg-secondary hover:bg-primary hover:text-secondary mt-4 sm:mt-0"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create Booking
+              Boeking maken
             </Button>
           </div>
 
           <Tabs defaultValue="all" className="space-y-4">
             <div className="w-full overflow-x-auto">
               <TabsList className="flex w-max  space-x-2 px-2">
-                <TabsTrigger value="all">All Bookings</TabsTrigger>
-                <TabsTrigger value="Upcoming">Upcoming</TabsTrigger>
-                <TabsTrigger value="Canceled">Canceled</TabsTrigger>
-                <TabsTrigger value="Completed">Completed</TabsTrigger>
-                <TabsTrigger value="Recurring">Recurring</TabsTrigger>
+                <TabsTrigger value="all">Alle boekingen</TabsTrigger>
+                <TabsTrigger value="Upcoming">Aankomende</TabsTrigger>
+                <TabsTrigger value="Canceled">Geannuleerd</TabsTrigger>
+                <TabsTrigger value="Completed">Voltooid</TabsTrigger>
+                <TabsTrigger value="Recurring">Terugkerend</TabsTrigger>
               </TabsList>
             </div>
 

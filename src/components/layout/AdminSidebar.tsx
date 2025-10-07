@@ -37,11 +37,11 @@ const AdminSidebar = () => {
   const getNavigationItems = () => {
     const baseItems = [
       { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-      { title: "All bookings", url: "/admin/bookings", icon: Calendar },
-      { title: "Rooms", url: "/admin/rooms", icon: Building2 },
-      { title: "Users", url: "/admin/users", icon: Users },
-      { title: "Billing & Invoicing", url: "/admin/billing", icon: CreditCard },
-      { title: "Settings", url: "/admin/settings", icon: Settings },
+      { title: "Alle boekingen", url: "/admin/bookings", icon: Calendar },
+      { title: "Kamers", url: "/admin/rooms", icon: Building2 },
+      { title: "Gebruikers", url: "/admin/users", icon: Users },
+      { title: "Facturatie en facturering", url: "/admin/billing", icon: CreditCard },
+      { title: "Instellingen", url: "/admin/settings", icon: Settings },
     ];
 
     return baseItems;

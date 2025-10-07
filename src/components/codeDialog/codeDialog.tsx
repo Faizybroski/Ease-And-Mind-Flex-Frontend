@@ -48,7 +48,7 @@ const Code: React.FC<codeDialogProps> = ({ open, onOpenChange }) => {
         <DialogHeader className="flex items-center gap-2">
           <Lock className="text-primary w-5 h-5" />
           <DialogTitle className="text-lg font-semibold text-primary tracking-wide">
-            Secure Room Code
+            Beveiligde kamercode
           </DialogTitle>
         </DialogHeader>
 
@@ -89,7 +89,7 @@ const Code: React.FC<codeDialogProps> = ({ open, onOpenChange }) => {
             transition={{ delay: 0.2, duration: 0.4 }}
             className="text-sm text-muted-foreground text-center italic"
           >
-            Use this code to enter your room. Keep it private.
+            Gebruik deze code om je kamer binnen te komen. Houd het privé.
           </motion.p>
         </motion.div>
       </DialogContent>

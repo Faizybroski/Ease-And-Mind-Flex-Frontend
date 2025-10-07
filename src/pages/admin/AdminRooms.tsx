@@ -81,8 +81,8 @@ const AdminRooms = () => {
       console.log("Rooms Fetched", roomsWithStats);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to load rooms.",
+        title: "Fout",
+        description: "Het laden van kamers is mislukt.",
         variant: "destructive",
       });
       console.error("Error loading rooms", error);
@@ -101,7 +101,7 @@ const AdminRooms = () => {
     if (!roomId) return;
     if (
       !confirm(
-        "Are you sure you want to delete this Room? This action cannot be undone."
+        "Weet u zeker dat u deze kamer wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
       )
     )
       return;
@@ -112,14 +112,14 @@ const AdminRooms = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Room deleted successfully",
+        title: "Succes",
+        description: "Kamer succesvol verwijderd",
       });
       fetchRooms();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err.message || "Failed to delete room",
+        title: "Fout",
+        description: err.message || "Het is niet gelukt om de kamer te verwijderen",
         variant: "destructive",
       });
     }
@@ -132,10 +132,10 @@ const AdminRooms = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">
-                Room Management
+                Kamerbeheer
               </h1>
               <p className="text-primary text-sm">
-                Manage all rooms in the system
+                Beheer alle kamers in het systeem
               </p>
             </div>
           </div>
@@ -146,13 +146,13 @@ const AdminRooms = () => {
             className="text-sm bg-primary border border-primary font-medium text-secondary hover:border hover:border-primary hover:text-primary hover:bg-secondary"
           >
             <Plus className="h-4 w-4" />
-            <span>Create Room</span>
+            <span>Kamer maken</span>
           </Button>
         </header>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Loading Rooms...</p>
+            <p className="text-muted-foreground">Kamers laden...</p>
           </div>
         </div>
       </div>
@@ -165,10 +165,10 @@ const AdminRooms = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">
-              Room Management
+              Kamerbeheer
             </h1>
             <p className="text-primary text-sm">
-              Manage all rooms in the system
+              Beheer alle kamers in het systeem
             </p>
           </div>
         </div>
@@ -179,14 +179,14 @@ const AdminRooms = () => {
           className="text-sm bg-primary border border-primary font-medium text-secondary hover:border hover:border-primary hover:text-primary hover:bg-secondary"
         >
           <Plus className="h-4 w-4" />
-          <span>Create Room</span>
+          <span>Kamer maken</span>
         </Button>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {rooms.length === 0 ? (
           <div className="text-center text-muted-foreground py-6">
-            No Rooms found.
+            Geen kamers gevonden.
           </div>
         ) : (
           rooms.map((room) => {
@@ -276,7 +276,7 @@ const AdminRooms = () => {
                       className="flex-1 text-secondary bg-primary hover:bg-secondary hover:text-primary hover:border hover:border-primary rounded-sm"
                     >
                       <Edit className="h-4 w-4" />
-                      Edit Room
+                      Bewerkingsruimte
                     </Button>
 
                     <Button
@@ -299,14 +299,14 @@ const AdminRooms = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-lg text-primary">
-              Edit Room
+              Bewerkingsruimte
             </DialogTitle>
           </DialogHeader>
 
           {editRoomData && (
             <div className="space-y-4">
               <div>
-                <Label>Name</Label>
+                <Label>Naam</Label>
                 <Input
                   value={editRoomData.room_name}
                   onChange={(e) =>
@@ -318,7 +318,7 @@ const AdminRooms = () => {
                 />
               </div>
               <div>
-                <Label>Morning Price</Label>
+                <Label>Ochtendprijs</Label>
                 <Input
                   type="number"
                   value={editRoomData.Morning_price}
@@ -331,7 +331,7 @@ const AdminRooms = () => {
                 />
               </div>
               <div>
-                <Label>Afternoon Price</Label>
+                <Label>Middagprijs</Label>
                 <Input
                   type="number"
                   value={editRoomData.Afternoon_price}
@@ -344,7 +344,7 @@ const AdminRooms = () => {
                 />
               </div>
               <div>
-                <Label>Night Price</Label>
+                <Label>Nachtprijs</Label>
                 <Input
                   type="number"
                   value={editRoomData.Night_price}
@@ -357,7 +357,7 @@ const AdminRooms = () => {
                 />
               </div>
               <div>
-                <Label>Amenities</Label>
+                <Label>Voorzieningen</Label>
                 <Input
                   value={editRoomData.amenities}
                   onChange={(e) =>
@@ -374,7 +374,7 @@ const AdminRooms = () => {
                   variant="outline"
                   onClick={() => setShowEditModal(false)}
                 >
-                  Cancel
+                  Annuleren
                 </Button>
                 <Button
                   disabled={loading}
@@ -384,32 +384,32 @@ const AdminRooms = () => {
                     if (!editRoomData) return;
                     if (!editRoomData.room_name.trim()) {
                       toast({
-                        title: "Validation Error",
-                        description: "Name is required",
+                        title: "Validatiefout",
+                        description: "Naam is vereist",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editRoomData.Morning_price) {
                       toast({
-                        title: "Validation Error",
-                        description: "Morning Price is required",
+                        title: "Validatiefout",
+                        description: "Ochtendprijs is vereist",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editRoomData.Afternoon_price) {
                       toast({
-                        title: "Validation Error",
-                        description: "Afternoon Price is required",
+                        title: "Validatiefout",
+                        description: "Middagprijs is vereist",
                         variant: "destructive",
                       });
                       return;
                     }
                     if (!editRoomData.Night_price) {
                       toast({
-                        title: "Validation Error",
-                        description: "Night Price is required",
+                        title: "Validatiefout",
+                        description: "Nachtprijs is vereist",
                         variant: "destructive",
                       });
                       return;
@@ -429,22 +429,22 @@ const AdminRooms = () => {
                       if (error) throw error;
                       if (!error) {
                         toast({
-                          title: "Success",
-                          description: "Room updated successfully",
+                          title: "Succes",
+                          description: "Kamer succesvol bijgewerkt",
                         });
                         setShowEditModal(false);
                         fetchRooms();
                       }
                     } catch (error) {
                       toast({
-                        title: "Error",
-                        description: "Error updating room",
+                        title: "Fout",
+                        description: "Fout bij het bijwerken van de kamer",
                         variant: "destructive",
                       });
                     }
                   }}
                 >
-                  {loading ? "Saving" : "Save Changes"}
+                  {loading ? "Besparing" : "Wijzigingen opslaan"}
                 </Button>
               </div>
             </div>

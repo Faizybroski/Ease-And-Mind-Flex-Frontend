@@ -22,16 +22,16 @@ export default function ResetPassword() {
 
       if (!error) {
         toast({
-          title: "Password updated",
-          description: "You can now log in with your new password.",
+          title: "Wachtwoord bijgewerkt",
+          description: "U kunt nu inloggen met uw nieuwe wachtwoord.",
         });
         window.location.href = "/";
       }
       setLoading(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update password.",
+        title: "Fout",
+        description: "Het is niet gelukt om het wachtwoord bij te werken.",
         variant: "destructive",
       });
       console.error("Error adding room", error);
@@ -40,12 +40,12 @@ export default function ResetPassword() {
 
   return (
     <div className="max-w-sm mx-auto mt-20">
-      <h2 className="text-xl font-semibold mb-4">Reset Your Password</h2>
+      <h2 className="text-xl font-semibold mb-4">Uw wachtwoord opnieuw instellen</h2>
       <form onSubmit={handleUpdatePassword} className="space-y-4">
         <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
-            placeholder="Enter new password"
+            placeholder="Voer een nieuw wachtwoord in"
             value={password}
             onChange={(e) => setPassword(e.target.value.trim())}
             required
@@ -63,7 +63,7 @@ export default function ResetPassword() {
           </button>
         </div>
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Updating..." : "Update Password"}
+          {loading ? "Bijwerken..." : "Wachtwoord bijwerken"}
         </Button>
       </form>
     </div>

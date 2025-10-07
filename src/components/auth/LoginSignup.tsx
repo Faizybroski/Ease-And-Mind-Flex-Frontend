@@ -27,8 +27,8 @@ export const Auth = () => {
       if (isLogin) {
         if (!email.trim()) {
           toast({
-            title: "Missing Email",
-            description: "Please enter your email address.",
+            title: "Ontbrekende e-mail",
+            description: "Voer uw e-mailadres in.",
             variant: "destructive",
           });
           setLoading(false);
@@ -37,8 +37,8 @@ export const Auth = () => {
 
         if (!password.trim()) {
           toast({
-            title: "Missing Password",
-            description: "Please enter your password.",
+            title: "Wachtwoord ontbreekt",
+            description: "Voer uw wachtwoord in.",
             variant: "destructive",
           });
           setLoading(false);
@@ -48,16 +48,16 @@ export const Auth = () => {
         const { error } = await signIn(email.trim(), password.trim(), "user");
         if (!error) {
           toast({
-            title: "Welcome back!",
-            description: "Signed in successfully.",
+            title: "Welkom terug!",
+            description: "Succesvol aangemeld.",
           });
         }
         if (error) throw error;
       } else {
         if (!fullName.trim()) {
           toast({
-            title: "Missing Full Name",
-            description: "Please enter your Full name.",
+            title: "Ontbrekende volledige naam",
+            description: "Voer uw volledige naam in.",
             variant: "destructive",
           });
           setLoading(false);
@@ -65,8 +65,8 @@ export const Auth = () => {
         }
         if (!email.trim()) {
           toast({
-            title: "Missing Email",
-            description: "Please enter your email address.",
+            title: "Ontbrekende e-mail",
+            description: "Voer uw e-mailadres in.",
             variant: "destructive",
           });
           setLoading(false);
@@ -74,8 +74,8 @@ export const Auth = () => {
         }
         if (!password.trim()) {
           toast({
-            title: "Missing Password",
-            description: "Please enter your password.",
+            title: "Wachtwoord ontbreekt",
+            description: "Voer uw wachtwoord in.",
             variant: "destructive",
           });
           setLoading(false);
@@ -83,8 +83,8 @@ export const Auth = () => {
         }
         if (fullName.trim().length < 2) {
           toast({
-            title: "Invalid Full Name",
-            description: "Full name must be at least 2 characters long.",
+            title: "Ongeldige volledige naam",
+            description: "De volledige naam moet minimaal 2 tekens lang zijn.",
             variant: "destructive",
           });
           setLoading(false);
@@ -94,8 +94,8 @@ export const Auth = () => {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(email.trim())) {
             toast({
-              title: "Invalid Email",
-              description: "Please enter a valid email address.",
+              title: "Ongeldig e-mailadres",
+              description: "Voer een geldig e-mailadres in.",
               variant: "destructive",
             });
             setLoading(false);
@@ -104,8 +104,8 @@ export const Auth = () => {
         }
         if (password.length < 6) {
           toast({
-            title: "Weak Password",
-            description: "Password must be at least 6 characters long.",
+            title: "Zwak wachtwoord",
+            description: "Het wachtwoord moet minimaal 6 tekens lang zijn.",
             variant: "destructive",
           });
           setLoading(false);
@@ -113,8 +113,8 @@ export const Auth = () => {
         }
         if (!agreeToTerms) {
           toast({
-            title: "Terms & Conditions",
-            description: "You must agree to the Terms & Conditions.",
+            title: "Algemene voorwaarden",
+            description: "U moet akkoord gaan met de Algemene Voorwaarden.",
             variant: "destructive",
           });
           setLoading(false);
@@ -127,8 +127,8 @@ export const Auth = () => {
         });
         if (!error) {
           toast({
-            title: "Account Created!",
-            description: "Check your email for verification.",
+            title: "Account aangemaakt!",
+            description: "Controleer uw e-mail ter verificatie.",
           });
         }
 
@@ -140,8 +140,8 @@ export const Auth = () => {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to login/register.",
+        title: "Fout",
+        description: "Inloggen/registreren is mislukt.",
         variant: "destructive",
       });
       console.error("Error login/register", error);
@@ -176,39 +176,39 @@ export const Auth = () => {
                 : "text-muted-foreground bg-secondary"
             }`}
           >
-            Sign Up
+            Aanmelden
           </button>
         </div>
 
         <form onSubmit={handleEmailLogin} className="space-y-5">
           {!isLogin && (
             <div className="space-y-1">
-              <Label htmlFor="full_name">Full Name</Label>
+              <Label htmlFor="full_name">Volledige naam</Label>
               <Input
                 id="full_name"
                 type="text"
-                placeholder="Full name"
+                placeholder="Volledige naam"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
             </div>
           )}
           <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Voer uw e-mailadres in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="space-y-1 relative">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Wachtwoord</Label>
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder="Voer uw wachtwoord in"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -236,12 +236,12 @@ export const Auth = () => {
                   required
                 />
                 <Label htmlFor="terms">
-                  I agree to the{" "}
+                  Ik ga akkoord met{" "}
                   <Link
                     to="/terms-conditions"
                     className="text-primary underline"
                   >
-                    Terms & Conditions
+                    Algemene voorwaarden
                   </Link>
                 </Label>
               </div>
@@ -254,9 +254,9 @@ export const Auth = () => {
                 onClick={async () => {
                   if (!email) {
                     toast({
-                      title: "Enter your email first",
+                      title: "Voer eerst uw e-mailadres in",
                       description:
-                        "Please enter your email in the field above.",
+                        "Voer uw e-mailadres in het veld hierboven in.",
                       variant: "destructive",
                     });
                     return;
@@ -266,14 +266,14 @@ export const Auth = () => {
                     if (error) throw error;
                     if (!error) {
                       toast({
-                        title: "Check your email",
-                        description: "Password reset link sent.",
+                        title: "Controleer uw e-mail",
+                        description: "Link voor wachtwoordherstel verzonden.",
                       });
                     }
                   } catch (error) {
                     toast({
-                      title: "Error",
-                      description: "Failed to send reset link.",
+                      title: "Fout",
+                      description: "Het is niet gelukt om de resetlink te versturen.",
                       variant: "destructive",
                     });
                     console.error("Error sending password reset link", error);
@@ -281,7 +281,7 @@ export const Auth = () => {
                 }}
                 className="text-primary text-sm underline"
               >
-                Forgot Password?
+                Wachtwoord vergeten?
               </button>
             </div>
           )}
@@ -293,12 +293,12 @@ export const Auth = () => {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isLogin ? "Logging in..." : "Creating account..."}
+                {isLogin ? "Inloggen..." : "Account aanmaken..."}
               </>
             ) : isLogin ? (
-              "Log In"
+              "Inloggen"
             ) : (
-              "Sign Up"
+              "Aanmelden"
             )}
           </Button>
         </form>

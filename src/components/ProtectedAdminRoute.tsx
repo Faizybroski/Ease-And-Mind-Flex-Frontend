@@ -21,7 +21,7 @@ const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-peach-gold" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Bezig met laden...</p>
         </div>
       </div>
     );
@@ -39,9 +39,9 @@ const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-red-600">Toegang geweigerd</h1>
           <p className="text-muted-foreground">
-            This area requires Admin privileges.
+            Voor dit gebied zijn beheerdersrechten vereist.
           </p>
         </div>
       </div>

@@ -31,8 +31,8 @@ const Navigation = () => {
 
   const getNavItems = () => {
     const baseItems = [
-      { icon: Calendar, label: "Booking", path: "/" },
-      { icon: Search, label: "My Bookings", path: "/my-bookings" },
+      { icon: Calendar, label: "Reservering", path: "/" },
+      { icon: Search, label: "Mijn boekingen", path: "/my-bookings" },
     ];
     return baseItems;
   };
@@ -96,7 +96,7 @@ const Navigation = () => {
           {!user ? (
             <div className="flex items-center space-x-4">
               <Button onClick={() => showAuthFun()} variant="outline" className="text-primary">
-                Sign In
+                Aanmelden
               </Button>
             </div>
           ) : (

@@ -89,8 +89,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     } catch (error) {
       console.error("Error fetching user:", error);
       toast({
-        title: "Error",
-        description: "Error loading user.",
+        title: "Fout",
+        description: "Fout bij het laden van gebruiker.",
         variant: "destructive",
       });
     } finally {
@@ -149,8 +149,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast({
-        title: "Error",
-        description: "Error loading bookings",
+        title: "Fout",
+        description: "Fout bij het laden van boekingen",
         variant: "destructive",
       });
     } finally {
@@ -163,7 +163,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   }, [userId]);
 
   const handleSuspendUser = async (userId: string) => {
-    if (!confirm("Are you sure you want to suspend this user?")) return;
+    if (!confirm("Weet u zeker dat u deze gebruiker wilt schorsen?")) return;
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -172,15 +172,15 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
       if (error) throw error;
       toast({
-        title: "Success",
-        description: "User suspended successfully",
+        title: "Succes",
+        description: "Gebruiker succesvol geschorst",
       });
       onUserUpdate();
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error suspending user",
+        title: "Fout",
+        description: "Fout bij het schorsen van de gebruiker",
         variant: "destructive",
       });
       console.error("Error suspending user", error);
@@ -197,15 +197,15 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "User reactivated successfully",
+        title: "Succes",
+        description: "Gebruiker succesvol gereactiveerd",
       });
       onUserUpdate();
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error reactivating user",
+        title: "Fout",
+        description: "Fout bij het opnieuw activeren van de gebruiker",
         variant: "destructive",
       });
       console.error("Error reactivating user", error);
@@ -215,7 +215,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   const handleDeleteUser = async (userId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
+        "Weet u zeker dat u deze gebruiker wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
       )
     )
       return;
@@ -227,14 +227,14 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
       if (error) throw error;
       if (!error) {
         toast({
-          title: "Success",
-          description: "User deleted successfully",
+          title: "Succes",
+          description: "Gebruiker succesvol verwijderd",
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error deleting user",
+        title: "Fout",
+        description: "Fout bij het verwijderen van gebruiker",
         variant: "destructive",
       });
     }
@@ -258,13 +258,13 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <CardHeader>
                 <CardTitle className="text-lg flex">
                   <User className="text-primary" />{" "}
-                  <span className="text-primary">Profile Information</span>
+                  <span className="text-primary">Profiel informatie</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium text-primary">
-                    Email:{" "}
+                    E-mail:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
                     {loadingProfile ? <SpanLoader /> : user?.email}
@@ -272,7 +272,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 </div>
                 <div>
                   <Label className="text-sm font-medium  text-primary">
-                    Total Bookings:{" "}
+                    Totaal aantal boekingen:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
                     {loadingProfile ? (
@@ -284,7 +284,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-primary">
-                    Total Recurring Bookings:{" "}
+                    Totaal aantal terugkerende boekingen:{" "}
                   </Label>
                   <span className="text-sm text-primary/70">
                     {loadingProfile ? (
@@ -296,7 +296,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 </div>
                 <div className="flex gap-2">
                   <Label className="text-sm font-medium text-primary">
-                    Revenue:
+                    Winst:
                   </Label>
                   {loadingProfile ? (
                     <SpanLoader />
@@ -317,7 +317,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
                   <span className="text-primary text-lg">
-                    Booking History ({user?.simpleBookings || 0})
+                    Boekingsgeschiedenis ({user?.simpleBookings || 0})
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -327,9 +327,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     <Table className="min-w-[600px]">
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Room</TableHead>
-                          <TableHead>Date & Time</TableHead>
-                          <TableHead>Revenue</TableHead>
+                          <TableHead>Kamer</TableHead>
+                          <TableHead>Datum en tijd</TableHead>
+                          <TableHead>Winst</TableHead>
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -354,7 +354,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   </div>
                 ) : (
                   <p className="text-muted-foreground">
-                    No Booking history found.
+                    Geen boekingsgeschiedenis gevonden.
                   </p>
                 )}
               </CardContent>
@@ -364,7 +364,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
                   <span className="text-primary text-lg">
-                    Recurring Booking History ({user?.recurringBookings || 0})
+                    Terugkerende boekingsge schiedenis ({user?.recurringBookings || 0})
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -374,10 +374,10 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     <Table className="min-w-[600px]">
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Room</TableHead>
-                          <TableHead>Start → End</TableHead>
-                          <TableHead>Recurrence</TableHead>
-                          <TableHead>Revenue</TableHead>
+                          <TableHead>Kamer</TableHead>
+                          <TableHead>Begin → Einde</TableHead>
+                          <TableHead>Herhaling</TableHead>
+                          <TableHead>Winst</TableHead>
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -413,7 +413,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   </div>
                 ) : (
                   <p className="text-muted-foreground">
-                    No Booking history found.
+                    Geen boekingsgeschiedenis gevonden.
                   </p>
                 )}
               </CardContent>
@@ -427,7 +427,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 className="text-primary bg-secondary hover:bg-primary hover:text-secondary"
                 onClick={() => onOpenChange(false)}
               >
-                Close
+                Dichtbij
               </Button>
               {user?.status === "Suspended" ? (
                 <Button
@@ -437,7 +437,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   onClick={() => handleReactivateUser(user.id)}
                 >
                   <UserCheck className="h-3 w-3" />
-                  <span>Reactivate User</span>
+                  <span>Gebruiker opnieuw activeren</span>
                 </Button>
               ) : (
                 <Button
@@ -447,7 +447,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                   onClick={() => handleSuspendUser(user.id)}
                 >
                   <Ban className="h-3 w-3" />
-                  <span>Suspend User</span>
+                  <span>Gebruiker opschorten</span>
                 </Button>
               )}
               <Button
@@ -456,7 +456,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 onClick={() => handleDeleteUser(user.id)}
               >
                 <Trash2 className="h-3 w-3" />
-                <span>Delete User</span>
+                <span>Gebruiker verwijderen</span>
               </Button>
             </div>
           </div>
@@ -541,8 +541,8 @@ const AdminUsers = () => {
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({
-        title: "Error",
-        description: "Error loading users",
+        title: "Fout",
+        description: "Fout bij het laden van gebruikers",
         variant: "destructive",
       });
     } finally {
@@ -553,7 +553,7 @@ const AdminUsers = () => {
   const handleDeleteUser = async (userId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this user? This action cannot be undone."
+        "Weet u zeker dat u deze gebruiker wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
       )
     )
       return;
@@ -565,15 +565,15 @@ const AdminUsers = () => {
       if (error) throw error;
       if (!error) {
         toast({
-          title: "Success",
-          description: "User deleted successfully",
+          title: "Succes",
+          description: "Gebruiker succesvol verwijderd",
         });
       }
       fetchUsers();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error deleting user",
+        title: "Fout",
+        description: "Fout bij het verwijderen van gebruiker",
         variant: "destructive",
       });
     }
@@ -582,9 +582,9 @@ const AdminUsers = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Active":
-        return <span className="text-green-700">Active</span>;
+        return <span className="text-green-700">Actief</span>;
       case "Suspended":
-        return <span className="text-red-700">Suspended</span>;
+        return <span className="text-red-700">Opgeschort</span>;
     }
   };
 
@@ -596,9 +596,9 @@ const AdminUsers = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">
-                All Users
+                Alle gebruikers
               </h1>
-              <p className="text-primary text-sm">Manage Your Users</p>
+              <p className="text-primary text-sm">Beheer uw gebruikers</p>
             </div>
           </div>
           <div className="flex items-center justify-between space-x-4 gap-4">
@@ -609,7 +609,7 @@ const AdminUsers = () => {
                 }}
                 className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
               >
-                Add Recurring Reservation
+                Terugkerende reservering toevoegen
               </Button>
               {/* <Button
                 onClick={() => {
@@ -625,7 +625,7 @@ const AdminUsers = () => {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center space-y-2">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Loading users...</p>
+            <p className="text-muted-foreground">Gebruikers laden...</p>
           </div>
         </div>
       </div>
@@ -637,8 +637,8 @@ const AdminUsers = () => {
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">All Users</h1>
-          <p className="text-primary text-sm">Manage Your Users</p>
+          <h1 className="text-3xl font-bold text-primary mb-2">Alle gebruikers</h1>
+          <p className="text-primary text-sm">Beheer uw gebruikers</p>
         </div>
         <div className="flex flex-wrap gap-3 justify-end">
           <Button
@@ -647,7 +647,7 @@ const AdminUsers = () => {
             }}
             className="text-sm bg-secondary border border-primary font-medium text-primary hover:bg-primary hover:text-secondary"
           >
-            Add Recurring Reservation
+            Terugkerende reservering toevoegen
           </Button>
           {/* <Button
             onClick={() => {
@@ -663,29 +663,29 @@ const AdminUsers = () => {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Users ({users.length})</CardTitle>
+          <CardTitle>Gebruikers ({users.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
             <div className="text-center text-muted-foreground py-6">
-              No User found.
+              Geen gebruiker gevonden.
             </div>
           ) : (
             <div className="rounded-lg overflow-x-auto">
               <Table className="min-w-full text-sm">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-center">Name</TableHead>
-                    <TableHead className="text-center">Email</TableHead>
-                    <TableHead className="text-center">Bookings</TableHead>
-                    <TableHead className="text-center">Recurring</TableHead>
+                    <TableHead className="text-center">Naam</TableHead>
+                    <TableHead className="text-center">E-mail</TableHead>
+                    <TableHead className="text-center">Reserveringen</TableHead>
+                    <TableHead className="text-center">Terugkerend</TableHead>
                     <TableHead className="text-center">
                       <div className="flex items-center justify-center gap-1">
-                        Revenue <Euro className="h-4 w-4" />
+                        Winst <Euro className="h-4 w-4" />
                       </div>
                     </TableHead>
                     <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
+                    <TableHead className="text-center">Acties</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

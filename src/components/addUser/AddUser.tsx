@@ -24,30 +24,30 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
   const addUserfun = async () => {
     if (!addUserData.name.trim()) {
       toast({
-        title: "Error",
-        description: "Name is required",
+        title: "Fout",
+        description: "Naam is vereist",
         variant: "destructive",
       });
       return;
     }
     if (!addUserData.email.trim()) {
       toast({
-        title: "Error",
-        description: "Email is required",
+        title: "Fout",
+        description: "E-mailadres is vereist",
         variant: "destructive",
       });
       return;
     }
     try {
       toast({
-        title: "Success",
-        description: "User Added successfully",
+        title: "Succes",
+        description: "Gebruiker succesvol toegevoegd",
       });
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to Add User",
+        title: "Fout",
+        description: "Het is niet gelukt om een ​​gebruiker toe te voegen",
         variant: "destructive",
       });
       console.error("Error adding user", error);
@@ -59,12 +59,14 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-lg text-primary">Add User</DialogTitle>
+            <DialogTitle className="text-lg text-primary">
+              Gebruiker toevoegen
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <Label>Full Name</Label>
+              <Label>Volledige naam</Label>
               <Input
                 value={addUserData.name}
                 onChange={(e) =>
@@ -76,7 +78,7 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
-              <Label>Email</Label>
+              <Label>E-mail</Label>
               <Input
                 type="email"
                 value={addUserData.email}
@@ -95,14 +97,14 @@ const AddUser: React.FC<AddUserProps> = ({ open, onOpenChange }) => {
                 className="bg-secondary text-primary border border-primary hover:bg-primary hover:text-secondary"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Annuleren
               </Button>
               <Button
                 variant="outline"
                 className="text-secondary bg-primary border border-primary hover:bg-secondary hover:text-primary"
                 onClick={addUserfun}
               >
-                Add User
+                Gebruiker toevoegen
               </Button>
             </div>
           </div>

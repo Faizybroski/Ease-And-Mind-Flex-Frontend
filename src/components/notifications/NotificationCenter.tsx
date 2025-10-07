@@ -179,7 +179,7 @@ const NotificationCenter = () => {
       <SheetContent className="w-[370px] sm:w-[540px]" id="notificationSheet">
         <SheetHeader>
           <SheetTitle className="flex items-center justify-between">
-            Notifications
+            Meldingen
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
@@ -188,12 +188,12 @@ const NotificationCenter = () => {
                 disabled={loading}
               >
                 <Check className="h-4 w-4 mr-2" />
-                Mark all read
+                Alles als gelezen markeren
               </Button>
             )}
           </SheetTitle>
           <SheetDescription>
-            Stay updated with your events and connections
+            Blijf op de hoogte van uw evenementen en connecties
           </SheetDescription>
         </SheetHeader>
 
@@ -206,15 +206,15 @@ const NotificationCenter = () => {
               <CardContent className="py-12 text-center">
                 <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">
-                  No notifications
+                  Geen meldingen
                 </h3>
-                <p className="text-muted-foreground">You're all caught up!</p>
+                <p className="text-muted-foreground">Je bent helemaal bij!</p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground">
-                Other Notifications
+                Andere meldingen
               </h3>
               {notifications.map((notification) => (
                 <Card

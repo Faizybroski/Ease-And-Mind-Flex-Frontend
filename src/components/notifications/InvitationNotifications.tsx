@@ -171,12 +171,12 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
       toast({
         title:
           response === "accepted"
-            ? "Invitation accepted!"
-            : "Invitation declined",
+            ? "Uitnodiging geaccepteerd!"
+            : "Uitnodiging afgewezen",
         description:
           response === "accepted"
-            ? "You've been added to the event. Looking forward to seeing you there!"
-            : "You've declined the invitation.",
+            ? "Je bent toegevoegd aan het evenement. Ik kijk ernaar uit je daar te zien!"
+            : "Je hebt de uitnodiging afgewezen.",
       });
 
       // Refresh invitations
@@ -185,8 +185,8 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
     } catch (error) {
       console.error("Error responding to invitation:", error);
       toast({
-        title: "Error",
-        description: "Failed to respond to invitation. Please try again.",
+        title: "Fout",
+        description: "Reageren op uitnodiging mislukt. Probeer het opnieuw.",
         variant: "destructive",
       });
     } finally {
@@ -201,7 +201,7 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-foreground mb-4">
-        🔔 Pending Invitations
+        🔔 In afwachting van uitnodigingen
       </h3>
 
       {invitations.map((invitation) => (
@@ -219,14 +219,14 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
                   </div>
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-foreground">
-                      Private Dinner Invitation
+                      Uitnodiging voor een privédiner
                     </h4>
                     <p className="text-sm text-muted-foreground mt-1">
                       {invitation.notification?.message}
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-peach-gold text-background">New</Badge>
+                <Badge className="bg-peach-gold text-background">Nieuw</Badge>
               </div>
 
               {/* Event Details */}
@@ -240,7 +240,7 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
                     )}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    at {format(new Date(invitation.event.date_time), "h:mm a")}
+                    bij {format(new Date(invitation.event.date_time), "h:mm a")}
                   </span>
                 </div>
 
@@ -274,7 +274,7 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Check className="h-4 w-4 mr-2" />
-                  Accept
+                  Accepteren
                 </Button>
                 <Button
                   onClick={() =>
@@ -289,13 +289,13 @@ const InvitationNotifications: React.FC<InvitationNotificationsProps> = ({
                   className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Decline
+                  Afwijzen
                 </Button>
               </div>
 
               {/* Timestamp */}
               <p className="text-xs text-muted-foreground text-center">
-                Invited{" "}
+                Uitgenodigd{" "}
                 {format(new Date(invitation.invited_at), "MMM do, yyyy")} at{" "}
                 {format(new Date(invitation.invited_at), "h:mm a")}
               </p>
