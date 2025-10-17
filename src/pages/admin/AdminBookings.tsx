@@ -30,6 +30,7 @@ interface Bookings {
   is_recurring: boolean;
   end_date: string;
   start_date: string;
+  day_time_slots: Record<string, string>;
   rooms: {
     room_id: string;
     room_name: string;
@@ -400,7 +401,20 @@ const AdminBookings = () => {
                                 )}
                               </TableCell>
                               <TableCell className="w-[70px]">
-                                <div>{booking.time_slot}</div>
+                                {booking.time_slot && (
+                                  <div>{booking.time_slot}</div>
+                                )}
+                                {booking.day_time_slots && (
+                                  <div className="space-y-1">
+                                    {Object.entries(booking.day_time_slots).map(
+                                      ([day, slot]) => (
+                                        <div key={day}>
+                                          <b>{day}</b>: {slot}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                )}
                               </TableCell>
                               <TableCell className="w-[70px]">
                                 <div>{booking.final_revenue}</div>

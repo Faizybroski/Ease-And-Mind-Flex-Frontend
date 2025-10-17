@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
@@ -18,7 +18,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import Navigation from "./components/layout/Navigation";
 
 import { AdminLogin } from "./components/adminLogin/AdminLogin";
-import {Auth} from "@/components/auth/LoginSignup";
+import { Auth } from "@/components/auth/LoginSignup";
 import ResetPassword from "./pages/ResetPassword";
 
 import Dashboard from "./pages/Dashboard";
@@ -26,7 +26,10 @@ import Bookings from "./pages/MyBookings";
 
 import NotFound from "./pages/NotFound";
 
-import { Navigate } from "react-router-dom";
+import PaymentSuccess from "./pages/RecurringPaymentSuccess";
+import PaymentCancel from "./pages/RecurringPaymentCancel";
+import PaySuccess from "./pages/PaymentSuccess";
+import PayCancel from "./pages/PaymentCancel";
 
 const queryClient = new QueryClient();
 
@@ -66,10 +69,7 @@ const App = () => (
                   </ProtectedAdminRoute>
                 }
               >
-                {/* Default /admin → dashboard */}
                 <Route index element={<Navigate to="dashboard" replace />} />
-
-                {/* Nested admin pages */}
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="bookings" element={<AdminBookings />} />
@@ -79,6 +79,10 @@ const App = () => (
               </Route>
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/recurring/success" element={<PaymentSuccess />} />
+              <Route path="/recurring/cancel" element={<PaymentCancel />} />
+              <Route path="payment/success" element={<PaySuccess />} />
+              <Route path="payment/cancel" element={<PayCancel />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

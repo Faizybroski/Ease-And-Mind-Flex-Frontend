@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client"; // adjust to your set
 import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -52,6 +54,7 @@ const Dashboard = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
     day: Date;
     slot: { name: string; range: string };
@@ -67,6 +70,7 @@ const Dashboard = () => {
     slot: string;
   } | null>(null);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [checkboxOpen, setCheckboxOpen] = useState(false);
   const [isStripePaymentDialogOpen, setIsStripePaymentDialogOpen] =
     useState(false);
   const [paymentType, setPaymentType] = useState<"Instant" | "Monthly">(
@@ -96,23 +100,24 @@ const Dashboard = () => {
       navigate("/auth");
     }
 
-    const dateStr = selectedSlot.day.toLocaleDateString("en-CA");
+    // const dateStr = selectedSlot.day.toLocaleDateString("nl-NL");
+    const dateISO = selectedSlot.day.toISOString().split("T")[0]; // "2025-10-18"
     const timeslot = selectedSlot.slot.name;
 
     const price =
-      timeslot === "Morning"
+      timeslot === "Ochtend"
         ? room.Morning_price
-        : timeslot === "Afternoon"
+        : timeslot === "Middag"
         ? room.Afternoon_price
-        : timeslot === "Evening"
+        : timeslot === "Avond"
         ? room.Night_price
-        : room.Morning_price + room.Afternoon_price + room.Night_price;
+        : room.Morning_price + room.Afternoon_price;
 
     setSelectedRoom({
       name: room.room_name,
       price,
       roomId: room.id,
-      date: dateStr,
+      date: dateISO,
       slot: timeslot,
     });
 
@@ -127,7 +132,7 @@ const Dashboard = () => {
 
       const dateStr = selectedSlot.day.toISOString().split("T")[0]; // YYYY-MM-DD
       const timeslot = selectedSlot.slot.name; // "Morning" | "Afternoon" | "Evening" | "Full Day"
-      const weekday = selectedSlot.day.toLocaleDateString("en-US", {
+      const weekday = selectedSlot.day.toLocaleDateString("nl-NL", {
         weekday: "long",
       });
 
@@ -189,7 +194,7 @@ const Dashboard = () => {
       const { data, error } = await supabase
         .from("settings")
         .select("*")
-        .neq('room_code')
+        .neq("room_code")
         .single();
       if (error) {
         console.error(error);
@@ -311,14 +316,42 @@ const Dashboard = () => {
       //   description: "Room booked successfuly",
       // });
 
-      setSelectedRoom(bookingData);
-      setIsMonthlyStripePaymentDialogOpen(true);
+      // setSelectedRoom(bookingData);
+      const { data, error: monthlyError } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: bookingData.profileId,
+          room_id: bookingData.roomId,
+          date: bookingData.date,
+          time_slot: bookingData.slot,
+          final_revenue: bookingData.price,
+          initial_revenue: bookingData.price,
+          discount: 0,
+          payment_type: bookingData.paymentType,
+          status: "Upcoming",
+          payment_status: "Pending",
+          is_recurring: false,
+          // stripe_payment_method_id: setupIntent.payment_method,
+          // stripe_customer_id: customerId,
+        });
+      if (monthlyError) throw monthlyError;
+
+      setIsPaymentDialogOpen(false);
+
+      toast({
+        title: "Succes",
+        description: "Reservering succesvol aangemaakt.",
+        variant: "default",
+      });
+
+      // setIsMonthlyStripePaymentDialogOpen(true);
     } catch (err) {
       console.error("Error confirming booking:", err);
       toast({
         variant: "destructive",
         title: "Fout",
-        description: "Het boeken van een kamer is mislukt. Probeer het opnieuw.",
+        description:
+          "Het boeken van een kamer is mislukt. Probeer het opnieuw.",
       });
     }
   };
@@ -352,7 +385,10 @@ const Dashboard = () => {
       const cs = data.client_secret ?? data.clientSecret ?? null;
       const pk = data.publishableKey ?? data.publishable_key ?? null;
 
-      if (!cs || !pk) throw new Error("Het is niet gelukt om een ​​betalingsintentie aan te maken");
+      if (!cs || !pk)
+        throw new Error(
+          "Het is niet gelukt om een ​​betalingsintentie aan te maken"
+        );
 
       // First update the state
       setClientSecret(cs);
@@ -468,7 +504,12 @@ const Dashboard = () => {
             <div key={i} className="space-y-4">
               <div className="text-center">
                 <p className="font-semibold text-primary">
-                  {day.toLocaleDateString("en-US", { weekday: "long" })}
+                  {(() => {
+                    const weekday = day.toLocaleDateString("nl-NL", {
+                      weekday: "long",
+                    });
+                    return weekday.charAt(0).toUpperCase() + weekday.slice(1);
+                  })()}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {day.toLocaleDateString()}
@@ -512,7 +553,9 @@ const Dashboard = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="text-primary">Beschikbare kamers</DialogTitle>
+            <DialogTitle className="text-primary">
+              Beschikbare kamers
+            </DialogTitle>
             <DialogDescription>
               {selectedSlot &&
                 `${
@@ -547,15 +590,13 @@ const Dashboard = () => {
                     </p>
                     <p className="font-semibold text-primary">
                       Prijs:{" "}
-                      {selectedSlot?.slot.name === "Morning"
+                      {selectedSlot?.slot.name === "Ochtend"
                         ? room.Morning_price
-                        : selectedSlot?.slot.name === "Afternoon"
+                        : selectedSlot?.slot.name === "Middag"
                         ? room.Afternoon_price
-                        : selectedSlot?.slot.name === "Evening"
+                        : selectedSlot?.slot.name === "Avond"
                         ? room.Night_price
-                        : room.Morning_price +
-                          room.Afternoon_price +
-                          room.Night_price}
+                        : room.Morning_price + room.Afternoon_price}
                     </p>
                   </CardContent>
                 </Card>
@@ -596,7 +637,10 @@ const Dashboard = () => {
                     name="payment"
                     value="Instant"
                     checked={paymentType === "Instant"}
-                    onChange={() => setPaymentType("Instant")}
+                    onChange={() => {
+                      setPaymentType("Instant")
+                      setCheckboxOpen(false);
+                    }}
                   />
                   <span>Directe betaling</span>
                 </label>
@@ -606,14 +650,52 @@ const Dashboard = () => {
                     name="payment"
                     value="Monthly"
                     checked={paymentType === "Monthly"}
-                    onChange={() => setPaymentType("Monthly")}
+                    onChange={() => {
+                      setPaymentType("Monthly");
+                      setCheckboxOpen(true);
+                      // if (!selectedRoom) return;
+                      // if (!profile.id) return;
+
+                      // const bookingData = {
+                      //   profileId: profile.id,
+                      //   roomId: selectedRoom.roomId,
+                      //   roomName: selectedRoom.name,
+                      //   price: selectedRoom.price,
+                      //   date: selectedRoom.date,
+                      //   slot: selectedRoom.slot,
+                      //   paymentType,
+                      // };
+
+                      // handleMonthlyBooking(bookingData);
+                    }}
                   />
                   <span>Betaal na een maand</span>
                 </label>
               </div>
-
+              {checkboxOpen && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={agreeToTerms}
+                    onCheckedChange={(checked) =>
+                      setAgreeToTerms(checked === true)
+                    }
+                    required
+                  />
+                  <Label htmlFor="terms">
+                    Ik ga akkoord met{" "}
+                    <Link
+                      to="/terms-conditions"
+                      className="text-primary underline"
+                    >
+                      Algemene voorwaarden
+                    </Link>
+                  </Label>
+                </div>
+              )}
               {paymentType === "Monthly" && (
                 <Button
+                  disabled={!agreeToTerms}
                   className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
                   onClick={() => {
                     if (!selectedRoom) return;
@@ -630,12 +712,14 @@ const Dashboard = () => {
                     };
 
                     handleMonthlyBooking(bookingData);
-                    setIsPaymentDialogOpen(false);
+                    // setIsPaymentDialogOpen(false);
+                    // setCheckboxOpen(true);
                   }}
                 >
                   Bevestig boeking
                 </Button>
               )}
+
               {paymentType === "Instant" && (
                 <Button
                   className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
