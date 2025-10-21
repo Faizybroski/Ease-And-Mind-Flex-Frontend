@@ -125,137 +125,144 @@ export default function RecurringBookingDialog({
   // const priceAfterDiscount = revenueWithoutDiscount - discount;
 
 function calculateTotalRevenue(
-  startDate: Date,
-  endDate: Date,
-  dayTimeSlots: Record<string, string>,
-  recurrencePattern: "Weekly" | "Bi-Weekly" | "Monthly",
-  room: Room
-) {
-  if (!recurrencePattern || !room || !startDate || !endDate) return 0;
-  
-  const selectedDays = Object.keys(dayTimeSlots);
-  if (selectedDays.length === 0) return 0;
+    startDate: Date,
+    endDate: Date,
+    dayTimeSlots: Record<string, string>,
+    recurrencePattern: "Weekly" | "Bi-Weekly" | "Monthly",
+    room: Room
+  ) {
+    if (!recurrencePattern || !room || !startDate || !endDate) return 0;
 
-  // Helper to convert Dutch day names to numeric format (0=Sun, 1=Mon, ...)
-  const dutchToWeekdayNumber = (dutch: string) => {
-    const map: Record<string, number> = {
-      zondag: 0,
-      maandag: 1,
-      dinsdag: 2,
-      woensdag: 3,
-      donderdag: 4,
-      vrijdag: 5,
-      zaterdag: 6,
-    };
-    return map[dutch.toLowerCase()];
-  };
+    const selectedDays = Object.keys(dayTimeSlots);
+    if (selectedDays.length === 0) return 0;
 
-  // Helper to get the price for a specific time slot from the room object
-  const getSlotPrice = (slot: string) => {
-    if (!slot) return 0;
-    switch (slot) {
-      case "Ochtend":
-        return room.Morning_price;
-      case "Middag":
-        return room.Afternoon_price;
-      case "Avond":
-        return room.Night_price; // Note: Your UI has "Nacht" but your getSlotPrice has "Avond"
-      case "Hele dag":
-        return room.Morning_price + room.Afternoon_price;
-      default:
-        return 0;
-    }
-  };
-
-  // 1. Generate a master list of all potential booking dates within the range
-  const occurrences: Date[] = [];
-  const cursor = new Date(startDate);
-  cursor.setHours(0, 0, 0, 0); // Normalize start date
-  const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999); // Normalize end date
-
-  const selectedWeekdayNums = new Set(
-    selectedDays.map((d) => dutchToWeekdayNumber(d))
-  );
-
-  while (cursor <= end) {
-    if (selectedWeekdayNums.has(cursor.getDay())) {
-      occurrences.push(new Date(cursor));
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-
-  if (occurrences.length === 0) return 0;
-
-  // --- Calculate total based on recurrence pattern ---
-
-  // Weekly: Sum the price for every occurrence
-  if (recurrencePattern === "Weekly") {
-    return occurrences.reduce((total, date) => {
-      const dayName = date.toLocaleDateString("nl-NL", { weekday: "long" });
-      const slot = dayTimeSlots[dayName];
-      return total + getSlotPrice(slot);
-    }, 0);
-  }
-
-  // Bi-Weekly: Sum the price for occurrences in alternating weeks
-  if (recurrencePattern === "Bi-Weekly") {
-    const startOfWeek = (dt: Date) => {
-      const d = new Date(dt);
-      const day = (d.getDay() + 6) % 7; // Monday is 0, Sunday is 6
-      d.setDate(d.getDate() - day);
-      return d.setHours(0, 0, 0, 0);
+    const dutchToWeekdayNumber = (dutch: string) => {
+      const map: Record<string, number> = {
+        zondag: 0,
+        maandag: 1,
+        dinsdag: 2,
+        woensdag: 3,
+        donderdag: 4,
+        vrijdag: 5,
+        zaterdag: 6,
+      };
+      return map[dutch.toLowerCase()];
     };
 
-    const firstWeekStart = startOfWeek(occurrences[0]);
-    let total = 0;
-    for (const occ of occurrences) {
-      const currentWeekStart = startOfWeek(occ);
-      const weekDifference = Math.round(
-        (currentWeekStart - firstWeekStart) / (7 * 24 * 60 * 60 * 1000)
-      );
-      if (weekDifference % 2 === 0) {
-        const dayName = occ.toLocaleDateString("nl-NL", { weekday: "long" });
-        const slot = dayTimeSlots[dayName];
-        total += getSlotPrice(slot);
+    const getSlotPrice = (slot: string) => {
+      if (!slot) return 0;
+      switch (slot) {
+        case "Ochtend":
+          return room.Morning_price;
+        case "Middag":
+          return room.Afternoon_price;
+        case "Avond":
+          return room.Night_price;
+        case "Hele dag":
+          return room.Morning_price + room.Afternoon_price;
+        default:
+          return 0;
       }
-    }
-    return total;
-  }
+    };
 
-  // Monthly: Repeat on the Nth occurrence of a weekday each month.
-  // (e.g., the 2nd Monday, the 4th Friday, etc.)
-  if (recurrencePattern === "Monthly") {
-    // a. Determine the "pattern" from the first occurrences
-    const monthlyPatterns = new Set<string>();
-    const processedDays = new Set<string>();
+    const occurrences: Date[] = [];
+    const cursor = new Date(startDate);
+    cursor.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
 
-    for (const occ of occurrences) {
-      const dayName = occ.toLocaleDateString("nl-NL", { weekday: "long" });
-      if (!processedDays.has(dayName)) {
-        // This is the first time we see this weekday, so it sets the pattern.
-        const weekOfMonth = Math.ceil(occ.getDate() / 7); // 1st, 2nd, 3rd, 4th, or 5th week
-        monthlyPatterns.add(`${dayName}::${weekOfMonth}`);
-        processedDays.add(dayName);
+    const selectedWeekdayNums = new Set(
+      selectedDays.map((d) => dutchToWeekdayNumber(d))
+    );
+
+    while (cursor <= end) {
+      if (selectedWeekdayNums.has(cursor.getDay())) {
+        occurrences.push(new Date(cursor));
       }
+      cursor.setDate(cursor.getDate() + 1);
     }
 
-    // b. Filter the full list and sum up only the dates that match a pattern
-    return occurrences.reduce((total, date) => {
-      const dayName = date.toLocaleDateString("nl-NL", { weekday: "long" });
-      const weekOfMonth = Math.ceil(date.getDate() / 7);
-      const currentPattern = `${dayName}::${weekOfMonth}`;
+    if (occurrences.length === 0) return 0;
 
-      if (monthlyPatterns.has(currentPattern)) {
+    const dayMap = {
+      maandag: "Maandag",
+      dinsdag: "Dinsdag",
+      woensdag: "Woensdag",
+      donderdag: "Donderdag",
+      vrijdag: "Vrijdag",
+      zaterdag: "Zaterdag",
+      zondag: "Zondag",
+    };
+
+    if (recurrencePattern === "Weekly") {
+      return occurrences.reduce((total, date) => {
+        const dayNameDutch = date
+          .toLocaleDateString("nl-NL", { weekday: "long" })
+          .toLowerCase();
+        const dayName = dayMap[dayNameDutch];
         const slot = dayTimeSlots[dayName];
         return total + getSlotPrice(slot);
+      }, 0);
+    }
+
+    if (recurrencePattern === "Bi-Weekly") {
+      const startOfWeek = (dt: Date) => {
+        const d = new Date(dt);
+        const day = (d.getDay() + 6) % 7;
+        d.setDate(d.getDate() - day);
+        return d.setHours(0, 0, 0, 0);
+      };
+      const firstWeekStart = startOfWeek(occurrences[0]);
+      let total = 0;
+      for (const occ of occurrences) {
+        const currentWeekStart = startOfWeek(occ);
+        const weekDifference = Math.round(
+          (currentWeekStart - firstWeekStart) / (7 * 24 * 60 * 60 * 1000)
+        );
+        if (weekDifference % 2 === 0) {
+          const dayNameDutch = occ
+            .toLocaleDateString("nl-NL", { weekday: "long" })
+            .toLowerCase();
+          const dayName = dayMap[dayNameDutch];
+          const slot = dayTimeSlots[dayName];
+          total += getSlotPrice(slot);
+        }
       }
       return total;
-    }, 0);
-  }
+    }
 
-  return 0; // Fallback
-}
+    if (recurrencePattern === "Monthly") {
+      const monthlyPatterns = new Set<string>();
+      const processedDays = new Set<string>();
+
+      for (const occ of occurrences) {
+        const dayName = occ
+          .toLocaleDateString("nl-NL", { weekday: "long" })
+          .toLowerCase();
+        if (!processedDays.has(dayName)) {
+          const weekOfMonth = Math.ceil(occ.getDate() / 7);
+          monthlyPatterns.add(`${dayName}::${weekOfMonth}`);
+          processedDays.add(dayName);
+        }
+      }
+
+      return occurrences.reduce((total, date) => {
+        const dayNameDutch = date
+          .toLocaleDateString("nl-NL", { weekday: "long" })
+          .toLowerCase();
+        const weekOfMonth = Math.ceil(date.getDate() / 7);
+        const currentPattern = `${dayNameDutch}::${weekOfMonth}`;
+        if (monthlyPatterns.has(currentPattern)) {
+          const dayName = dayMap[dayNameDutch];
+          const slot = dayTimeSlots[dayName];
+          return total + getSlotPrice(slot);
+        }
+        return total;
+      }, 0);
+    }
+
+    return 0;
+  }
 
   const revenueWithoutDiscount =
     startDate && endDate && selectedRoom && recurrence
