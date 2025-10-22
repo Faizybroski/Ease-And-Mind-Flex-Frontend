@@ -53,9 +53,11 @@ const AdminRooms = () => {
 
   const fetchRooms = async () => {
     try {
+      setLoading(true);
       const { data: rooms, error: roomsError } = await supabase
         .from("rooms")
-        .select("*");
+        .select("*")
+        .order('room_name', { ascending: true });
       if (roomsError) throw roomsError;
 
       const { data: bookings, error: bookingsError } = await supabase
@@ -79,6 +81,7 @@ const AdminRooms = () => {
 
       setRooms(roomsWithStats);
       console.log("Rooms Fetched", roomsWithStats);
+      setLoading(false);
     } catch (error) {
       toast({
         title: "Fout",

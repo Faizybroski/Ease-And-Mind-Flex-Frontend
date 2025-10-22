@@ -26,6 +26,9 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import PaymentFields from "@/components/paymentFields/PaymentFields";
 import { MonthlyPaymentWrapper } from "@/components/monthlyPaymentCard/MonthlyPaymentCard";
+import { DateTime } from "luxon";
+
+const BUSINESS_ZONE = "Europe/Amsterdam";
 
 type Settings = {
   morningSessionStart: string;
@@ -34,7 +37,34 @@ type Settings = {
   afternoonSessionEnd: string;
   eveningSessionStart: string;
   eveningSessionEnd: string;
+  advancedBooking: number;
+  cancelationPolicy: number;
 };
+
+// const toAmsterdam = (utcTime: string) =>
+//   DateTime.fromISO(utcTime, { zone: "utc" })
+//     .setZone("Europe/Amsterdam")
+//     .toFormat("HH:mm");
+
+function formatAmsterdamTime(timeStr) {
+  return DateTime.fromFormat(timeStr, "HH:mm", {
+    zone: BUSINESS_ZONE,
+  }).toFormat("HH:mm");
+}
+
+function displayBusinessHours(settings) {
+  return {
+    morning: `${formatAmsterdamTime(
+      settings.morning_session_start
+    )} - ${formatAmsterdamTime(settings.morning_session_end)}`,
+    afternoon: `${formatAmsterdamTime(
+      settings.afternoon_session_start
+    )} - ${formatAmsterdamTime(settings.afternoon_session_end)}`,
+    evening: `${formatAmsterdamTime(
+      settings.evening_session_start
+    )} - ${formatAmsterdamTime(settings.evening_session_end)}`,
+  };
+}
 
 const getWeekDates = (date: Date) => {
   const start = new Date(date);
@@ -73,9 +103,7 @@ const Dashboard = () => {
   const [checkboxOpen, setCheckboxOpen] = useState(false);
   const [isStripePaymentDialogOpen, setIsStripePaymentDialogOpen] =
     useState(false);
-  const [paymentType, setPaymentType] = useState<"Instant" | "Monthly">(
-    "Instant"
-  );
+  const [paymentType, setPaymentType] = useState<"Instant" | "Monthly">(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
@@ -87,6 +115,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const weekDates = getWeekDates(selectedDate);
   const now = new Date();
+  const [hours, setHours] = useState(null);
 
   const handleRoomSelect = (room: any) => {
     if (!selectedSlot) return;
@@ -101,7 +130,10 @@ const Dashboard = () => {
     }
 
     // const dateStr = selectedSlot.day.toLocaleDateString("nl-NL");
-    const dateISO = selectedSlot.day.toISOString().split("T")[0]; // "2025-10-18"
+    // const dateISO = selectedSlot.day.toISOString().split("T")[0]; // "2025-10-18"
+    const dateISO = DateTime.fromJSDate(selectedSlot.day, {
+      zone: "Europe/Amsterdam",
+    }).toISODate(); // ✅ YYYY-MM-DD consistent with NL time
     const timeslot = selectedSlot.slot.name;
 
     const price =
@@ -199,29 +231,63 @@ const Dashboard = () => {
       if (error) {
         console.error(error);
       } else {
-        setSettings(data as Settings);
+        setSettings({
+          morningSessionStart: data.morningSessionStart,
+          morningSessionEnd: data.morningSessionEnd,
+          afternoonSessionStart: data.afternoonSessionStart,
+          afternoonSessionEnd: data.afternoonSessionEnd,
+          eveningSessionStart: data.eveningSessionStart,
+          eveningSessionEnd: data.eveningSessionEnd,
+          cancelationPolicy: data.cancelationPolicy,
+          advancedBooking: data.advancedBooking,
+        });
       }
     };
     fetchSettings();
   }, []);
 
+  // const parseTime = (timeStr: string) => {
+  //   // Normalize Supabase time string → "HH:mm:ss"
+  //   const clean = timeStr.includes("+") ? timeStr.split("+")[0] : timeStr;
+  //   const [h, m, s] = clean.split(":").map(Number);
+  //   return { h, m: m || 0, s: s || 0 };
+  // };
+
+  // const formatTime = (timeStr: string) => {
+  //   const { h, m } = parseTime(timeStr);
+  //   const date = new Date();
+  //   date.setHours(h, m, 0, 0);
+
+  //   return new Intl.DateTimeFormat("en-US", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     hour12: true,
+  //   }).format(date);
+  // };
+
   const parseTime = (timeStr: string) => {
-    // Normalize Supabase time string → "HH:mm:ss"
-    const clean = timeStr.includes("+") ? timeStr.split("+")[0] : timeStr;
-    const [h, m, s] = clean.split(":").map(Number);
-    return { h, m: m || 0, s: s || 0 };
+    // In case the Supabase value includes seconds or "+00", clean it
+    const clean = timeStr.includes("+")
+      ? timeStr.split("+")[0]
+      : timeStr.split(":").slice(0, 2).join(":");
+    const dt = DateTime.fromFormat(clean, "HH:mm", {
+      zone: "Europe/Amsterdam",
+    });
+    return { h: dt.hour, m: dt.minute, s: 0 };
   };
 
-  const formatTime = (timeStr: string) => {
-    const { h, m } = parseTime(timeStr);
-    const date = new Date();
-    date.setHours(h, m, 0, 0);
+  // Format "HH:mm" → "08:00 AM" (Amsterdam time)
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "";
 
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(date);
+    // Clean possible seconds or timezone suffixes
+    const clean = timeStr.split(":").slice(0, 2).join(":"); // e.g., "14:30:00" → "14:30"
+
+    // Parse as a generic 24h time (no timezone)
+    const dt = DateTime.fromFormat(clean, "HH:mm");
+
+    // Format to 12-hour time
+    return dt.toFormat("hh:mm a"); // → "02:30 PM"
   };
 
   // Build timeslots dynamically
@@ -317,12 +383,55 @@ const Dashboard = () => {
       // });
 
       // setSelectedRoom(bookingData);
+
+      const slotTimes = {
+        Ochtend: {
+          start: settings.morningSessionStart, // e.g. "08:00:00"
+          end: settings.morningSessionEnd,
+        },
+        Middag: {
+          start: settings.afternoonSessionStart,
+          end: settings.afternoonSessionEnd,
+        },
+        Avond: {
+          start: settings.eveningSessionStart,
+          end: settings.eveningSessionEnd,
+        },
+      };
+
+      const slot = slotTimes[bookingData.slot];
+      if (!slot) throw new Error(`Invalid slot: ${bookingData.slot}`);
+
+      // Convert the local Netherlands slot start to UTC
+      const slotStartUTC = DateTime.fromISO(
+        `${bookingData.date}T${slot.start}`,
+        { zone: "Europe/Amsterdam" }
+      )
+        .toUTC()
+        .toISO(); // e.g. "2025-10-22T06:00:00Z"
+
+      const now = DateTime.now().setZone("Europe/Amsterdam");
+      const slotStart = DateTime.fromISO(`${bookingData.date}T${slot.start}`, {
+        zone: "Europe/Amsterdam",
+      });
+
+      const daysUntilBooking = slotStart.diff(now, "days").days;
+
+      if (daysUntilBooking < settings.advancedBooking) {
+        toast({
+          variant: "destructive",
+          title: "Te laat om te boeken",
+          description: `Je moet minstens ${settings.advancedBooking} dagen van tevoren reserveren.`,
+        });
+        return;
+      }
+
       const { data, error: monthlyError } = await supabase
         .from("bookings")
         .insert({
           user_id: bookingData.profileId,
           room_id: bookingData.roomId,
-          date: bookingData.date,
+          date: slotStartUTC,
           time_slot: bookingData.slot,
           final_revenue: bookingData.price,
           initial_revenue: bookingData.price,
@@ -364,7 +473,7 @@ const Dashboard = () => {
       const token = session?.access_token;
 
       const resp = await fetch(
-        "https://dzacjtnzwdvgzltnwcab.supabase.co/functions/v1/payment-intent",
+        "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/payment-intent",
         {
           method: "POST",
           headers: {
@@ -515,14 +624,30 @@ const Dashboard = () => {
                   {day.toLocaleDateString()}
                 </p>
               </div>
-              {timeslots.map((slot) => {
+              {/* {timeslots.map((slot) => {
                 const slotDate = new Date(day); // clone the current day
                 slotDate.setHours(slot.start.h, slot.start.m, 0, 0);
 
+                // const isPast =
+                //   day < new Date(now.toDateString()) || // any past day
+                //   (day.toDateString() === now.toDateString() &&
+                //     slotDate <= now); // today & already past
                 const isPast =
-                  day < new Date(now.toDateString()) || // any past day
-                  (day.toDateString() === now.toDateString() &&
-                    slotDate <= now); // today & already past
+                  slotDateTime < amsterdamNow.startOf("day") || // past days
+                  slotDateTime <= amsterdamNow; // same day but time already passed */}
+              {timeslots.map((slot) => {
+                const slotDate = new Date(day); // clone the day
+                slotDate.setHours(slot.start.h, slot.start.m, 0, 0);
+
+                // Convert both to Amsterdam zone
+                const slotDateTime = DateTime.fromJSDate(slotDate, {
+                  zone: "Europe/Amsterdam",
+                });
+                const amsterdamNow = DateTime.now().setZone("Europe/Amsterdam");
+
+                const isPast =
+                  slotDateTime < amsterdamNow.startOf("day") || // past days
+                  slotDateTime <= amsterdamNow; // same day but time already passed
 
                 return (
                   <Card
@@ -540,7 +665,10 @@ const Dashboard = () => {
                       <CardTitle className="text-sm">{slot.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="text-xs text-muted-foreground p-3">
-                      {slot.range}
+                      {slot.range}{" "}
+                      <span className="block text-[10px] italic text-gray-400">
+                        (Tijd in Amsterdam)
+                      </span>
                     </CardContent>
                   </Card>
                 );
@@ -631,26 +759,26 @@ const Dashboard = () => {
               <p className="font-semibold">Prijs: {selectedRoom.price}</p>
 
               <div className="space-y-2">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="Instant"
                     name="payment"
                     value="Instant"
                     checked={paymentType === "Instant"}
-                    onChange={() => {
-                      setPaymentType("Instant")
+                    onCheckedChange={() => {
+                      setPaymentType("Instant");
                       setCheckboxOpen(false);
                     }}
                   />
-                  <span>Directe betaling</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
+                  <Label htmlFor="Instant">Directe betaling</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="Monthly"
                     name="payment"
                     value="Monthly"
                     checked={paymentType === "Monthly"}
-                    onChange={() => {
+                    onCheckedChange={() => {
                       setPaymentType("Monthly");
                       setCheckboxOpen(true);
                       // if (!selectedRoom) return;
@@ -669,30 +797,31 @@ const Dashboard = () => {
                       // handleMonthlyBooking(bookingData);
                     }}
                   />
-                  <span>Betaal na een maand</span>
-                </label>
-              </div>
-              {checkboxOpen && (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="terms"
-                    checked={agreeToTerms}
-                    onCheckedChange={(checked) =>
-                      setAgreeToTerms(checked === true)
-                    }
-                    required
-                  />
-                  <Label htmlFor="terms">
-                    Ik ga akkoord met{" "}
-                    <Link
-                      to="/terms-conditions"
-                      className="text-primary underline"
-                    >
-                      Algemene voorwaarden
-                    </Link>
-                  </Label>
+                  <Label htmlFor="Monthly">Betaal na een maand</Label>
                 </div>
-              )}
+                {checkboxOpen && (
+                  <div className="flex items-center space-x-2 pl-2">
+                    <Checkbox
+                      id="terms"
+                      checked={agreeToTerms}
+                      onCheckedChange={(checked) =>
+                        setAgreeToTerms(checked === true)
+                      }
+                      required
+                    />
+                    <Label htmlFor="terms">
+                      Ik ga akkoord met{" "}
+                      <Link
+                        to="/terms-conditions"
+                        target="_blank"
+                        className="text-primary underline"
+                      >
+                        Algemene voorwaarden
+                      </Link>
+                    </Label>
+                  </div>
+                )}
+              </div>
               {paymentType === "Monthly" && (
                 <Button
                   disabled={!agreeToTerms}

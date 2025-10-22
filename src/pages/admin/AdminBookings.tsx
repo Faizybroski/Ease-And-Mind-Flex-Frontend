@@ -64,16 +64,24 @@ const AdminBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const { data, error } = await supabase.from("bookings").select(`
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(
+          `
         *,
         profiles!bookings_user_id_fkey(id, full_name, email),
         rooms!bookings_room_id_fkey(room_name)
-      `);
+      `
+        )
+        .order("created_at", { ascending: false });
       if (error) throw error;
 
       console.info("bookings data=====>", data);
+      console.table(data);
 
       setBookings(data);
+      setLoading(false);
       console.log("Bookings fetched successfuly");
     } catch (error) {
       console.error("Error fetch bookings:", error);
@@ -266,10 +274,10 @@ const AdminBookings = () => {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell className="truncate max-w-[140px] sm:max-w-[200px] md:max-w-[260px]">
+                          <TableCell className="max-w-[200px] break-line">
                             {booking.is_recurring ? (
-                              booking.start_date ? (
-                                <div>
+                              <div className="space-y-1">
+                                <div className="text-sm font-medium">
                                   {format(
                                     new Date(booking.start_date),
                                     "dd/MM/yy"
@@ -282,9 +290,10 @@ const AdminBookings = () => {
                                       )
                                     : "Ongoing"}
                                 </div>
-                              ) : (
-                                <div>-</div>
-                              )
+                                <div className="text-xs text-muted-foreground">
+                                  {booking.weekdays?.join(", ")}
+                                </div>
+                              </div>
                             ) : (
                               booking.date && (
                                 <div>
@@ -293,10 +302,24 @@ const AdminBookings = () => {
                               )
                             )}
                           </TableCell>
-                          <TableCell className="w-[70px]">
-                            <div>{booking.time_slot}</div>
+
+                          <TableCell className="truncate max-w-[140px]">
+                            {booking.is_recurring ? (
+                              <div className="text-xs space-y-0.5">
+                                {Object.entries(
+                                  booking.day_time_slots || {}
+                                ).map(([day, slot]) => (
+                                  <div key={day}>
+                                    <span className="font-medium">{day}</span>:{" "}
+                                    {slot}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div>{booking.time_slot}</div>
+                            )}
                           </TableCell>
-                          <TableCell className="w-[70px]">
+                          <TableCell className="w-[10px]">
                             <div>{booking.final_revenue}</div>
                           </TableCell>
                           <TableCell>
@@ -370,10 +393,10 @@ const AdminBookings = () => {
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="truncate max-w-[140px] sm:max-w-[200px] md:max-w-[260px]">
+                              <TableCell className="max-w-[200px] break-line">
                                 {booking.is_recurring ? (
-                                  booking.start_date ? (
-                                    <div>
+                                  <div className="space-y-1">
+                                    <div className="text-sm font-medium">
                                       {format(
                                         new Date(booking.start_date),
                                         "dd/MM/yy"
@@ -386,9 +409,10 @@ const AdminBookings = () => {
                                           )
                                         : "Ongoing"}
                                     </div>
-                                  ) : (
-                                    <div>-</div>
-                                  )
+                                    <div className="text-xs text-muted-foreground">
+                                      {booking.weekdays?.join(", ")}
+                                    </div>
+                                  </div>
                                 ) : (
                                   booking.date && (
                                     <div>
@@ -400,20 +424,23 @@ const AdminBookings = () => {
                                   )
                                 )}
                               </TableCell>
-                              <TableCell className="w-[70px]">
-                                {booking.time_slot && (
-                                  <div>{booking.time_slot}</div>
-                                )}
-                                {booking.day_time_slots && (
-                                  <div className="space-y-1">
-                                    {Object.entries(booking.day_time_slots).map(
-                                      ([day, slot]) => (
-                                        <div key={day}>
-                                          <b>{day}</b>: {slot}
-                                        </div>
-                                      )
-                                    )}
+
+                              <TableCell className="truncate max-w-[140px]">
+                                {booking.is_recurring ? (
+                                  <div className="text-xs space-y-0.5">
+                                    {Object.entries(
+                                      booking.day_time_slots || {}
+                                    ).map(([day, slot]) => (
+                                      <div key={day}>
+                                        <span className="font-medium">
+                                          {day}
+                                        </span>
+                                        : {slot}
+                                      </div>
+                                    ))}
                                   </div>
+                                ) : (
+                                  <div>{booking.time_slot}</div>
                                 )}
                               </TableCell>
                               <TableCell className="w-[70px]">

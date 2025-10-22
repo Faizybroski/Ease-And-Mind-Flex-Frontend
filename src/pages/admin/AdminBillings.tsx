@@ -26,6 +26,7 @@ const AdminBilling = () => {
 
   const fetchBillingData = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.rpc("get_user_billing");
 
       console.log("data ====> ", data);
@@ -33,6 +34,7 @@ const AdminBilling = () => {
       if (error) {
         throw error;
       }
+      setLoading(false);
     } catch (error) {
       console.error("Error loading billing data:", error);
       toast({

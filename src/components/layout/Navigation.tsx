@@ -45,13 +45,13 @@ const Navigation = () => {
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     const weekdayNames = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
+      "Zondag",
+      "Maandag",
+      "Dinsdag",
+      "Woensdag",
+      "Donderdag",
+      "Vrijdag",
+      "Zaterdag",
     ];
     const weekday = weekdayNames[new Date().getDay()]; // e.g. "friday"
 

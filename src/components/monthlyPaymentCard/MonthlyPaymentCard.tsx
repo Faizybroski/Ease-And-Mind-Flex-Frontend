@@ -31,7 +31,7 @@ const MonthlyPaymentForm = ({ bookingData, onSuccess }: any) => {
 
     // 1. Create Setup Intent via Supabase Edge Function
     const resp = await fetch(
-      "https://dzacjtnzwdvgzltnwcab.supabase.co/functions/v1/create-setup-intent",
+      "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/create-setup-intent",
       {
         method: "POST",
         headers: {

@@ -124,7 +124,7 @@ export default function RecurringBookingDialog({
   // const discount = revenueWithoutDiscount * Number(discountPercent / 100);
   // const priceAfterDiscount = revenueWithoutDiscount - discount;
 
-function calculateTotalRevenue(
+  function calculateTotalRevenue(
     startDate: Date,
     endDate: Date,
     dayTimeSlots: Record<string, string>,

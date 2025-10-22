@@ -20,9 +20,11 @@ import {
   Trash2,
   Eye,
   Share2,
+  Settings,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { DateTime } from "luxon";
 
 interface Booking {
   id: string;
@@ -143,60 +145,125 @@ const Bookings = () => {
           <Button
             variant="destructive"
             onClick={async () => {
-              const { data, error: dataError } = await supabase
-                .from("bookings")
-                .select("payment_status")
-                .eq("id", bookingId)
-                .eq("user_id", userProfileId)
-                .single();
+              try {
+                // Step 1: Fetch booking info
+                const { data: booking, error: fetchError } = await supabase
+                  .from("bookings")
+                  .select("date, time_slot, payment_status")
+                  .eq("id", bookingId)
+                  .eq("user_id", userProfileId)
+                  .single();
 
-              if (data.payment_status === "Completed") {
-                toast({
-                  title: "Fout",
-                  description:
-                    "Het annuleren van de boeking is mislukt omdat de betaling niet restitueerbaar is.",
-                  variant: "destructive",
-                });
-                return;
-              }
-              if (dataError) throw dataError;
-              const { error } = await supabase
-                .from("bookings")
-                .update({
-                  status: "Canceled",
-                  final_revenue: 0,
-                  initial_revenue: 0,
-                  discount: 0,
-                })
-                .eq("id", bookingId)
-                .eq("user_id", userProfileId);
+                if (fetchError || !booking)
+                  throw fetchError || new Error("Boeking niet gevonden");
 
-              if (error) {
-                toast({
-                  title: "Fout",
-                  description: error.message || "Het is niet gelukt om de boeking te annuleren",
-                  variant: "destructive",
+                // Step 2: Fetch cancellation policy / settings
+                const { data: settings, error: settingsError } = await supabase
+                  .from("settings")
+                  .select("*")
+                  .single();
+
+                console.table(settings);
+
+                if (settingsError || !settings)
+                  throw (
+                    settingsError || new Error("Instellingen niet gevonden")
+                  );
+
+                // Step 3: Check payment status
+                if (booking.payment_status === "Completed") {
+                  toast({
+                    title: "Fout",
+                    description:
+                      "Het annuleren van de boeking is mislukt omdat de betaling niet restitueerbaar is.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                const bookingStart = DateTime.fromISO(booking.date, {
+                  zone: "Europe/Amsterdam",
                 });
-              } else {
+                const now = DateTime.now().setZone("Europe/Amsterdam");
+
+                const daysUntilStart = Math.floor(
+                  bookingStart.diff(now, "days").days
+                );
+                const cancelPeriod = Number(settings.cancelationPolicy ?? 0);
+
+                // Step 5: If booking started
+                if (bookingStart <= now) {
+                  toast({
+                    title: "Niet toegestaan",
+                    description: "Deze boeking is al begonnen of voorbij.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                // Step 6: If too late to cancel
+                if (daysUntilStart < cancelPeriod) {
+                  toast({
+                    title: "Te laat om te annuleren",
+                    description: `Annulering is alleen mogelijk tot ${cancelPeriod} dagen voor de boeking.`,
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                // Step 7: Update booking to canceled
+                const { error: cancelError } = await supabase
+                  .from("bookings")
+                  .update({
+                    status: "Canceled",
+                    final_revenue: 0,
+                    initial_revenue: 0,
+                    discount: 0,
+                  })
+                  .eq("id", bookingId)
+                  .eq("user_id", userProfileId);
+
+                if (cancelError) {
+                  toast({
+                    title: "Fout",
+                    description:
+                      cancelError.message ||
+                      "Het is niet gelukt om de boeking te annuleren.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
                 toast({
                   title: "Boeking geannuleerd",
-                  description: "Uw boeking is succesvol geannuleerd",
+                  description: `Uw boeking op ${bookingStart.toFormat(
+                    "dd LLL yyyy"
+                  )} is succesvol geannuleerd.`,
                 });
+
                 fetchMyBookings();
+              } catch (err) {
+                console.error("Error canceling booking:", err);
+                toast({
+                  variant: "destructive",
+                  title: "Fout",
+                  description:
+                    "Het annuleren van de boeking is mislukt. Probeer het opnieuw.",
+                });
               }
             }}
           >
             Yes
           </Button>
+
           <Button
             variant="outline"
-            onClick={() => {
-              // just dismiss toast
+            onClick={() =>
               toast({
                 title: "Geannuleerd",
-                description: "Boekings annulering geannuleerd.",
-              });
-            }}
+                description: "Boekingsannulering geannuleerd.",
+              })
+            }
           >
             No
           </Button>
@@ -204,13 +271,14 @@ const Bookings = () => {
       ),
     });
   };
-
   const BookingCards = ({ bookings }: { bookings: Booking[] }) => {
     if (bookings.length === 0) {
       return (
         <div className="text-center py-12">
           <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Geen boekingen gevonden</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Geen boekingen gevonden
+          </h3>
         </div>
       );
     }
@@ -413,7 +481,9 @@ const Bookings = () => {
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-primary">Mijn boekingen</h1>
+              <h1 className="text-3xl font-bold text-primary">
+                Mijn boekingen
+              </h1>
               <p className="text-primary mt-1">Beheer uw boekingen</p>
             </div>
             <Button

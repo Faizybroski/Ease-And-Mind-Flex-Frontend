@@ -294,19 +294,19 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     )}
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Label className="text-sm font-medium text-primary">
                     Winst:
                   </Label>
                   {loadingProfile ? (
                     <SpanLoader />
                   ) : (
-                    <>
+                    <div className="flex justify-between items-center">
                       <Euro className="h-4 w-4 text-primary/70" />
                       <span className="text-sm text-primary/70">
                         {user?.totalRevenue ?? 0}
                       </span>
-                    </>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -491,7 +491,8 @@ const AdminUsers = () => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .neq("role", "admin");
+        .neq("role", "admin")
+        .order('full_name',  { ascending: true });
 
       if (profilesError) throw profilesError;
 

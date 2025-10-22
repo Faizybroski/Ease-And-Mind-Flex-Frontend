@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { DateTime } from "luxon";
+
+const zone = "Europe/Amsterdam";
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
@@ -95,11 +98,37 @@ const AdminSettings = () => {
     setRoomCode(val);
   };
 
+  // function amsterdamToUTCTime(timeStr) {
+  //   // Parse as Amsterdam local time (CET/CEST)
+  //   const amsterdamTime = DateTime.fromFormat(timeStr, "HH:mm", {
+  //     zone: "Europe/Amsterdam",
+  //   });
+
+  //   // Convert to UTC and extract only time part in HH:mm
+  //   const utcTime = amsterdamTime.toUTC().toFormat("HH:mm");
+
+  //   return utcTime; // returns string like "05:30"
+  // }
+
   const saveBusinessHrsSettings = async () => {
     try {
       const { error } = await supabase
         .from("settings")
         .update({
+          // morningSessionStart: amsterdamToUTCTime(
+          //   businessHrs.morningSessionStart
+          // ),
+          // morningSessionEnd: amsterdamToUTCTime(businessHrs.morningSessionEnd),
+          // afternoonSessionStart: amsterdamToUTCTime(
+          //   businessHrs.afternoonSessionStart
+          // ),
+          // afternoonSessionEnd: amsterdamToUTCTime(
+          //   businessHrs.afternoonSessionEnd
+          // ),
+          // eveningSessionStart: amsterdamToUTCTime(
+          //   businessHrs.eveningSessionStart
+          // ),
+          // eveningSessionEnd: amsterdamToUTCTime(businessHrs.eveningSessionEnd),
           morningSessionStart: businessHrs.morningSessionStart,
           morningSessionEnd: businessHrs.morningSessionEnd,
           afternoonSessionStart: businessHrs.afternoonSessionStart,
@@ -192,7 +221,9 @@ const AdminSettings = () => {
               <h1 className="text-3xl font-bold text-primary mb-2">
                 Instellingen
               </h1>
-              <p className="text-primary text-sm">Beheer uw systeeminstellingen</p>
+              <p className="text-primary text-sm">
+                Beheer uw systeeminstellingen
+              </p>
             </div>
           </div>
         </header>
@@ -215,7 +246,9 @@ const AdminSettings = () => {
             <h1 className="flex text-3xl font-bold text-primary mb-2">
               Settings
             </h1>
-            <p className="text-primary text-sm">Beheer uw systeeminstellingen</p>
+            <p className="text-primary text-sm">
+              Beheer uw systeeminstellingen
+            </p>
           </div>
         </div>
       </header>
