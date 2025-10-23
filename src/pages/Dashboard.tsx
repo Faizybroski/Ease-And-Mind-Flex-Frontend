@@ -472,6 +472,48 @@ const Dashboard = () => {
       } = await supabase.auth.getSession();
       const token = session?.access_token;
 
+      const slotTimes = {
+        Ochtend: {
+          start: settings.morningSessionStart, // e.g. "08:00:00"
+          end: settings.morningSessionEnd,
+        },
+        Middag: {
+          start: settings.afternoonSessionStart,
+          end: settings.afternoonSessionEnd,
+        },
+        Avond: {
+          start: settings.eveningSessionStart,
+          end: settings.eveningSessionEnd,
+        },
+      };
+
+      const slot = slotTimes[bookingData.slot];
+      if (!slot) throw new Error(`Invalid slot: ${bookingData.slot}`);
+
+      // Convert the local Netherlands slot start to UTC
+      const slotStartUTC = DateTime.fromISO(
+        `${bookingData.date}T${slot.start}`,
+        { zone: "Europe/Amsterdam" }
+      )
+        .toUTC()
+        .toISO(); // e.g. "2025-10-22T06:00:00Z"
+
+      const now = DateTime.now().setZone("Europe/Amsterdam");
+      const slotStart = DateTime.fromISO(`${bookingData.date}T${slot.start}`, {
+        zone: "Europe/Amsterdam",
+      });
+
+      const daysUntilBooking = slotStart.diff(now, "days").days;
+
+      if (daysUntilBooking < settings.advancedBooking) {
+        toast({
+          variant: "destructive",
+          title: "Te laat om te boeken",
+          description: `Je moet minstens ${settings.advancedBooking} dagen van tevoren reserveren.`,
+        });
+        return;
+      }
+
       const resp = await fetch(
         "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/payment-intent",
         {
