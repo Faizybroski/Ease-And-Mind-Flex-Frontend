@@ -343,7 +343,20 @@ const Bookings = () => {
                       )}
                       <div>
                         <span className="font-medium">Tijdslot:</span>{" "}
-                        {booking.time_slot}
+                        {booking.is_recurring ? (
+                          <div className="text-xs space-y-0.5">
+                            {Object.entries(booking.day_time_slots || {}).map(
+                              ([day, slot]) => (
+                                <div key={day}>
+                                  <span className="font-medium">{day}</span>:{" "}
+                                  {slot}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        ) : (
+                          <div>{booking.time_slot}</div>
+                        )}
                       </div>
                     </>
                   ) : (
