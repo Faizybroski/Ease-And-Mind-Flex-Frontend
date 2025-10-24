@@ -451,6 +451,20 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                       {booking.payment_type}
                     </p>
                   </div>
+                  <div className="flex">
+                    <span className="text-primary mr-1">Status:</span>{" "}
+                    <p
+                      className={`${
+                        booking.status === "Completed"
+                          ? "text-green-600"
+                          : booking.status === "Canceled"
+                          ? "text-red-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
+                      {booking.status}
+                    </p>
+                  </div>
                 </div>
               )}
             </Card>

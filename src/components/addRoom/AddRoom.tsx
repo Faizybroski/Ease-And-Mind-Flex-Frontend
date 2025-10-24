@@ -84,7 +84,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
       });
       return;
     }
-    if (!addRoomData.morning_price) {
+    if (!addRoomData.morning_price || addRoomData.morning_price <= 0) {
       toast({
         title: "Fout",
         description: "Ochtendprijs is vereist",
@@ -92,7 +92,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
       });
       return;
     }
-    if (!addRoomData.afternoon_price) {
+    if (!addRoomData.afternoon_price || addRoomData.morning_price <= 0) {
       toast({
         title: "Fout",
         description: "Middagprijs is vereist",
@@ -100,7 +100,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
       });
       return;
     }
-    if (!addRoomData.night_price) {
+    if (!addRoomData.night_price || addRoomData.morning_price <= 0) {
       toast({
         title: "Fout",
         description: "Nachtprijs is vereist",
@@ -257,7 +257,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
                   className="w-full cursor-pointer text-primary"
                   asChild
                 >
-                  <span>
+                  <span className="mt-2">
                     {uploading ? (
                       <>
                         <Upload className="h-4 w-4 mr-2 animate-spin" />
