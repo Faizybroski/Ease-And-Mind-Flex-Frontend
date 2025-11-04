@@ -120,6 +120,7 @@ const Dashboard = () => {
   const [isInstantLoading, setIsInstantLoading] = useState(false);
   const [isIDealPaymentDialogOpen, setIsIDealPaymentDialogOpen] =
     useState(false);
+  const [isIdealLoading, setIsIdealLoading] = useState(false);
   const navigate = useNavigate();
   const weekDates = getWeekDates(selectedDate);
   const now = new Date();
@@ -975,7 +976,7 @@ const Dashboard = () => {
               {availableRooms.map((room) => (
                 <Card
                   key={room.id}
-                  className="overflow-hidden"
+                  className="overflow-hidden cursor-pointer"
                   onClick={() => handleRoomSelect(room)}
                 >
                   <img
@@ -1143,6 +1144,7 @@ const Dashboard = () => {
                         paymentType,
                       };
                       setIsInstantLoading(true);
+                      setIsIdealLoading(false);
 
                       try {
                         await handleInstantBooking(bookingData);
@@ -1151,15 +1153,15 @@ const Dashboard = () => {
                         setIsInstantLoading(false); // stop loading
                       }
                     }}
-                    disabled={isInstantLoading}
+                    disabled={isInstantLoading || isIdealLoading} // disable both if either is loading
                   >
                     {isInstantLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Laden...
+                        Betaling verwerken...
                       </>
                     ) : (
-                      "Bevestig boeking"
+                      "Betaal met kaart 💳"
                     )}
                   </Button>
                   <Button
@@ -1179,24 +1181,25 @@ const Dashboard = () => {
                         slot: selectedRoom.slot,
                         paymentType,
                       };
-                      setIsInstantLoading(true);
+                      setIsIdealLoading(true);
+                      setIsInstantLoading(false);
 
                       try {
                         // await handleInstantBooking(bookingData);
                         await handleIDealBooking(bookingData);
                       } finally {
-                        setIsInstantLoading(false); // stop loading
+                        setIsIdealLoading(false); // stop loading
                       }
                     }}
-                    disabled={isInstantLoading}
+                    disabled={isInstantLoading || isIdealLoading}
                   >
-                    {isInstantLoading ? (
+                    {isIdealLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Laden...
+                        Bankverwerking...
                       </>
                     ) : (
-                      "Bevestig boeking"
+                      "Betaal met iDEAL 🏦"
                     )}
                   </Button>
                 </>
