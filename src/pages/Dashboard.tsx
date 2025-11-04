@@ -32,6 +32,7 @@ import {
   useElements,
   IdealBankElement,
 } from "@stripe/react-stripe-js";
+import IdealPayment from "@/components/instantPayment/IdealPayment";
 
 const BUSINESS_ZONE = "Europe/Amsterdam";
 
@@ -1128,7 +1129,7 @@ const Dashboard = () => {
           </DialogHeader>
           {stripePromise && clientSecret && (
             <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentFields
+              <IdealPayment
                 bookingData={{
                   profileId: profile?.id,
                   profileEmail: profile?.email,
