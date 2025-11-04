@@ -118,7 +118,8 @@ const Dashboard = () => {
     setIsMonthlyStripePaymentDialogOpen,
   ] = useState(false);
   const [isInstantLoading, setIsInstantLoading] = useState(false);
-  const [isIDealPaymentDialogOpen, setIsIDealPaymentDialogOpen] = useState(false);
+  const [isIDealPaymentDialogOpen, setIsIDealPaymentDialogOpen] =
+    useState(false);
   const navigate = useNavigate();
   const weekDates = getWeekDates(selectedDate);
   const now = new Date();
@@ -188,25 +189,144 @@ const Dashboard = () => {
           .select("*");
         if (bookingsError) throw bookingsError;
 
+        const normalizeSlot = (s?: string) => {
+          if (!s) return "";
+          const v = s.trim().toLowerCase();
+          const map: Record<string, string> = {
+            // Dutch -> canonical
+            ochtend: "morning",
+            morgen: "morning",
+            middag: "afternoon",
+            avond: "evening",
+            "hele dag": "hele_dag",
+            // English -> canonical
+            morning: "morning",
+            afternoon: "afternoon",
+            evening: "evening",
+            "full day": "hele_dag",
+            "full-day": "hele_dag",
+            fullday: "hele_dag",
+            heledag: "hele_dag",
+          };
+          return map[v] || v; // fallback to raw lowercase if unknown
+        };
+
+        const slotConflicts = (
+          bookedRaw: string | undefined,
+          selectedRaw: string | undefined
+        ) => {
+          const booked = normalizeSlot(bookedRaw);
+          const selected = normalizeSlot(selectedRaw);
+
+          // If either is empty, no conflict
+          if (!booked || !selected) return false;
+
+          // Canonical keys:
+          // - "morning"
+          // - "afternoon"
+          // - "evening"
+          // - "hele_dag"  (full-day that covers morning+afternoon ONLY)
+
+          // 1) If user selects "hele_dag" -> block if any morning/afternoon/full-day booking exists
+          if (selected === "hele_dag") {
+            return (
+              booked === "morning" ||
+              booked === "afternoon" ||
+              booked === "hele_dag"
+            );
+          }
+
+          // 2) If booking is "hele_dag" -> it only blocks morning or afternoon selections
+          if (booked === "hele_dag") {
+            return selected === "morning" || selected === "afternoon";
+          }
+
+          // 3) Otherwise only exact same partial slot conflicts
+          return booked === selected;
+        };
+
         // 3. Find booked room IDs
         const bookedRoomIds = bookings
           .filter((b) => {
             if (!b.is_recurring) {
               // Simple booking: match exact date + timeslot
-              return b.date === dateStr && b.timeslot === timeslot;
+              // return b.date === dateStr && b.time_slot === timeslot;
+
+              // Conflict logic:
+              // If user selected "Hele dag" → only check for "Hele dag"
+              if (!b.date || !b.time_slot) return false;
+
+              // Normalize and compare dates safely (both YYYY-MM-DD)
+              const bookingDateStr =
+                typeof b.date === "string"
+                  ? b.date
+                  : new Date(b.date).toISOString().split("T")[0];
+
+              if (bookingDateStr !== dateStr) return false; // must be same date
+
+              // Now apply the slot conflict rules
+              const isConflict = slotConflicts(b.time_slot, timeslot);
+
+              // DEBUG: remove or comment out in production
+              console.debug("booking-check:", {
+                room_id: b.room_id,
+                bookingDateStr,
+                bookingSlotRaw: b.time_slot,
+                selectedSlotRaw: timeslot,
+                bookingSlotNorm: normalizeSlot(b.time_slot),
+                selectedSlotNorm: normalizeSlot(timeslot),
+                conflict: isConflict,
+              });
+
+              return isConflict;
             } else {
-              // Recurring booking
               const start = new Date(b.start_date);
               const end = new Date(b.end_date);
               const current = new Date(dateStr);
 
+              // Check if current date is within recurrence window
               const inRange = current >= start && current <= end;
-              const weekdayMatch = b.weekdays?.includes(weekday);
-              const timeslotMatch =
-                b.timeslot === timeslot ||
-                (b.timeslot === "Full Day" && timeslot !== ""); // Full day blocks all slots
+              if (!inRange) return false;
 
-              return inRange && weekdayMatch && timeslotMatch;
+              // Check weekday inclusion
+              const weekdayMatch = b.weekdays?.includes(weekday);
+              if (!weekdayMatch) return false;
+
+              // Parse JSON safely
+              let daySlots = {};
+              try {
+                if (typeof b.day_time_slots === "string") {
+                  daySlots = JSON.parse(b.day_time_slots);
+                } else {
+                  daySlots = b.day_time_slots || {};
+                }
+              } catch (e) {
+                console.warn("Invalid day_time_slots JSON:", b.day_time_slots);
+                return false;
+              }
+
+              // Get the booked slot for this weekday
+              const bookedSlotForDay = daySlots?.[weekday];
+              if (!bookedSlotForDay) return false;
+
+              // Determine timeslot conflict
+              const timeslotConflict =
+                bookedSlotForDay === "Hele dag" ||
+                timeslot === "Hele dag" ||
+                bookedSlotForDay === timeslot;
+
+              console.log("heeeeey", {
+                current: dateStr,
+                start: b.start_date,
+                end: b.end_date,
+                weekday,
+                weekdays: b.weekdays,
+                parsedDaySlots: daySlots,
+                bookedSlotForDay,
+                timeslot,
+              });
+
+              return timeslotConflict;
             }
           })
           .map((b) => b.room_id);
@@ -492,6 +612,10 @@ const Dashboard = () => {
           start: settings.eveningSessionStart,
           end: settings.eveningSessionEnd,
         },
+        "Hele dag": {
+          start: settings.morningSessionStart,
+          end: settings.afternoonSessionEnd,
+        },
       };
 
       const slot = slotTimes[bookingData.slot];
@@ -587,6 +711,10 @@ const Dashboard = () => {
         Avond: {
           start: settings.eveningSessionStart,
           end: settings.eveningSessionEnd,
+        },
+        "Hele dag": {
+          start: settings.morningSessionStart,
+          end: settings.afternoonSessionEnd,
         },
       };
 

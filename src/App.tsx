@@ -26,6 +26,7 @@ import Bookings from "./pages/MyBookings";
 
 import NotFound from "./pages/NotFound";
 
+import PaymentSuccessIDeal from "./pages/PaymentSuccessIDeal";
 import PaymentSuccess from "./pages/RecurringPaymentSuccess";
 import PaymentCancel from "./pages/RecurringPaymentCancel";
 import PaySuccess from "./pages/PaymentSuccess";
@@ -58,6 +59,15 @@ const App = () => (
                   <ProtectedRoute>
                     <Navigation />
                     <Bookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment-success"
+                element={
+                  <ProtectedRoute>
+                    <Navigation />
+                    <PaymentSuccessIDeal />
                   </ProtectedRoute>
                 }
               />
