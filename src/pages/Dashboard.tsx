@@ -22,11 +22,16 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import PaymentFields from "@/components/paymentFields/PaymentFields";
+import PaymentFields from "@/components/instantPayment/CardPayment";
 import { MonthlyPaymentWrapper } from "@/components/monthlyPaymentCard/MonthlyPaymentCard";
 import { DateTime } from "luxon";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  useStripe,
+  useElements,
+  IdealBankElement,
+} from "@stripe/react-stripe-js";
 
 const BUSINESS_ZONE = "Europe/Amsterdam";
 
@@ -112,6 +117,7 @@ const Dashboard = () => {
     setIsMonthlyStripePaymentDialogOpen,
   ] = useState(false);
   const [isInstantLoading, setIsInstantLoading] = useState(false);
+  const [isIDealPaymentDialogOpen, setIsIDealPaymentDialogOpen] = useState(false);
   const navigate = useNavigate();
   const weekDates = getWeekDates(selectedDate);
   const now = new Date();
@@ -561,6 +567,103 @@ const Dashboard = () => {
     }
   };
 
+  const handleIDealBooking = async (bookingData: any) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const slotTimes = {
+        Ochtend: {
+          start: settings.morningSessionStart, // e.g. "08:00:00"
+          end: settings.morningSessionEnd,
+        },
+        Middag: {
+          start: settings.afternoonSessionStart,
+          end: settings.afternoonSessionEnd,
+        },
+        Avond: {
+          start: settings.eveningSessionStart,
+          end: settings.eveningSessionEnd,
+        },
+      };
+
+      const slot = slotTimes[bookingData.slot];
+      if (!slot) throw new Error(`Invalid slot: ${bookingData.slot}`);
+
+      // Convert the local Netherlands slot start to UTC
+      const slotStartUTC = DateTime.fromISO(
+        `${bookingData.date}T${slot.start}`,
+        { zone: "Europe/Amsterdam" }
+      )
+        .toUTC()
+        .toISO(); // e.g. "2025-10-22T06:00:00Z"
+
+      const now = DateTime.now().setZone("Europe/Amsterdam");
+      const slotStart = DateTime.fromISO(`${bookingData.date}T${slot.start}`, {
+        zone: "Europe/Amsterdam",
+      });
+
+      const daysUntilBooking = slotStart.diff(now, "days").days;
+
+      if (daysUntilBooking < settings.advancedBooking) {
+        toast({
+          variant: "destructive",
+          title: "Te laat om te boeken",
+          description: `Je moet minstens ${settings.advancedBooking} dagen van tevoren reserveren.`,
+        });
+        return;
+      }
+
+      const resp = await fetch(
+        "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/ideal-intent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify({
+            bookingData,
+            price: selectedRoom.price,
+            roomId: selectedRoom.roomId,
+            date: selectedRoom.date,
+            slot: selectedRoom.slot,
+            paymentType: "ideal",
+          }),
+        }
+      );
+
+      const data = await resp.json();
+      const cs = data.client_secret ?? data.clientSecret ?? null;
+      const pk = data.publishableKey ?? data.publishable_key ?? null;
+
+      if (!cs || !pk)
+        throw new Error(
+          "Het is niet gelukt om een ​​betalingsintentie aan te maken"
+        );
+
+      // First update the state
+      setClientSecret(cs);
+      setPublishableKey(pk);
+      const promise = loadStripe(pk);
+      setStripePromise(promise);
+
+      // Then, after state updates, open the Stripe dialog
+      setTimeout(() => {
+        setIsPaymentDialogOpen(false);
+        setIsIDealPaymentDialogOpen(true);
+      }, 0);
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: err.message || "Betalingsinstelling mislukt",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -892,42 +995,82 @@ const Dashboard = () => {
               )}
 
               {paymentType === "Instant" && (
-                <Button
-                  className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
-                  onClick={async () => {
-                    if (!selectedRoom) return;
-                    if (!profile.id) return;
+                <>
+                  <Button
+                    className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
+                    onClick={async () => {
+                      if (!selectedRoom) return;
+                      if (!profile.id) return;
 
-                    const bookingData = {
-                      profileId: profile?.id,
-                      profileEmail: profile?.email,
-                      profileName: profile?.full_name,
-                      roomId: selectedRoom.roomId,
-                      roomName: selectedRoom.name,
-                      price: selectedRoom.price,
-                      date: selectedRoom.date,
-                      slot: selectedRoom.slot,
-                      paymentType,
-                    };
-                    setIsInstantLoading(true);
+                      const bookingData = {
+                        profileId: profile?.id,
+                        profileEmail: profile?.email,
+                        profileName: profile?.full_name,
+                        roomId: selectedRoom.roomId,
+                        roomName: selectedRoom.name,
+                        price: selectedRoom.price,
+                        date: selectedRoom.date,
+                        slot: selectedRoom.slot,
+                        paymentType,
+                      };
+                      setIsInstantLoading(true);
 
-                    try {
-                      await handleInstantBooking(bookingData);
-                    } finally {
-                      setIsInstantLoading(false); // stop loading
-                    }
-                  }}
-                  disabled={isInstantLoading}
-                >
-                  {isInstantLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Laden...
-                    </>
-                  ) : (
-                    "Bevestig boeking"
-                  )}
-                </Button>
+                      try {
+                        await handleInstantBooking(bookingData);
+                        // await IdealPaymentForm(bookingData);
+                      } finally {
+                        setIsInstantLoading(false); // stop loading
+                      }
+                    }}
+                    disabled={isInstantLoading}
+                  >
+                    {isInstantLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Laden...
+                      </>
+                    ) : (
+                      "Bevestig boeking"
+                    )}
+                  </Button>
+                  <Button
+                    className="w-full py-3 border border-primary text-secondary bg-primary hover:bg-secondary hover:text-primary font-semibold"
+                    onClick={async () => {
+                      if (!selectedRoom) return;
+                      if (!profile.id) return;
+
+                      const bookingData = {
+                        profileId: profile?.id,
+                        profileEmail: profile?.email,
+                        profileName: profile?.full_name,
+                        roomId: selectedRoom.roomId,
+                        roomName: selectedRoom.name,
+                        price: selectedRoom.price,
+                        date: selectedRoom.date,
+                        slot: selectedRoom.slot,
+                        paymentType,
+                      };
+                      setIsInstantLoading(true);
+
+                      try {
+                        // await handleInstantBooking(bookingData);
+                        await handleIDealBooking(bookingData);
+                      } finally {
+                        setIsInstantLoading(false); // stop loading
+                      }
+                    }}
+                    disabled={isInstantLoading}
+                  >
+                    {isInstantLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Laden...
+                      </>
+                    ) : (
+                      "Bevestig boeking"
+                    )}
+                  </Button>
+                </>
               )}
             </div>
           )}
@@ -963,6 +1106,43 @@ const Dashboard = () => {
                 clientSecret={clientSecret}
                 onPaid={() => {
                   setIsStripePaymentDialogOpen(false);
+                  setIsPaymentDialogOpen(false);
+                }}
+              />
+            </Elements>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isStripePaymentDialogOpen}
+        onOpenChange={setIsIDealPaymentDialogOpen}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>iDeal</DialogTitle>
+            <DialogDescription>
+              {selectedRoom &&
+                `${selectedRoom.name} op ${selectedRoom.date} (${selectedRoom.slot}) - ${selectedRoom.price}`}
+            </DialogDescription>
+          </DialogHeader>
+          {stripePromise && clientSecret && (
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <PaymentFields
+                bookingData={{
+                  profileId: profile?.id,
+                  profileEmail: profile?.email,
+                  profileName: profile?.full_name,
+                  roomId: selectedRoom.roomId,
+                  roomName: selectedRoom.name,
+                  price: selectedRoom.price,
+                  date: selectedRoom.date,
+                  slot: selectedRoom.slot,
+                  paymentType,
+                }}
+                clientSecret={clientSecret}
+                onPaid={() => {
+                  setIsIDealPaymentDialogOpen(false);
                   setIsPaymentDialogOpen(false);
                 }}
               />
