@@ -147,6 +147,11 @@ const Bookings = () => {
             onClick={async () => {
               try {
                 // Step 1: Fetch booking info
+                const {
+                  data: { session },
+                } = await supabase.auth.getSession();
+                const token = session?.access_token;
+
                 const { data: booking, error: fetchError } = await supabase
                   .from("bookings")
                   .select("date, time_slot, payment_status")
@@ -171,15 +176,15 @@ const Bookings = () => {
                   );
 
                 // Step 3: Check payment status
-                if (booking.payment_status === "Completed") {
-                  toast({
-                    title: "Fout",
-                    description:
-                      "Het annuleren van de boeking is mislukt omdat de betaling niet restitueerbaar is.",
-                    variant: "destructive",
-                  });
-                  return;
-                }
+                // if (booking.payment_status === "Completed") {
+                //   toast({
+                //     title: "Fout",
+                //     description:
+                //       "Het annuleren van de boeking is mislukt omdat de betaling niet restitueerbaar is.",
+                //     variant: "destructive",
+                //   });
+                //   return;
+                // }
 
                 const bookingStart = DateTime.fromISO(booking.date, {
                   zone: "Europe/Amsterdam",
@@ -212,30 +217,46 @@ const Bookings = () => {
                 }
 
                 // Step 7: Update booking to canceled
-                const { error: cancelError } = await supabase
-                  .from("bookings")
-                  .update({
-                    status: "Canceled",
-                    final_revenue: 0,
-                    initial_revenue: 0,
-                    discount: 0,
-                  })
-                  .eq("id", bookingId)
-                  .eq("user_id", userProfileId);
+                const resp = await fetch(
+                  "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/refund-api",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: token ? `Bearer ${token}` : "",
+                    },
+                    body: JSON.stringify({ booking_id: bookingId }),
+                  }
+                );
 
-                if (cancelError) {
-                  toast({
-                    title: "Fout",
-                    description:
-                      cancelError.message ||
-                      "Het is niet gelukt om de boeking te annuleren.",
-                    variant: "destructive",
-                  });
-                  return;
-                }
+                // const { error: cancelError } = await supabase
+                //   .from("bookings")
+                //   .update({
+                //     status: "Canceled",
+                //     final_revenue: 0,
+                //     initial_revenue: 0,
+                //     discount: 0,
+                //   })
+                //   .eq("id", bookingId)
+                //   .eq("user_id", userProfileId);
+
+                // if (cancelError) {
+                //   toast({
+                //     title: "Fout",
+                //     description:
+                //       cancelError.message ||
+                //       "Het is niet gelukt om de boeking te annuleren.",
+                //     variant: "destructive",
+                //   });
+                //   return;
+                // }
+
+                const data = await resp.json();
+
+                if (!resp.ok) throw new Error(data.error || "Refund failed");
 
                 toast({
-                  title: "Boeking geannuleerd",
+                  title: "Boeking geannuleerd and Refund initiated",
                   description: `Uw boeking op ${bookingStart.toFormat(
                     "dd LLL yyyy"
                   )} is succesvol geannuleerd.`,

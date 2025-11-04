@@ -21,14 +21,44 @@ export default function PaymentSuccessIDeal() {
       if (!paymentIntentId) return setStatus("failed");
 
       if (redirectStatus === "succeeded") {
-        // ✅ Mark payment and booking as successful in Supabase
-        await supabase.rpc("complete_payment_and_update_booking", {
-          p_booking_id: bookingId,
-          p_user_id: userId,
-          p_amount: amount,
-          p_method: method,
-          p_stripe_payment_intent_id: paymentIntentId,
+        console.log("🔍 Payment Success Params", {
+          bookingId,
+          userId,
+          amount,
+          method,
+          paymentIntentId,
+          redirectStatus,
         });
+        // ✅ Mark payment and booking as successful in Supabase
+        const { data: sqlData, error: sqlError } = await supabase.rpc(
+          "complete_payment_and_update_booking",
+          {
+            p_booking_id: bookingId,
+            p_user_id: userId,
+            p_amount: amount,
+            p_method: method,
+            p_stripe_payment_intent_id: paymentIntentId,
+          }
+        );
+
+        const { data: bookingData, error: bookingError } = await supabase
+          .from("bookings")
+          .update({ stripe_payment_intent_id: paymentIntentId })
+          .eq("id", bookingId)
+          .single();
+
+        if (sqlError) {
+          console.error("❌ Supabase RPC error:", sqlError);
+        } else {
+          console.info("✅ Booking + payment updated:", sqlData);
+        }
+        
+        if (bookingError) {
+          console.error("❌ Supabase booking update error:", bookingError);
+        } else {
+          console.info("✅ Booking + payment updated:", bookingData);
+        }
+
 
         setStatus("success");
       } else {
