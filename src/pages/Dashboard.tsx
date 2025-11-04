@@ -1116,7 +1116,7 @@ const Dashboard = () => {
       </Dialog>
 
       <Dialog
-        open={isStripePaymentDialogOpen}
+        open={isIDealPaymentDialogOpen}
         onOpenChange={setIsIDealPaymentDialogOpen}
       >
         <DialogContent className="max-w-md">
