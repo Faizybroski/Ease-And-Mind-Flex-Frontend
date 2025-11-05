@@ -249,6 +249,7 @@ const Dashboard = () => {
         // 3. Find booked room IDs
         const bookedRoomIds = bookings
           .filter((b) => {
+            if (b.status === "canceled") return false;
             if (!b.is_recurring) {
               // Simple booking: match exact date + timeslot
               // return b.date === dateStr && b.time_slot === timeslot;
