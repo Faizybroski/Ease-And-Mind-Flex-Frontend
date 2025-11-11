@@ -209,7 +209,7 @@ const Bookings = () => {
                 // Step 6: If too late to cancel
                 if (daysUntilStart < cancelPeriod) {
                   toast({
-                    title: "Te laat om te annuleren",
+                    title: "Annuleren niet gelukt",
                     description: `Annulering is alleen mogelijk tot ${cancelPeriod} dagen voor de boeking.`,
                     variant: "destructive",
                   });
@@ -354,7 +354,11 @@ const Bookings = () => {
                       </div>
                       <div>
                         <span className="font-medium">Patroon:</span>{" "}
-                        {booking.recurrence_pattern}
+                        {booking.recurrence_pattern === "Weekly"
+                          ? "Wekelijks"
+                          : booking.recurrence_pattern === "Bi-Weekly"
+                          ? "Tweewekelijks"
+                          : "Maandelijks"}
                       </div>
                       {booking.weekdays && (
                         <div>
@@ -365,13 +369,13 @@ const Bookings = () => {
                       <div>
                         <span className="font-medium">Tijdslot:</span>{" "}
                         {booking.is_recurring ? (
-                          <div className="text-xs space-y-0.5">
+                          <div className="text-xs grid grid-cols-[auto_1fr] gap-x-2">
                             {Object.entries(booking.day_time_slots || {}).map(
                               ([day, slot]) => (
-                                <div key={day}>
-                                  <span className="font-medium">{day}</span>:{" "}
-                                  {slot}
-                                </div>
+                                <React.Fragment key={day}>
+                                  <span className="font-medium">{day}: </span>
+                                  <span>{slot}</span>
+                                </React.Fragment>
                               )
                             )}
                           </div>
@@ -396,7 +400,7 @@ const Bookings = () => {
                 </div>
 
                 {/* Revenue */}
-                <div className="flex flex-col text-sm text-primary min-w-[160px]">
+                {/* <div className="flex flex-col text-sm text-primary min-w-[160px]">
                   {isRecurring ? (
                     <>
                       <div>
@@ -418,7 +422,14 @@ const Bookings = () => {
                       {booking.final_revenue ?? 0}
                     </div>
                   )}
-                </div>
+                </div> */}
+
+                {!isRecurring && (
+                  <div className="flex flex-col text-sm text-primary min-w-[160px]">
+                    <span className="font-medium">Winst:</span>{" "}
+                    {booking.final_revenue ?? 0}
+                  </div>
+                )}
               </div>
 
               <div className="text-sm text-primary min-w-[190px]">
@@ -429,10 +440,20 @@ const Bookings = () => {
                       ? "text-green-800"
                       : booking.payment_status === "Failed"
                       ? "text-red-800"
-                      : "text-yellow-800"
+                      : booking.payment_status === "Pending"
+                      ? "text-yellow-800"
+                      : "text-blue-800"
                   }`}
                 >
-                  {booking?.payment_status || "Null"}
+                  {booking?.payment_status === "Completed"
+                    ? "Voltooid"
+                    : booking?.payment_status === "Failed"
+                    ? "Mislukt"
+                    : booking.payment_status === "Pending"
+                    ? "In behandeling"
+                    : booking.payment_status === "Refunded"
+                    ? "Terugbetaald"
+                    : "Nul"}
                 </span>
                 {!isRecurring && (
                   <div className="text-sm text-primary min-w-[150px]">
@@ -444,7 +465,9 @@ const Bookings = () => {
                           : "text-yellow-800"
                       }`}
                     >
-                      {booking?.payment_type || "Instantly"}
+                      {booking?.payment_type === "Instant"
+                        ? "Onmiddellijk"
+                        : "Maandelijks"}
                     </span>
                   </div>
                 )}
@@ -462,7 +485,8 @@ const Bookings = () => {
                           : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
                       }`}
                     >
-                      {booking.status}
+                      {/* {booking.status} */}
+                      Aankomende
                     </Button>
 
                     {/* Cancel button */}
@@ -486,7 +510,13 @@ const Bookings = () => {
                           : "bg-yellow-200 text-yellow-800 px-[3.25rem] hover:bg-yellow-200 hover:text-yellow-800"
                       }`}
                     >
-                      {booking.status || "In behandeling"}
+                      {booking.status === "Completed"
+                        ? "Voltooid"
+                        : booking.status === "Canceled"
+                        ? "Geannuleerd"
+                        : booking.status === "Recurring"
+                        ? "Terugkerend"
+                        : "In behandeling"}
                     </Button>
                   </div>
                 )}

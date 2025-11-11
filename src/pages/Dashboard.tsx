@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Euro } from "lucide-react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -546,7 +546,7 @@ const Dashboard = () => {
 
       const daysUntilBooking = slotStart.diff(now, "days").days;
 
-      if (daysUntilBooking < settings.advancedBooking) {
+      if (daysUntilBooking > settings.advancedBooking) {
         toast({
           variant: "destructive",
           title: "Te laat om te boeken",
@@ -638,7 +638,7 @@ const Dashboard = () => {
 
       const daysUntilBooking = slotStart.diff(now, "days").days;
 
-      if (daysUntilBooking < settings.advancedBooking) {
+      if (daysUntilBooking > settings.advancedBooking) {
         toast({
           variant: "destructive",
           title: "Te laat om te boeken",
@@ -738,7 +738,7 @@ const Dashboard = () => {
 
       const daysUntilBooking = slotStart.diff(now, "days").days;
 
-      if (daysUntilBooking < settings.advancedBooking) {
+      if (daysUntilBooking > settings.advancedBooking) {
         toast({
           variant: "destructive",
           title: "Te laat om te boeken",
@@ -756,6 +756,8 @@ const Dashboard = () => {
             Authorization: token ? `Bearer ${token}` : "",
           },
           body: JSON.stringify({
+            name: profile.full_name,
+            email: profile.email,
             bookingData,
             price: selectedRoom.price,
             roomId: selectedRoom.roomId,
@@ -801,7 +803,7 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-primary">Boekruimte</h1>
+            <h1 className="text-3xl font-bold text-primary">Boek een ruimte</h1>
             <p className="text-primary mt-1">
               Selecteer een tijdslot om beschikbare plaatsen te bekijken
             </p>
@@ -942,9 +944,9 @@ const Dashboard = () => {
                     </CardHeader>
                     <CardContent className="text-xs text-muted-foreground p-3">
                       {slot.range}{" "}
-                      <span className="block text-[10px] italic text-gray-400">
+                      {/* <span className="block text-[10px] italic text-gray-400">
                         (Tijd in Amsterdam)
-                      </span>
+                      </span> */}
                     </CardContent>
                   </Card>
                 );
@@ -992,8 +994,8 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground">
                       {room.amenities}
                     </p>
-                    <p className="font-semibold text-primary">
-                      Prijs:{" "}
+                    <p className="font-semibold text-primary flex items-center">
+                      Prijs:{" "} <Euro className="w-4 h-4"/>
                       {selectedSlot?.slot.name === "Ochtend"
                         ? room.Morning_price
                         : selectedSlot?.slot.name === "Middag"
@@ -1032,7 +1034,7 @@ const Dashboard = () => {
 
           {selectedRoom && (
             <div className="space-y-4">
-              <p className="font-semibold">Prijs: {selectedRoom.price}</p>
+              <p className="font-semibold flex items-center">Prijs: <Euro className="w-4 h-4"/> {selectedRoom.price}</p>
 
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">

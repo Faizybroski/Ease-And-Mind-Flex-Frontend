@@ -128,7 +128,7 @@ export const Auth = () => {
         if (!error) {
           toast({
             title: "Account aangemaakt!",
-            description: "Controleer uw e-mail ter verificatie.",
+            description: "Je bent nu ingelogd",
           });
         }
 
@@ -273,7 +273,8 @@ export const Auth = () => {
                   } catch (error) {
                     toast({
                       title: "Fout",
-                      description: "Het is niet gelukt om de resetlink te versturen.",
+                      description:
+                        "Het is niet gelukt om de resetlink te versturen.",
                       variant: "destructive",
                     });
                     console.error("Error sending password reset link", error);

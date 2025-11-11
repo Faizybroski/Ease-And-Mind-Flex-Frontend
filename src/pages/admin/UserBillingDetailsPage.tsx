@@ -393,6 +393,8 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                             "create-checkout-session",
                             {
                               body: JSON.stringify({
+                                name: booking.profile.full_name,
+                                email: booking.profile.email,
                                 amount: amountInCents,
                                 bookingId: booking.id,
                                 roomId,
