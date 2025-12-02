@@ -51,7 +51,8 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
   const monthlyPayment = async (user_id: string) => {
     try {
       const { data, error } = await supabase.functions.invoke(
-        "cron-monthly-payment-handler",
+        // "cron-monthly-payment-handler",
+        "monthly-invoice",
         {
           // method: "POST",
           // headers: {

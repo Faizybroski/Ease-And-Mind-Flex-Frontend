@@ -95,6 +95,8 @@ const Dashboard = () => {
     day: Date;
     slot: { name: string; range: string };
   } | null>(null);
+  const [availabilityMap, setAvailabilityMap] = useState({});
+  const [rooms, setRooms] = useState<any[]>([]);
   const [availableRooms, setAvailableRooms] = useState<any[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -165,6 +167,90 @@ const Dashboard = () => {
     setIsDialogOpen(false); // close room selection dialog
     setIsPaymentDialogOpen(true); // open payment dialog
   };
+
+  const isBookingConflicting = (
+    booking: any,
+    day: Date,
+    slotName: string,
+    weekday: string
+  ) => {
+    const bookingDate = new Date(booking.date).toDateString();
+    const checkDate = day.toDateString();
+
+    // If booking is on another day → not a conflict
+    if (bookingDate !== checkDate) return false;
+
+    const bookingSlot = booking.slot;
+
+    // Full Day booking blocks everything
+    if (bookingSlot === "Full Day" || slotName === "Full Day") {
+      return true;
+    }
+
+    // Normal slot conflict (Morning, Afternoon, Evening)
+    return bookingSlot === slotName;
+  };
+
+  const computeWeeklyAvailability = async () => {
+    setLoadingRooms(true);
+
+    if (!rooms.length) return; // safeguard
+
+    const { data: bookings } = await supabase.from("bookings").select("*");
+
+    const map: any = {};
+
+    for (const day of weekDates) {
+      const dateStr = day.toISOString().split("T")[0];
+      const weekday = day.toLocaleDateString("nl-NL", {
+        weekday: "long",
+      });
+
+      map[dateStr] = {};
+
+      for (const slot of timeslots) {
+        const slotName = slot.name;
+
+        const bookedRoomIds = bookings
+          .filter((b) => {
+            if (b.status === "canceled") return false;
+            return isBookingConflicting(b, day, slotName, weekday);
+          })
+          .map((b) => b.room_id);
+
+        const freeRooms = rooms.filter(
+          (room) => !bookedRoomIds.includes(room.id)
+        );
+
+        map[dateStr][slotName] = freeRooms.length;
+      }
+    }
+
+    setAvailabilityMap(map);
+    setLoadingRooms(false);
+  };
+  useEffect(() => {
+    if (rooms.length > 0) {
+      computeWeeklyAvailability();
+    }
+  }, [rooms, selectedDate, currentMonth]);
+
+  useEffect(() => {
+    const fetchAllRoom = async () => {
+      setLoadingRooms(true);
+      try {
+        const { data: rooms, error: roomsError } = await supabase
+          .from("rooms")
+          .select("*");
+        if (roomsError) throw roomsError;
+        setRooms(rooms);
+      } catch (error) {
+        console.error("error fetching rooms", error);
+      }
+    };
+
+    fetchAllRoom();
+  }, []);
 
   useEffect(() => {
     const fetchAvailableRooms = async () => {
@@ -555,7 +641,20 @@ const Dashboard = () => {
         return;
       }
 
-      const { data, error: monthlyError } = await supabase
+      const { data: customerData, error } = await supabase.functions.invoke(
+        "create-customer",
+        {
+          body: JSON.stringify({
+            user_id: bookingData.profileId,
+            email: profile.email,
+            name: profile?.full_name ?? profile.email,
+          }),
+        }
+      );
+
+      if (error) throw error;
+
+      const { data: booking, error: monthlyError } = await supabase
         .from("bookings")
         .insert({
           user_id: bookingData.profileId,
@@ -571,8 +670,21 @@ const Dashboard = () => {
           is_recurring: false,
           // stripe_payment_method_id: setupIntent.payment_method,
           // stripe_customer_id: customerId,
-        });
+        })
+        .select()
+        .single();
       if (monthlyError) throw monthlyError;
+
+      const { data: invoice, error: invoiceError } =
+        await supabase.functions.invoke("add-invoice-item", {
+          body: JSON.stringify({
+            user_id: bookingData.profileId,
+            amount: bookingData.price,
+            description: `Booking #${booking.id}`,
+          }),
+        });
+
+      if (invoiceError) throw invoiceError;
 
       setIsPaymentDialogOpen(false);
 
@@ -927,6 +1039,8 @@ const Dashboard = () => {
                   slotDateTime < amsterdamNow.startOf("day") || // past days
                   slotDateTime <= amsterdamNow; // same day but time already passed
 
+                const dateStr = day.toISOString().split("T")[0];
+
                 return (
                   <Card
                     key={slot.name}
@@ -943,7 +1057,14 @@ const Dashboard = () => {
                       <CardTitle className="text-sm">{slot.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="text-xs text-muted-foreground p-3">
-                      {slot.range}{" "}
+                      <p>{slot.range}</p>
+
+                      <p>
+                        Available Rooms:{" "}
+                        {availabilityMap?.[dateStr]?.[slot.name] ?? 0}/
+                        {rooms.length}
+                      </p>
+
                       {/* <span className="block text-[10px] italic text-gray-400">
                         (Tijd in Amsterdam)
                       </span> */}
@@ -995,7 +1116,7 @@ const Dashboard = () => {
                       {room.amenities}
                     </p>
                     <p className="font-semibold text-primary flex items-center">
-                      Prijs:{" "} <Euro className="w-4 h-4"/>
+                      Prijs: <Euro className="w-4 h-4" />
                       {selectedSlot?.slot.name === "Ochtend"
                         ? room.Morning_price
                         : selectedSlot?.slot.name === "Middag"
@@ -1034,7 +1155,9 @@ const Dashboard = () => {
 
           {selectedRoom && (
             <div className="space-y-4">
-              <p className="font-semibold flex items-center">Prijs: <Euro className="w-4 h-4"/> {selectedRoom.price}</p>
+              <p className="font-semibold flex items-center">
+                Prijs: <Euro className="w-4 h-4" /> {selectedRoom.price}
+              </p>
 
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">

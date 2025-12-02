@@ -21,6 +21,12 @@ import {
   Eye,
   Share2,
   Settings,
+  Sun,
+  CloudSun,
+  Moon,
+  ListChecks,
+  CalendarCheck,
+  Euro,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -305,102 +311,16 @@ const Bookings = () => {
     }
 
     return (
-      <div className="space-y-4">
+      <>
         {bookings.map((booking) => {
           const isCreator = booking.user_id === userProfileId;
           const isRecurring = booking.is_recurring;
 
-          return (
-            <Card
-              key={booking.id}
-              className="flex flex-col md:flex-row justify-between items-start md:items-center bg-secondary border border-primary rounded-md shadow-sm p-4 gap-4"
-            >
-              {/* Left side: Booking Details */}
-              <div className="flex flex-col sm:flex-row flex-wrap w-full items-start sm:items-center justify-between gap-4">
-                {/* Room Name */}
-                <div className="flex flex-col min-w-[150px]">
-                  <h3 className="text-primary text-lg font-bold break-words">
-                    {booking.rooms?.room_name}
-                  </h3>
-                </div>
-
-                {/* Booking Info */}
-                <div className="flex flex-col text-sm text-primary min-w-[200px] max-w-full">
-                  {isRecurring ? (
-                    <>
-                      <div className="flex items-center flex-wrap">
-                        <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
-                        {booking.start_date
-                          ? new Date(booking.start_date).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )
-                          : "N/A"}{" "}
-                        →{" "}
-                        {booking.end_date
-                          ? new Date(booking.end_date).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )
-                          : "Ongoing"}
-                      </div>
-                      <div>
-                        <span className="font-medium">Patroon:</span>{" "}
-                        {booking.recurrence_pattern === "Weekly"
-                          ? "Wekelijks"
-                          : booking.recurrence_pattern === "Bi-Weekly"
-                          ? "Tweewekelijks"
-                          : "Maandelijks"}
-                      </div>
-                      {booking.weekdays && (
-                        <div>
-                          <span className="font-medium">Weekdagen:</span>{" "}
-                          {booking.weekdays.join(", ")}
-                        </div>
-                      )}
-                      <div>
-                        <span className="font-medium">Tijdslot:</span>{" "}
-                        {booking.is_recurring ? (
-                          <div className="text-xs grid grid-cols-[auto_1fr] gap-x-2">
-                            {Object.entries(booking.day_time_slots || {}).map(
-                              ([day, slot]) => (
-                                <React.Fragment key={day}>
-                                  <span className="font-medium">{day}: </span>
-                                  <span>{slot}</span>
-                                </React.Fragment>
-                              )
-                            )}
-                          </div>
-                        ) : (
-                          <div>{booking.time_slot}</div>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex items-center flex-wrap">
-                      <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
-                      {booking.date
-                        ? new Date(booking.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
-                        : "N/A"}{" "}
-                      - {booking.time_slot}
-                    </div>
-                  )}
-                </div>
-
-                {/* Revenue */}
-                {/* <div className="flex flex-col text-sm text-primary min-w-[160px]">
+          {
+            /* Revenue */
+          }
+          {
+            /* <div className="flex flex-col text-sm text-primary min-w-[160px]">
                   {isRecurring ? (
                     <>
                       <div>
@@ -422,87 +342,357 @@ const Bookings = () => {
                       {booking.final_revenue ?? 0}
                     </div>
                   )}
-                </div> */}
+                </div> */
+          }
+          {
+            /* <Card
+                key={booking.id}
+                className="flex flex-col md:flex-row justify-between items-start md:items-center bg-secondary border border-primary rounded-md shadow-sm p-4 gap-4"
+              >
+                <div className="flex flex-col sm:flex-row flex-wrap w-full items-start sm:items-center justify-between gap-4">
+               
+                  <div className="flex flex-col min-w-[150px]">
+                    <h3 className="text-primary text-lg font-bold break-words">
+                      {booking.rooms?.room_name}
+                    </h3>
+                  </div>
 
-                {!isRecurring && (
-                  <div className="flex flex-col text-sm text-primary min-w-[160px]">
-                    <span className="font-medium">Winst:</span>{" "}
+                  <div className="flex flex-col text-sm text-primary min-w-[200px] max-w-full">
+                    {isRecurring ? (
+                      <>
+                        <div className="flex items-center flex-wrap">
+                          <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
+                          {booking.start_date
+                            ? new Date(booking.start_date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )
+                            : "N/A"}{" "}
+                          →{" "}
+                          {booking.end_date
+                            ? new Date(booking.end_date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )
+                            : "Ongoing"}
+                        </div>
+                        <div>
+                          <span className="font-medium">Patroon:</span>{" "}
+                          {booking.recurrence_pattern === "Weekly"
+                            ? "Wekelijks"
+                            : booking.recurrence_pattern === "Bi-Weekly"
+                            ? "Tweewekelijks"
+                            : "Maandelijks"}
+                        </div>
+                        {booking.weekdays && (
+                          <div>
+                            <span className="font-medium">Weekdagen:</span>{" "}
+                            {booking.weekdays.join(", ")}
+                          </div>
+                        )}
+                        <div>
+                          <span className="font-medium">Tijdslot:</span>{" "}
+                          {booking.is_recurring ? (
+                            <div className="text-xs grid grid-cols-[auto_1fr] gap-x-2">
+                              {Object.entries(booking.day_time_slots || {}).map(
+                                ([day, slot]) => (
+                                  <React.Fragment key={day}>
+                                    <span className="font-medium">{day}: </span>
+                                    <span>{slot}</span>
+                                  </React.Fragment>
+                                )
+                              )}
+                            </div>
+                          ) : (
+                            <div>{booking.time_slot}</div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center flex-wrap">
+                        <Calendar className="h-4 w-4 inline-block mr-2 text-primary/90" />
+                        {booking.date
+                          ? new Date(booking.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : "N/A"}{" "}
+                        - {booking.time_slot}
+                      </div>
+                    )}
+                  </div>
+
+
+
+                  {!isRecurring && (
+                    <div className="flex flex-col text-sm text-primary min-w-[160px]">
+                      <span className="font-medium">Winst:</span>{" "}
+                      {booking.final_revenue ?? 0}
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-sm text-primary min-w-[190px]">
+                  <span className="font-medium">Betalings status:</span>{" "}
+                  <span
+                    className={`${
+                      booking.payment_status === "Completed"
+                        ? "text-green-800"
+                        : booking.payment_status === "Failed"
+                        ? "text-red-800"
+                        : booking.payment_status === "Pending"
+                        ? "text-yellow-800"
+                        : "text-blue-800"
+                    }`}
+                  >
+                    {booking?.payment_status === "Completed"
+                      ? "Voltooid"
+                      : booking?.payment_status === "Failed"
+                      ? "Mislukt"
+                      : booking.payment_status === "Pending"
+                      ? "In behandeling"
+                      : booking.payment_status === "Refunded"
+                      ? "Terugbetaald"
+                      : "Nul"}
+                  </span>
+                  {!isRecurring && (
+                    <div className="text-sm text-primary min-w-[150px]">
+                      <span className="font-medium">Betaal methode:</span>{" "}
+                      <span
+                        className={`${
+                          booking.payment_type === "Instant"
+                            ? "text-green-800"
+                            : "text-yellow-800"
+                        }`}
+                      >
+                        {booking?.payment_type === "Instant"
+                          ? "Onmiddellijk"
+                          : "Maandelijks"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="w-full md:w-[200px] flex justify-start md:justify-end">
+                  {booking.status === "Upcoming" ? (
+                    <div className="flex gap-2 items-center">
+                      <Button
+                        className={`px-2 py-0.5 cursor-default ${
+                          booking.status === "Upcoming"
+                            ? "bg-blue-200 text-blue-800 hover:bg-blue-200 hover:text-blue-800"
+                            : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
+                        }`}
+                      >
+                        Aankomende
+                      </Button>
+
+                      {isCreator && (
+                        <Button
+                          onClick={() => cancelBooking(booking.id)}
+                          className="text-destructive bg-secondary border border-destructive hover:bg-destructive hover:text-secondary"
+                        >
+                          Annuleren
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="">
+                      <Button
+                        className={`block w-full md:w-auto text-center  py-0.5 cursor-default ${
+                          booking.status === "Completed"
+                            ? "bg-green-200 text-green-800 px-12 hover:bg-green-200 hover:text-green-800"
+                            : booking.status === "Canceled"
+                            ? "bg-red-200 text-red-800 px-12 hover:bg-red-200 hover:text-red-800"
+                            : "bg-yellow-200 text-yellow-800 px-[3.25rem] hover:bg-yellow-200 hover:text-yellow-800"
+                        }`}
+                      >
+                        {booking.status === "Completed"
+                          ? "Voltooid"
+                          : booking.status === "Canceled"
+                          ? "Geannuleerd"
+                          : booking.status === "Recurring"
+                          ? "Terugkerend"
+                          : "In behandeling"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </Card> */
+          }
+
+          return (
+            <Card
+              key={booking.id}
+              className="flex flex-col h-full border border-primary rounded-md shadow-md overflow-hidden bg-secondary/10"
+            >
+              <CardContent className="flex flex-col flex-grow p-4 space-y-4">
+                {/* Header */}
+                <div>
+                  <h3 className="text-primary text-lg font-bold line-clamp-1">
+                    {booking.rooms?.room_name}
+                  </h3>
+                  <p
+                    className={` ${
+                      booking.status === "Completed"
+                        ? "text-green-600"
+                        : booking.status === "Canceled"
+                        ? "text-red-600"
+                        : "text-yellow-600"
+                    }`}
+                  >
+                    {booking.is_recurring
+                      ? "Terugkerend"
+                      : booking.status === "Completed"
+                      ? "Voltooid"
+                      : booking.status === "Canceled"
+                      ? "Geannuleerd"
+                      : booking.status === "Recurring"
+                      ? "Terugkerend"
+                      : "In behandeling"}
+                  </p>
+                </div>
+
+                {/* Dates */}
+                <div className="text-sm text-primary/90 border-y border-primary/30 py-2">
+                  <Calendar className="inline h-4 w-4 mr-2 text-primary" />
+                  {isRecurring ? (
+                    <>
+                      {booking.start_date
+                        ? new Date(booking.start_date).toLocaleDateString(
+                            "nl-NL",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )
+                        : "N/A"}{" "}
+                      →{" "}
+                      {booking.end_date
+                        ? new Date(booking.end_date).toLocaleDateString(
+                            "nl-NL",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )
+                        : "Ongoing"}
+                    </>
+                  ) : (
+                    <>
+                      {booking.date
+                        ? new Date(booking.date).toLocaleDateString("nl-NL", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "N/A"}{" "}
+                      - {booking.time_slot}
+                    </>
+                  )}
+                </div>
+
+                {/* Recurring slots OR price */}
+                {booking.is_recurring ? (
+                  <div className="text-sm text-primary/90">
+                    <div className="mt-1 space-y-1 pl-6">
+                      {Object.entries(booking.day_time_slots || {}).map(
+                        ([day, slot]) => (
+                          <div
+                            key={day}
+                            className="flex justify-between w-full"
+                          >
+                            <span className="font-medium">{day}</span>
+                            <span>{slot}</span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-primary/90 flex items-center">
+                    <Euro className="h-4 w-4 mr-2 text-primary" />
                     {booking.final_revenue ?? 0}
                   </div>
                 )}
-              </div>
 
-              <div className="text-sm text-primary min-w-[190px]">
-                <span className="font-medium">Betalings status:</span>{" "}
-                <span
-                  className={`${
-                    booking.payment_status === "Completed"
-                      ? "text-green-800"
-                      : booking.payment_status === "Failed"
-                      ? "text-red-800"
-                      : booking.payment_status === "Pending"
-                      ? "text-yellow-800"
-                      : "text-blue-800"
-                  }`}
-                >
-                  {booking?.payment_status === "Completed"
-                    ? "Voltooid"
-                    : booking?.payment_status === "Failed"
-                    ? "Mislukt"
-                    : booking.payment_status === "Pending"
-                    ? "In behandeling"
-                    : booking.payment_status === "Refunded"
-                    ? "Terugbetaald"
-                    : "Nul"}
-                </span>
-                {!isRecurring && (
-                  <div className="text-sm text-primary min-w-[150px]">
-                    <span className="font-medium">Betaal methode:</span>{" "}
+                {/* Payment Info */}
+                <div className="text-sm space-y-1 border-t border-primary/30 pt-2">
+                  <p className="text-primary">
+                    Betalings status:{" "}
                     <span
-                      className={`${
-                        booking.payment_type === "Instant"
-                          ? "text-green-800"
-                          : "text-yellow-800"
-                      }`}
+                      className={
+                        booking.payment_status === "Completed"
+                          ? "text-green-600"
+                          : booking.payment_status === "Failed"
+                          ? "text-red-600"
+                          : booking.payment_status === "Pending"
+                          ? "text-yellow-600"
+                          : "text-blue-600"
+                      }
                     >
-                      {booking?.payment_type === "Instant"
-                        ? "Onmiddellijk"
-                        : "Maandelijks"}
+                      {booking?.payment_status === "Completed"
+                      ? "Voltooid"
+                      : booking?.payment_status === "Failed"
+                      ? "Mislukt"
+                      : booking.payment_status === "Pending"
+                      ? "In behandeling"
+                      : booking.payment_status === "Refunded"
+                      ? "Terugbetaald"
+                      : "Nul"}
                     </span>
-                  </div>
-                )}
-              </div>
+                  </p>
+                  {!booking.is_recurring && (
+                    <p className="text-primary">
+                      Betaal methode:{" "}
+                      <span
+                        className={
+                          booking.payment_type === "Instant"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                        }
+                      >
+                        {booking.payment_type === "Instant"
+                          ? "Onmiddellijk"
+                          : "Maandelijks"}
+                      </span>
+                    </p>
+                  )}
+                </div>
 
-              {/* Right side: Actions */}
-              <div className="w-full md:w-[200px] flex justify-start md:justify-end">
-                {booking.status === "Upcoming" ? (
-                  <div className="flex gap-2 items-center">
-                    {/* Status */}
-                    <Button
-                      className={`px-2 py-0.5 cursor-default ${
-                        booking.status === "Upcoming"
-                          ? "bg-blue-200 text-blue-800 hover:bg-blue-200 hover:text-blue-800"
-                          : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
-                      }`}
-                    >
-                      {/* {booking.status} */}
-                      Aankomende
-                    </Button>
-
-                    {/* Cancel button */}
-                    {isCreator && (
+                {/* Footer buttons */}
+                <div className="mt-auto flex gap-2">
+                  {booking.status === "Upcoming" ? (
+                    <>
+                      <Button
+                        className={`flex-1 text-primary border-primary hover:bg-primary hover:text-secondary cursor-default ${
+                          booking.status === "Upcoming"
+                            ? "bg-blue-200 text-blue-800 hover:bg-blue-200 hover:text-blue-800"
+                            : "bg-yellow-200 text-yellow-800 hover:bg-yellow-200 hover:text-yellow-800"
+                        }`}
+                      >
+                        Aankomende
+                      </Button>
                       <Button
                         onClick={() => cancelBooking(booking.id)}
                         className="text-destructive bg-secondary border border-destructive hover:bg-destructive hover:text-secondary"
                       >
                         Annuleren
                       </Button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="">
+                    </>
+                  ) : (
                     <Button
-                      className={`block w-full md:w-auto text-center  py-0.5 cursor-default ${
+                      size="sm"
+                      className={`w-full bg-primary/10  text-primary cursor-default ${
                         booking.status === "Completed"
                           ? "bg-green-200 text-green-800 px-12 hover:bg-green-200 hover:text-green-800"
                           : booking.status === "Canceled"
@@ -518,13 +708,13 @@ const Bookings = () => {
                         ? "Terugkerend"
                         : "In behandeling"}
                     </Button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           );
         })}
-      </div>
+      </>
     );
   };
 
@@ -561,7 +751,7 @@ const Bookings = () => {
 
           <Tabs defaultValue="all" className="space-y-4">
             <div className="w-full overflow-x-auto">
-              <TabsList className="flex w-max  space-x-2 px-2">
+              <TabsList className="flex w-max space-x-2 px-2">
                 <TabsTrigger value="all">Alle boekingen</TabsTrigger>
                 <TabsTrigger value="Upcoming">Aankomende</TabsTrigger>
                 <TabsTrigger value="Canceled">Geannuleerd</TabsTrigger>
@@ -570,7 +760,10 @@ const Bookings = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="all" className="space-y-4">
+            <TabsContent
+              value="all"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
               <BookingCards bookings={myBookings} />
             </TabsContent>
 
@@ -584,7 +777,7 @@ const Bookings = () => {
                   <TabsContent
                     key={status}
                     value={status}
-                    className="space-y-4"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                   >
                     <BookingCards bookings={bookingsByStatus} />
                   </TabsContent>
