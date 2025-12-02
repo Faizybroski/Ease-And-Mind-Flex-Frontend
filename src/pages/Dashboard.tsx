@@ -128,7 +128,7 @@ const Dashboard = () => {
   const now = new Date();
   const [hours, setHours] = useState(null);
 
-  const handleRoomSelect = (room: any) => {
+  const handleRoomSelect = (room) => {
     if (!selectedSlot) return;
 
     if (!profile) {
@@ -198,7 +198,7 @@ const Dashboard = () => {
 
     const { data: bookings } = await supabase.from("bookings").select("*");
 
-    const map: any = {};
+    const map = {};
 
     for (const day of weekDates) {
       const dateStr = day.toISOString().split("T")[0];
@@ -420,11 +420,16 @@ const Dashboard = () => {
           .map((b) => b.room_id);
 
         // 4. Filter out booked rooms
-        const unbookedRooms = rooms.filter(
-          (room) => !bookedRoomIds.includes(room.id)
-        );
+        // const unbookedRooms = rooms.filter(
+        //   (room) => !bookedRoomIds.includes(room.id)
+        // );
+        const finalRooms = rooms.map((room) => ({
+          ...room,
+          isBooked: bookedRoomIds.includes(room.id),
+        }));
 
-        setAvailableRooms(unbookedRooms);
+        // setAvailableRooms(unbookedRooms);
+        setAvailableRooms(finalRooms);
       } catch (err) {
         console.error("Error fetching available rooms:", err);
       } finally {
@@ -680,11 +685,17 @@ const Dashboard = () => {
           body: JSON.stringify({
             user_id: bookingData.profileId,
             amount: bookingData.price,
-            description: `Booking #${booking.id}`,
+            description: `Booking: #${booking.id} room: ${bookingData.roomName} on ${bookingData.date} (${bookingData.slot})`,
           }),
         });
 
       if (invoiceError) throw invoiceError;
+
+      const {data:updated, error: updatedError} = await supabase.from('bookings').update({
+        stripe_invoice_item_id: invoice.id
+      }).eq('id', booking.id);
+
+      if (updatedError) throw updatedError;
 
       setIsPaymentDialogOpen(false);
 
@@ -706,7 +717,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleInstantBooking = async (bookingData: any) => {
+  const handleInstantBooking = async (bookingData) => {
     try {
       const {
         data: { session },
@@ -797,7 +808,7 @@ const Dashboard = () => {
         setIsPaymentDialogOpen(false);
         setIsStripePaymentDialogOpen(true);
       }, 0);
-    } catch (err: any) {
+    } catch (err) {
       toast({
         variant: "destructive",
         title: "Fout",
@@ -806,7 +817,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleIDealBooking = async (bookingData: any) => {
+  const handleIDealBooking = async (bookingData) => {
     try {
       const {
         data: { session },
@@ -900,7 +911,7 @@ const Dashboard = () => {
         setIsPaymentDialogOpen(false);
         setIsIDealPaymentDialogOpen(true);
       }, 0);
-    } catch (err: any) {
+    } catch (err) {
       toast({
         variant: "destructive",
         title: "Fout",
@@ -1059,11 +1070,11 @@ const Dashboard = () => {
                     <CardContent className="text-xs text-muted-foreground p-3">
                       <p>{slot.range}</p>
 
-                      <p>
+                      {/* <p>
                         Available Rooms:{" "}
                         {availabilityMap?.[dateStr]?.[slot.name] ?? 0}/
                         {rooms.length}
-                      </p>
+                      </p> */}
 
                       {/* <span className="block text-[10px] italic text-gray-400">
                         (Tijd in Amsterdam)
@@ -1082,6 +1093,10 @@ const Dashboard = () => {
           <DialogHeader>
             <DialogTitle className="text-primary">
               Beschikbare kamers
+              <p className="text-sm font-medium mb-4">
+                Beschikbaar: {availableRooms.filter((r) => !r.isBooked).length}{" "}
+                / {availableRooms.length} kamers
+              </p>
             </DialogTitle>
             <DialogDescription>
               {selectedSlot &&
@@ -1093,41 +1108,47 @@ const Dashboard = () => {
 
           {loadingRooms ? (
             <p>Kamers laden...</p>
-          ) : availableRooms.length === 0 ? (
-            <p className="text-muted-foreground">Geen kamers beschikbaar.</p>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
-              {availableRooms.map((room) => (
-                <Card
-                  key={room.id}
-                  className="overflow-hidden cursor-pointer"
-                  onClick={() => handleRoomSelect(room)}
-                >
-                  <img
-                    src={room.room_pics || "/placeholder.jpg"}
-                    alt={room.room_name}
-                    className="h-40 w-full object-cover"
-                  />
-                  <CardHeader>
-                    <CardTitle>{room.room_name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      {room.amenities}
-                    </p>
-                    <p className="font-semibold text-primary flex items-center">
-                      Prijs: <Euro className="w-4 h-4" />
-                      {selectedSlot?.slot.name === "Ochtend"
-                        ? room.Morning_price
-                        : selectedSlot?.slot.name === "Middag"
-                        ? room.Afternoon_price
-                        : selectedSlot?.slot.name === "Avond"
-                        ? room.Night_price
-                        : room.Morning_price + room.Afternoon_price}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+              {availableRooms.map((room) => {
+                const booked = room.isBooked;
+
+                return (
+                  <Card
+                    key={room.id}
+                    className={`overflow-hidden 
+        ${
+          booked ? "opacity-40 pointer-events-none grayscale" : "cursor-pointer"
+        }
+      `}
+                    onClick={() => !booked && handleRoomSelect(room)}
+                  >
+                    <img
+                      src={room.room_pics || "/placeholder.jpg"}
+                      alt={room.room_name}
+                      className="h-40 w-full object-cover"
+                    />
+                    <CardHeader>
+                      <CardTitle>{room.room_name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        {room.amenities}
+                      </p>
+                      <p className="font-semibold text-primary flex items-center">
+                        Prijs: <Euro className="w-4 h-4" />
+                        {selectedSlot?.slot.name === "Ochtend"
+                          ? room.Morning_price
+                          : selectedSlot?.slot.name === "Middag"
+                          ? room.Afternoon_price
+                          : selectedSlot?.slot.name === "Avond"
+                          ? room.Night_price
+                          : room.Morning_price + room.Afternoon_price}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </DialogContent>
