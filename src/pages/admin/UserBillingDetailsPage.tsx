@@ -193,226 +193,290 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                         const {
                           data: { session },
                         } = await supabase.auth.getSession();
+
+                        try {
+                          await navigator.clipboard.writeText("...");
+                        } catch (err) {
+                          console.warn(
+                            "Clipboard permission reservation failed:",
+                            err
+                          );
+                        }
+
                         const token = session?.access_token;
                         const roomId = booking.room_id;
 
+                        // // const referenceDate = new Date(booking.start_date);
+                        // // const monthStart = new Date(
+                        // //   referenceDate.getFullYear(),
+                        // //   referenceDate.getMonth(),
+                        // //   1
+                        // // );
+                        // // const monthEnd = new Date(
+                        // //   referenceDate.getFullYear(),
+                        // //   referenceDate.getMonth() + 1,
+                        // //   0
+                        // // );
+                        // // const month = referenceDate.toLocaleString("en-US", {
+                        // //   month: "long",
+                        // //   year: "numeric",
+                        // // });
+
+                        // // prevent double payment
+                        // const { data: existing } = await supabase
+                        //   .from("recurrings_payments")
+                        //   .select("*")
+                        //   .eq("booking_id", booking.id)
+                        //   // .eq("month", month)
+                        //   .maybeSingle();
+
+                        // if (existing) {
+                        //   toast({
+                        //     title: "Warning",
+                        //     description: `You have already completed payment for this period.`,
+                        //   });
+                        //   return;
+                        // }
+
+                        // const parseLocalDate = (str) => {
+                        //   const [y, m, d] = str.split("-").map(Number);
+                        //   return new Date(y, m - 1, d);
+                        // };
+
+                        // const subscriptionStartDate = parseLocalDate(
+                        //   booking.start_date
+                        // );
+                        // const subscriptionEndDate = parseLocalDate(
+                        //   booking.end_date
+                        // );
+                        // const recurrencePattern = booking.recurrence_pattern;
+                        // const dayTimeSlots = booking.day_time_slots || {};
+                        // const weekdays = booking.weekdays || [];
+
+                        // const { data: room, error: roomError } = await supabase
+                        //   .from("rooms")
+                        //   .select("*")
+                        //   .eq("id", roomId)
+                        //   .single();
+
+                        // if (roomError) {
+                        //   console.error(
+                        //     "Error fetching room:",
+                        //     roomError.message
+                        //   );
+                        //   return;
+                        // }
+
+                        // const getSlotPrice = (slot) => {
+                        //   switch (slot) {
+                        //     case "Ochtend":
+                        //       return room.Morning_price;
+                        //     case "Middag":
+                        //       return room.Afternoon_price;
+                        //     case "Avond":
+                        //       return room.Night_price;
+                        //     case "Hele dag":
+                        //       return room.Morning_price + room.Afternoon_price;
+                        //     default:
+                        //       return 0;
+                        //   }
+                        // };
+
+                        // const dutchToWeekdayNumber = {
+                        //   zondag: 0,
+                        //   maandag: 1,
+                        //   dinsdag: 2,
+                        //   woensdag: 3,
+                        //   donderdag: 4,
+                        //   vrijdag: 5,
+                        //   zaterdag: 6,
+                        // };
+
+                        // const rangeStart =
+                        //   subscriptionStartDate > monthStart
+                        //     ? subscriptionStartDate
+                        //     : monthStart;
+                        // const rangeEnd =
+                        //   subscriptionEndDate < monthEnd
+                        //     ? subscriptionEndDate
+                        //     : monthEnd;
+
+                        // const occurrences = [];
+
+                        // if (
+                        //   recurrencePattern === "Weekly" ||
+                        //   recurrencePattern === "Bi-Weekly"
+                        // ) {
+                        //   const selectedNums = weekdays.map(
+                        //     (w) => dutchToWeekdayNumber[w.toLowerCase()]
+                        //   );
+                        //   let cursor = new Date(rangeStart);
+                        //   while (cursor <= rangeEnd) {
+                        //     if (selectedNums.includes(cursor.getDay())) {
+                        //       occurrences.push(new Date(cursor));
+                        //     }
+                        //     cursor.setDate(cursor.getDate() + 1);
+                        //   }
+                        // } else if (recurrencePattern === "Monthly") {
+                        //   const monthlyDate = new Date(subscriptionStartDate);
+                        //   const dateThisMonth = new Date(
+                        //     monthStart.getFullYear(),
+                        //     monthStart.getMonth(),
+                        //     monthlyDate.getDate()
+                        //   );
+                        //   if (
+                        //     dateThisMonth >= rangeStart &&
+                        //     dateThisMonth <= rangeEnd
+                        //   ) {
+                        //     occurrences.push(dateThisMonth);
+                        //   }
+                        // }
+
+                        // if (occurrences.length === 0) {
+                        //   console.warn("⚠️ No slots found for this month:", {
+                        //     recurrence: recurrencePattern,
+                        //     rangeStart,
+                        //     rangeEnd,
+                        //     weekdays,
+                        //   });
+                        //   toast({
+                        //     title: "No Slots",
+                        //     description: `No recurring days fall within ${month}.`,
+                        //   });
+                        //   return;
+                        // }
+
+                        // // handle bi-weekly pattern
+                        // let validOccurrences = occurrences;
+                        // if (recurrencePattern === "Bi-Weekly") {
+                        //   const startOfWeek = (d) => {
+                        //     const clone = new Date(d);
+                        //     const diff = (clone.getDay() + 6) % 7;
+                        //     clone.setDate(clone.getDate() - diff);
+                        //     clone.setHours(0, 0, 0, 0);
+                        //     return clone;
+                        //   };
+                        //   const firstWeekStart = startOfWeek(occurrences[0]);
+                        //   validOccurrences = occurrences.filter((occ) => {
+                        //     const weekDiff =
+                        //       (startOfWeek(occ) - firstWeekStart) /
+                        //       (7 * 24 * 60 * 60 * 1000);
+                        //     return weekDiff % 2 === 0;
+                        //   });
+                        // }
+
+                        // const totalAmount = validOccurrences.reduce(
+                        //   (sum, occ) => {
+                        //     const dayNameDutch = occ
+                        //       .toLocaleDateString("nl-NL", { weekday: "long" })
+                        //       .toLowerCase();
+                        //     const slot = Object.entries(dayTimeSlots).find(
+                        //       ([k]) => k.toLowerCase() === dayNameDutch
+                        //     )?.[1];
+                        //     return sum + getSlotPrice(slot);
+                        //   },
+                        //   0
+                        // );
+
+                        // const amountInCents = totalAmount * 100;
+                        // if (amountInCents <= 0) {
+                        //   console.warn("⚠️ No Charge: ", {
+                        //     recurrence: recurrencePattern,
+                        //     rangeStart,
+                        //     rangeEnd,
+                        //     weekdays,
+                        //     month,
+                        //     totalAmount,
+                        //     amountInCents,
+                        //     occurrences,
+                        //     validOccurrences,
+                        //   });
+                        //   toast({
+                        //     title: "No Charge",
+                        //     description: `No valid slots or prices found for ${month}.`,
+                        //   });
+                        //   return;
+                        // }
+
                         const referenceDate = new Date(booking.start_date);
-                        const monthStart = new Date(
-                          referenceDate.getFullYear(),
-                          referenceDate.getMonth(),
-                          1
-                        );
-                        const monthEnd = new Date(
-                          referenceDate.getFullYear(),
-                          referenceDate.getMonth() + 1,
-                          0
-                        );
-                        const month = referenceDate.toLocaleString("en-US", {
-                          month: "long",
-                          year: "numeric",
-                        });
 
-                        // prevent double payment
-                        const { data: existing } = await supabase
-                          .from("recurrings_payments")
-                          .select("*")
-                          .eq("booking_id", booking.id)
-                          .eq("month", month)
-                          .maybeSingle();
-
-                        if (existing) {
-                          toast({
-                            title: "Warning",
-                            description: `You have already completed payment for ${month}.`,
-                          });
-                          return;
-                        }
-
-                        const parseLocalDate = (str) => {
-                          const [y, m, d] = str.split("-").map(Number);
-                          return new Date(y, m - 1, d);
-                        };
-
-                        const subscriptionStartDate = parseLocalDate(
-                          booking.start_date
-                        );
-                        const subscriptionEndDate = parseLocalDate(
-                          booking.end_date
-                        );
-                        const recurrencePattern = booking.recurrence_pattern;
-                        const dayTimeSlots = booking.day_time_slots || {};
-                        const weekdays = booking.weekdays || [];
-
-                        const { data: room, error: roomError } = await supabase
-                          .from("rooms")
-                          .select("*")
-                          .eq("id", roomId)
-                          .single();
-
-                        if (roomError) {
-                          console.error(
-                            "Error fetching room:",
-                            roomError.message
-                          );
-                          return;
-                        }
-
-                        const getSlotPrice = (slot) => {
-                          switch (slot) {
-                            case "Ochtend":
-                              return room.Morning_price;
-                            case "Middag":
-                              return room.Afternoon_price;
-                            case "Avond":
-                              return room.Night_price;
-                            case "Hele dag":
-                              return room.Morning_price + room.Afternoon_price;
-                            default:
-                              return 0;
-                          }
-                        };
-
-                        const dutchToWeekdayNumber = {
-                          zondag: 0,
-                          maandag: 1,
-                          dinsdag: 2,
-                          woensdag: 3,
-                          donderdag: 4,
-                          vrijdag: 5,
-                          zaterdag: 6,
-                        };
-
-                        const rangeStart =
-                          subscriptionStartDate > monthStart
-                            ? subscriptionStartDate
-                            : monthStart;
-                        const rangeEnd =
-                          subscriptionEndDate < monthEnd
-                            ? subscriptionEndDate
-                            : monthEnd;
-
-                        const occurrences = [];
-
-                        if (
-                          recurrencePattern === "Weekly" ||
-                          recurrencePattern === "Bi-Weekly"
-                        ) {
-                          const selectedNums = weekdays.map(
-                            (w) => dutchToWeekdayNumber[w.toLowerCase()]
-                          );
-                          let cursor = new Date(rangeStart);
-                          while (cursor <= rangeEnd) {
-                            if (selectedNums.includes(cursor.getDay())) {
-                              occurrences.push(new Date(cursor));
-                            }
-                            cursor.setDate(cursor.getDate() + 1);
-                          }
-                        } else if (recurrencePattern === "Monthly") {
-                          const monthlyDate = new Date(subscriptionStartDate);
-                          const dateThisMonth = new Date(
-                            monthStart.getFullYear(),
-                            monthStart.getMonth(),
-                            monthlyDate.getDate()
-                          );
-                          if (
-                            dateThisMonth >= rangeStart &&
-                            dateThisMonth <= rangeEnd
-                          ) {
-                            occurrences.push(dateThisMonth);
-                          }
-                        }
-
-                        if (occurrences.length === 0) {
-                          console.warn("⚠️ No slots found for this month:", {
-                            recurrence: recurrencePattern,
-                            rangeStart,
-                            rangeEnd,
-                            weekdays,
-                          });
-                          toast({
-                            title: "No Slots",
-                            description: `No recurring days fall within ${month}.`,
-                          });
-                          return;
-                        }
-
-                        // handle bi-weekly pattern
-                        let validOccurrences = occurrences;
-                        if (recurrencePattern === "Bi-Weekly") {
-                          const startOfWeek = (d) => {
-                            const clone = new Date(d);
-                            const diff = (clone.getDay() + 6) % 7;
-                            clone.setDate(clone.getDate() - diff);
-                            clone.setHours(0, 0, 0, 0);
-                            return clone;
-                          };
-                          const firstWeekStart = startOfWeek(occurrences[0]);
-                          validOccurrences = occurrences.filter((occ) => {
-                            const weekDiff =
-                              (startOfWeek(occ) - firstWeekStart) /
-                              (7 * 24 * 60 * 60 * 1000);
-                            return weekDiff % 2 === 0;
-                          });
-                        }
-
-                        const totalAmount = validOccurrences.reduce(
-                          (sum, occ) => {
-                            const dayNameDutch = occ
-                              .toLocaleDateString("nl-NL", { weekday: "long" })
-                              .toLowerCase();
-                            const slot = Object.entries(dayTimeSlots).find(
-                              ([k]) => k.toLowerCase() === dayNameDutch
-                            )?.[1];
-                            return sum + getSlotPrice(slot);
-                          },
-                          0
+                        const ref = new Date(
+                          booking.start_date + "T00:00:00+01:00"
                         );
 
-                        const amountInCents = totalAmount * 100;
-                        if (amountInCents <= 0) {
-                          console.warn("⚠️ No Charge: ", {
-                            recurrence: recurrencePattern,
-                            rangeStart,
-                            rangeEnd,
-                            weekdays,
-                            month,
-                            totalAmount,
-                            amountInCents,
-                            occurrences,
-                            validOccurrences
-                          });
-                          toast({
-                            title: "No Charge",
-                            description: `No valid slots or prices found for ${month}.`,
-                          });
-                          return;
-                        }
+                        // const monthStart = new Date(
+                        //   ref.getFullYear(),
+                        //   ref.getMonth(),
+                        //   1
+                        // ).toLocaleDateString("en-CA", {
+                        //   timeZone: "Europe/Amsterdam",
+                        // });
+
+                        // const monthEnd = new Date(
+                        //   ref.getFullYear(),
+                        //   ref.getMonth() + 1,
+                        //   0
+                        // ).toLocaleDateString("en-CA", {
+                        //   timeZone: "Europe/Amsterdam",
+                        // });
+
+                        const [year, month, day] = booking.start_date
+                          .split("-")
+                          .map(Number);
+
+                        // Month start: YYYY-MM-01
+                        const monthStart = `${year}-${String(month).padStart(
+                          2,
+                          "0"
+                        )}-01`;
+
+                        // Month end: last day of this month
+                        const lastDay = new Date(year, month, 0).getDate();
+                        const monthEnd = `${year}-${String(month).padStart(
+                          2,
+                          "0"
+                        )}-${lastDay}`;
+
+                        console.log("referenceDate:", referenceDate);
+                        console.log("monthStart:", monthStart);
+                        console.log("monthEnd:", monthEnd);
 
                         // Create Stripe checkout
+                        // const { data, error: checkoutError } =
+                        //   await supabase.functions.invoke(
+                        //     "create-checkout-session",
+                        //     {
+                        //       body: JSON.stringify({
+                        //         name: booking.profiles.full_name,
+                        //         email: booking.profiles.email,
+                        //         amount: amountInCents,
+                        //         bookingId: booking.id,
+                        //         roomId,
+                        //         month,
+                        //         recurrencePattern,
+                        //         validOccurrences: validOccurrences.map((d) =>
+                        //           d.toISOString()
+                        //         ),
+                        //         day_time_slots: booking.day_time_slots,
+                        //       }),
+                        //     }
+                        //   );
                         const { data, error: checkoutError } =
                           await supabase.functions.invoke(
                             "create-checkout-session",
                             {
-                              body: JSON.stringify({
-                                name: booking.profile.full_name,
-                                email: booking.profile.email,
-                                amount: amountInCents,
+                              body: {
                                 bookingId: booking.id,
-                                roomId,
-                                month,
-                                recurrencePattern,
-                                validOccurrences: validOccurrences.map((d) =>
-                                  d.toISOString()
-                                ),
-                                day_time_slots: booking.day_time_slots,
-                              }),
+                                monthStart,
+                                monthEnd,
+                              },
                             }
                           );
 
                         if (checkoutError) throw checkoutError;
 
                         if (data?.url) {
-                          navigator.clipboard.writeText(data.url);
+                          await navigator.clipboard.writeText(data.url);
                           toast({
                             title: "Payment Link Copied",
                             description: "Payment link copied to clipboard",

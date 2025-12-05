@@ -29,14 +29,14 @@ export const useProfile = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      console.log(user.id);
+      // console.log(user.id);
 
-      console.info("profile===>", data);
+      // console.info("profile===>", data);
 
       if (error) throw error;
       setProfile(data);
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      // console.error("Error fetching profile:", error);
       setProfile(null);
     } finally {
       setLoading(false);

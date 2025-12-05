@@ -22,11 +22,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     if (user && profile && !authLoading && !profileLoading) {
       const currentPath = location.pathname;
 
-      console.log("🔍 ProtectedRoute: Checking user role and redirection", {
-        userEmail: user.email,
-        profileRole: profile.role,
-        currentPath,
-      });
+      // console.log("🔍 ProtectedRoute: Checking user role and redirection", {
+      //   userEmail: user.email,
+      //   profileRole: profile.role,
+      //   currentPath,
+      // });
 
       if (profile.status !== "Active" && currentPath !== "/suspended-user") {
         navigate("/suspended-user", { replace: true });
@@ -39,7 +39,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       }
 
       if (currentPath.startsWith("/auth")) {
-        console.log("🔄 ProtectedRoute: Skipping redirect - on auth page");
+        // console.log("🔄 ProtectedRoute: Skipping redirect - on auth page");
         return;
       }
 
@@ -50,33 +50,33 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
       // Role-based redirection logic - Admins should ALWAYS be redirected to admin area
       if (profile.role === "admin") {
-        console.log("🛡️ ProtectedRoute: Admin detected");
+        // console.log("🛡️ ProtectedRoute: Admin detected");
         // Admin should always go to /admin/dashboard unless already on admin routes
         if (!currentPath.startsWith("/admin")) {
-          console.log(
-            "🔄 ProtectedRoute: Redirecting admin to /admin/dashboard"
-          );
+          // console.log(
+          //   "🔄 ProtectedRoute: Redirecting admin to /admin/dashboard"
+          // );
           navigate("/admin/dashboard", { replace: true });
           return;
         }
       } else if (profile.role === "user") {
-        console.log("👤 ProtectedRoute: Regular user detected");
+        // console.log("👤 ProtectedRoute: Regular user detected");
         // Prevent users from accessing admin routes
         if (currentPath.startsWith("/admin")) {
-          console.log(
-            "🔒 ProtectedRoute: Redirecting user away from admin area to /"
-          );
+          // console.log(
+          //   "🔒 ProtectedRoute: Redirecting user away from admin area to /"
+          // );
           navigate("/", { replace: true });
           return;
         }
       }
     } else {
-      console.log("⏳ ProtectedRoute: Waiting for user/profile data", {
-        hasUser: !!user,
-        hasProfile: !!profile,
-        authLoading,
-        profileLoading,
-      });
+      // console.log("⏳ ProtectedRoute: Waiting for user/profile data", {
+      //   hasUser: !!user,
+      //   hasProfile: !!profile,
+      //   authLoading,
+      //   profileLoading,
+      // });
     }
   }, [user, profile, navigate, location.pathname, authLoading, profileLoading]);
 

@@ -63,6 +63,89 @@ export default function RecurringBookingDialog({
     "Zondag",
   ];
 
+  const weekDayMap: Record<string, number> = {
+    Maandag: 1,
+    Dinsdag: 2,
+    Woensdag: 3,
+    Donderdag: 4,
+    Vrijdag: 5,
+    Zaterdag: 6,
+    Zondag: 0,
+  };
+
+  function generateRecurringDates({
+    startDate,
+    endDate,
+    weekDays,
+    dayTimeSlots,
+    recurrence,
+  }: {
+    startDate: Date;
+    endDate: Date;
+    weekDays: string[];
+    dayTimeSlots: Record<string, string>;
+    recurrence: "Weekly" | "Bi-Weekly" | "Monthly";
+  }) {
+    const results: { date: Date; timeslot: string }[] = [];
+
+    const interval =
+      recurrence === "Weekly" ? 7 : recurrence === "Bi-Weekly" ? 14 : null; // monthly handled separately
+
+    if (recurrence === "Monthly") {
+      return generateMonthly(startDate, endDate, weekDays, dayTimeSlots);
+    }
+
+    // WEEKLY & BI-WEEKLY LOGIC
+    for (const day of weekDays) {
+      const targetDow = weekDayMap[day];
+
+      // First matching date on/after startDate
+      let d = new Date(startDate);
+      while (d.getDay() !== targetDow) d.setDate(d.getDate() + 1);
+
+      // Walk through range
+      while (d <= endDate) {
+        results.push({
+          date: new Date(d),
+          timeslot: dayTimeSlots[day],
+        });
+
+        d.setDate(d.getDate() + interval!);
+      }
+    }
+
+    return results;
+  }
+
+  function generateMonthly(startDate, endDate, weekDays, dayTimeSlots) {
+    const results = [];
+
+    for (const day of weekDays) {
+      const targetDow = weekDayMap[day];
+
+      let d = new Date(startDate);
+
+      while (d <= endDate) {
+        // Find first matching weekday in this month
+        let firstOfMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+        while (firstOfMonth.getDay() !== targetDow)
+          firstOfMonth.setDate(firstOfMonth.getDate() + 1);
+
+        if (firstOfMonth >= startDate && firstOfMonth <= endDate) {
+          results.push({
+            date: new Date(firstOfMonth),
+            timeslot: dayTimeSlots[day],
+          });
+        }
+
+        // Move 1 month forward
+        d.setMonth(d.getMonth() + 1);
+      }
+    }
+
+    return results;
+  }
+
   // function calculateTotalRevenue(
   //   startDate: Date,
   //   endDate: Date,
@@ -390,25 +473,55 @@ export default function RecurringBookingDialog({
       return;
     }
     try {
-      const { data, error } = await supabase.from("bookings").insert([
-        {
-          user_id: selectedUser,
-          room_id: selectedRoom?.id,
-          // time_slot: timeSlot,
-          day_time_slots: dayTimeSlots,
-          initial_revenue: revenueWithoutDiscount,
-          discount: discount,
-          weekdays: weekDays,
-          final_revenue: priceAfterDiscount,
-          recurrence_pattern: recurrence,
-          start_date: startDate?.toISOString().split("T")[0],
-          end_date: endDate?.toISOString().split("T")[0],
-          status: "Recurring",
-          is_recurring: true,
-        },
-      ]);
+      const { data, error } = await supabase
+        .from("bookings")
+        .insert([
+          {
+            user_id: selectedUser,
+            room_id: selectedRoom?.id,
+            // time_slot: timeSlot,
+            day_time_slots: dayTimeSlots,
+            initial_revenue: revenueWithoutDiscount,
+            discount: discount,
+            weekdays: weekDays,
+            final_revenue: priceAfterDiscount,
+            recurrence_pattern: recurrence,
+            start_date: startDate?.toISOString().split("T")[0],
+            end_date: endDate?.toISOString().split("T")[0],
+            status: "Recurring",
+            is_recurring: true,
+          },
+        ])
+        .select("*");
 
       if (error) throw error;
+
+      const booking = data?.[0];
+      if (!booking) throw new Error("Could not retrieve booking");
+
+      const generated = generateRecurringDates({
+        startDate,
+        endDate,
+        weekDays,
+        dayTimeSlots,
+        recurrence,
+      });
+
+      console.log(generated);
+
+      const { data: datesData, error: datesError } = await supabase
+        .from("recurring_dates")
+        .insert(
+          generated.map((g) => ({
+            booking_id: booking.id,
+            room_id: selectedRoom.id,
+            date: g.date.toISOString().split("T")[0],
+            timeslot: g.timeslot,
+          }))
+        );
+
+      if (datesError) throw datesError;
+
       onClose();
       toast({
         title: "Succes",

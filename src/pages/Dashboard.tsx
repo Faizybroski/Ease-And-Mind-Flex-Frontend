@@ -423,10 +423,31 @@ const Dashboard = () => {
         // const unbookedRooms = rooms.filter(
         //   (room) => !bookedRoomIds.includes(room.id)
         // );
+
+        const { data: recurringRooms, error: recurringError } = await supabase
+          .from("recurring_dates")
+          .select("*")
+          .eq("date", dateStr)
+          .eq("timeslot", selectedSlot.slot.name);
+
+        console.log("selected slot:==>", selectedSlot, "date==>", dateStr);
+        console.log("recurring boooookings roooms: ===>", recurringRooms);
+
+        if (recurringError) throw recurringError;
+
+        const recurringRoomIds = recurringRooms?.map((r) => r.room_id) ?? [];
+
         const finalRooms = rooms.map((room) => ({
           ...room,
-          isBooked: bookedRoomIds.includes(room.id),
+          isBooked:
+            bookedRoomIds.includes(room.id) ||
+            recurringRoomIds.includes(room.id),
         }));
+
+        // const finalRooms = rooms.map((room) => ({
+        //   ...room,
+        //   isBooked: bookedRoomIds.includes(room.id),
+        // }));
 
         // setAvailableRooms(unbookedRooms);
         setAvailableRooms(finalRooms);
@@ -691,9 +712,12 @@ const Dashboard = () => {
 
       if (invoiceError) throw invoiceError;
 
-      const {data:updated, error: updatedError} = await supabase.from('bookings').update({
-        stripe_invoice_item_id: invoice.id
-      }).eq('id', booking.id);
+      const { data: updated, error: updatedError } = await supabase
+        .from("bookings")
+        .update({
+          stripe_invoice_item_id: invoice.id,
+        })
+        .eq("id", booking.id);
 
       if (updatedError) throw updatedError;
 
