@@ -89,7 +89,7 @@ const Code: React.FC<codeDialogProps> = ({ open, onOpenChange }) => {
             transition={{ delay: 0.2, duration: 0.4 }}
             className="text-sm text-muted-foreground text-center italic"
           >
-            Gebruik deze code om je kamer binnen te komen. Houd het privé.
+            Gebruik deze code om Ease & Mind binnen te komen. Houd het privé.
           </motion.p>
         </motion.div>
       </DialogContent>

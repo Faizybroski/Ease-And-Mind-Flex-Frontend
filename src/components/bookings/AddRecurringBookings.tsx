@@ -34,6 +34,7 @@ type Room = {
   Morning_price: number;
   Afternoon_price: number;
   Night_price: number;
+  FullDay_price: number;
 };
 
 export default function RecurringBookingDialog({
@@ -242,7 +243,7 @@ export default function RecurringBookingDialog({
         case "Avond":
           return room.Night_price;
         case "Hele dag":
-          return room.Morning_price + room.Afternoon_price;
+          return room.FullDay_price;
         default:
           return 0;
       }

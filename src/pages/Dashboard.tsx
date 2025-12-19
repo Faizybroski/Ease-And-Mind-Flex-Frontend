@@ -154,7 +154,7 @@ const Dashboard = () => {
         ? room.Afternoon_price
         : timeslot === "Avond"
         ? room.Night_price
-        : room.Morning_price + room.Afternoon_price;
+        : room.FullDay_price;
 
     setSelectedRoom({
       name: room.room_name,
@@ -638,6 +638,10 @@ const Dashboard = () => {
           start: settings.eveningSessionStart,
           end: settings.eveningSessionEnd,
         },
+        "Hele dag": {
+          start: settings.morningSessionStart,
+          end: settings.afternoonSessionEnd,
+        }
       };
 
       const slot = slotTimes[bookingData.slot];
@@ -706,7 +710,7 @@ const Dashboard = () => {
           body: JSON.stringify({
             user_id: bookingData.profileId,
             amount: bookingData.price,
-            description: `Booking: #${booking.id} room: ${bookingData.roomName} on ${bookingData.date} (${bookingData.slot})`,
+            description: `Booking: room: ${bookingData.roomName} on ${bookingData.date} (${bookingData.slot})`,
           }),
         });
 
@@ -1046,7 +1050,13 @@ const Dashboard = () => {
                   })()}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {day.toLocaleDateString()}
+                  {day
+                    .toLocaleDateString("nl-NL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    .replace(/-/g, "/")}
                 </p>
               </div>
               {/* {timeslots.map((slot) => {
@@ -1140,11 +1150,11 @@ const Dashboard = () => {
                 return (
                   <Card
                     key={room.id}
-                    className={`overflow-hidden 
-        ${
-          booked ? "opacity-40 pointer-events-none grayscale" : "cursor-pointer"
-        }
-      `}
+                    className={`overflow-hidden ${
+                      booked
+                        ? "opacity-40 pointer-events-none grayscale"
+                        : "cursor-pointer"
+                    }`}
                     onClick={() => !booked && handleRoomSelect(room)}
                   >
                     <img
@@ -1167,7 +1177,7 @@ const Dashboard = () => {
                           ? room.Afternoon_price
                           : selectedSlot?.slot.name === "Avond"
                           ? room.Night_price
-                          : room.Morning_price + room.Afternoon_price}
+                          : room.FullDay_price}
                       </p>
                     </CardContent>
                   </Card>
@@ -1213,7 +1223,7 @@ const Dashboard = () => {
                     checked={paymentType === "Instant"}
                     onCheckedChange={() => {
                       setPaymentType("Instant");
-                      setCheckboxOpen(false);
+                      setCheckboxOpen(true);
                     }}
                   />
                   <Label htmlFor="Instant">Directe betaling</Label>
@@ -1246,7 +1256,7 @@ const Dashboard = () => {
                   <Label htmlFor="Monthly">Betaal na een maand</Label>
                 </div>
                 {checkboxOpen && (
-                  <div className="flex items-center space-x-2 pl-2">
+                  <div className="flex items-center space-x-2 pt-2">
                     <Checkbox
                       id="terms"
                       checked={agreeToTerms}
@@ -1324,7 +1334,7 @@ const Dashboard = () => {
                         setIsInstantLoading(false); // stop loading
                       }
                     }}
-                    disabled={isInstantLoading || isIdealLoading} // disable both if either is loading
+                    disabled={isInstantLoading || isIdealLoading || !agreeToTerms} // disable both if either is loading
                   >
                     {isInstantLoading ? (
                       <>
@@ -1362,7 +1372,7 @@ const Dashboard = () => {
                         setIsIdealLoading(false); // stop loading
                       }
                     }}
-                    disabled={isInstantLoading || isIdealLoading}
+                    disabled={isInstantLoading || isIdealLoading || !agreeToTerms}
                   >
                     {isIdealLoading ? (
                       <>

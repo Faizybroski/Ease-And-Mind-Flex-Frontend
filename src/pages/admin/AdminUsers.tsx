@@ -343,7 +343,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                               {booking?.rooms?.room_name}
                             </TableCell>
                             <TableCell>
-                              {format(new Date(booking?.date), "PPP")}
+                              {format(new Date(booking?.date), "dd/MM/yyyy")}
                             </TableCell>
                             <TableCell>{booking?.final_revenue}</TableCell>
                             <TableCell>{booking?.status}</TableCell>
@@ -394,10 +394,10 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                               {booking?.start_date
                                 ? `${format(
                                     new Date(booking.start_date),
-                                    "PPP"
+                                    "dd/MM/yyyy"
                                   )} → ${format(
                                     new Date(booking.end_date),
-                                    "PPP"
+                                    "dd/MM/yyyy"
                                   )}`
                                 : "-"}
                             </TableCell>

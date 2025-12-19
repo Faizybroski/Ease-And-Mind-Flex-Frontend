@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, User, Clock, Euro } from "lucide-react";
-import { weeksToDays } from "date-fns";
+import { weeksToDays, format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 interface User {
   id: number | string;
@@ -738,25 +738,10 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
           {bookings.map((booking) => (
             <Card
               key={booking.id}
-              className="
-    w-full
-    rounded-xl 
-    border border-primary/30 
-    hover:border-primary/60 
-    bg-white 
-    shadow-sm hover:shadow-md 
-    transition-all
-    p-4
-    flex flex-col gap-6
-  "
+              className="w-full rounded-xl border border-primary/30 hover:border-primary/60 bg-white shadow-sm hover:shadow-md transition-all p-4 flex flex-col gap-6"
             >
               {/* ===================== ROW 1 (Desktop horizontal) ===================== */}
-              <div
-                className="
-      flex flex-col gap-4
-      lg:flex-row lg:items-start lg:justify-between
-    "
-              >
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 {/* ---------- ROOM ---------- */}
                 <div className="flex-1 flex flex-col gap-1">
                   <p className="text-lg font-semibold text-primary">
@@ -776,20 +761,28 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                   {booking.date && (
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1 text-primary/60" />
-                      {booking.date}
+                      {format(new Date(booking?.date), "dd/MM/yyyy")}
                     </div>
                   )}
 
                   {booking.start_date && booking.end_date && (
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1 text-primary/60" />
-                      {booking.start_date} → {booking.end_date}
+                      {booking?.start_date
+                        ? `${format(
+                            new Date(booking.start_date),
+                            "dd/MM/yyyy"
+                          )} → ${format(
+                            new Date(booking.end_date),
+                            "dd/MM/yyyy"
+                          )}`
+                        : "-"}
                     </div>
                   )}
                 </div>
 
                 {/* ---------- REVENUE ---------- */}
-                <div className="flex-1 flex items-start gap-1 text-primary">
+                <div className="flex-1 flex items-center gap-1 text-primary">
                   <Euro className="h-4 w-4" />
                   <span className="font-medium">{booking.final_revenue}</span>
                   <span className="text-xs text-primary/50">revenue</span>
@@ -849,12 +842,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
 
               {/* ===================== ROW 2 (Recurring + Buttons) ===================== */}
               {booking.is_recurring && (
-                <div
-                  className="
-        flex flex-col gap-4
-        lg:grid lg:grid-cols-2 lg:gap-6
-      "
-                >
+                <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
                   {/* ---------- RECURRING DAYS ---------- */}
                   <div className="space-y-2">
                     {/* Desktop header */}
@@ -869,11 +857,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                         ([day, slot]) => (
                           <div
                             key={day}
-                            className="
-                flex justify-between items-center 
-                px-3 py-2 rounded-lg bg-primary/5 border border-primary/10
-                sm:grid sm:grid-cols-2 sm:gap-4
-              "
+                            className="flex justify-between items-center px-3 py-2 rounded-lg bg-primary/5 border border-primary/10 sm:grid sm:grid-cols-2 sm:gap-4"
                           >
                             <span className="text-primary font-medium">
                               {day}
@@ -945,7 +929,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
 
                         const { data: room } = await supabase
                           .from("rooms")
-                          .select("Morning_price, Afternoon_price, Night_price")
+                          .select("Morning_price, Afternoon_price, Night_price, FullDay_price")
                           .eq("id", booking.room_id)
                           .single();
 
@@ -953,7 +937,7 @@ const UserBillingDetailsPage = ({ userId, onBack }) => {
                           Ochtend: room.Morning_price,
                           Middag: room.Afternoon_price,
                           Avond: room.Night_price,
-                          "Hele dag": room.Morning_price + room.Afternoon_price,
+                          "Hele dag": room.FullDay_price,
                         };
 
                         let nextMonthTotal = 0;

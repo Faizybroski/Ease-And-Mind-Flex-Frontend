@@ -41,6 +41,7 @@ interface Booking {
   is_recurring: string;
   start_date: string;
   end_date: string;
+  day_time_slots: Record<"string", "string">;
   recurrence_pattern: string;
   weekdays: [];
   initial_revenue: number;
@@ -160,7 +161,7 @@ const Bookings = () => {
 
                 const { data: booking, error: fetchError } = await supabase
                   .from("bookings")
-                  .select("date, time_slot, payment_status")
+                  .select("date, time_slot, payment_status, payment_type")
                   .eq("id", bookingId)
                   .eq("user_id", userProfileId)
                   .single();
@@ -222,44 +223,69 @@ const Bookings = () => {
                   return;
                 }
 
-                // Step 7: Update booking to canceled
-                const resp = await fetch(
-                  "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/refund-api",
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: token ? `Bearer ${token}` : "",
-                    },
-                    body: JSON.stringify({ booking_id: bookingId }),
+                if (booking.payment_type === "Instant") {
+                  // Step 7: Update booking to canceled
+                  const resp = await fetch(
+                    "https://njmscbbdzkdvgkdnylxx.supabase.co/functions/v1/refund-api",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: token ? `Bearer ${token}` : "",
+                      },
+                      body: JSON.stringify({ booking_id: bookingId }),
+                    }
+                  );
+  
+                  // const { error: cancelError } = await supabase
+                  //   .from("bookings")
+                  //   .update({
+                  //     status: "Canceled",
+                  //     final_revenue: 0,
+                  //     initial_revenue: 0,
+                  //     discount: 0,
+                  //   })
+                  //   .eq("id", bookingId)
+                  //   .eq("user_id", userProfileId);
+  
+                  // if (cancelError) {
+                  //   toast({
+                  //     title: "Fout",
+                  //     description:
+                  //       cancelError.message ||
+                  //       "Het is niet gelukt om de boeking te annuleren.",
+                  //     variant: "destructive",
+                  //   });
+                  //   return;
+                  // }
+  
+                  const data = await resp.json();
+  
+                  if (!resp.ok) throw new Error(data.error || "Refund failed");
+                } else {
+                  const { error: cancelError } = await supabase
+                    .from("bookings")
+                    .update({
+                      status: "Canceled",
+                      final_revenue: 0,
+                      initial_revenue: 0,
+                      discount: 0,
+                      payment_status: "Canceled"
+                    })
+                    .eq("id", bookingId)
+                    .eq("user_id", userProfileId);
+  
+                  if (cancelError) {
+                    toast({
+                      title: "Fout",
+                      description:
+                        cancelError.message ||
+                        "Het is niet gelukt om de boeking te annuleren.",
+                      variant: "destructive",
+                    });
+                    return;
                   }
-                );
-
-                // const { error: cancelError } = await supabase
-                //   .from("bookings")
-                //   .update({
-                //     status: "Canceled",
-                //     final_revenue: 0,
-                //     initial_revenue: 0,
-                //     discount: 0,
-                //   })
-                //   .eq("id", bookingId)
-                //   .eq("user_id", userProfileId);
-
-                // if (cancelError) {
-                //   toast({
-                //     title: "Fout",
-                //     description:
-                //       cancelError.message ||
-                //       "Het is niet gelukt om de boeking te annuleren.",
-                //     variant: "destructive",
-                //   });
-                //   return;
-                // }
-
-                const data = await resp.json();
-
-                if (!resp.ok) throw new Error(data.error || "Refund failed");
+                }
 
                 toast({
                   title: "Boeking geannuleerd and Refund initiated",
@@ -637,6 +663,8 @@ const Bookings = () => {
                           ? "text-red-600"
                           : booking.payment_status === "Pending"
                           ? "text-yellow-600"
+                          : booking.payment_status === "Canceled"
+                          ? "text-red-600"
                           : "text-blue-600"
                       }
                     >
@@ -648,7 +676,9 @@ const Bookings = () => {
                       ? "In behandeling"
                       : booking.payment_status === "Refunded"
                       ? "Terugbetaald"
-                      : "Nul"}
+                      : booking.payment_status === "Canceled"
+                      ? "Geannuleerd"
+                      : "Maandelijks"}
                     </span>
                   </p>
                   {!booking.is_recurring && (

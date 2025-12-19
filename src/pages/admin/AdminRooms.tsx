@@ -10,6 +10,7 @@ import {
   Plus,
   Sun,
   CloudSun,
+  SunMoon,
   Moon,
   ListChecks,
   CalendarCheck,
@@ -32,6 +33,7 @@ interface Room {
   Morning_price: number; // lowercase to match DB
   Afternoon_price: number;
   Night_price: number;
+  FullDay_price: number;
   room_pics: string;
   amenities: string | null;
   total_bookings: number; // calculated
@@ -229,11 +231,18 @@ const AdminRooms = () => {
                         {room.Afternoon_price}
                       </p>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center mb-2">
                       <Moon className="h-5 w-5 mr-3 text-primary" />
                       <p className="flex items-center text-primary/90">
                         <Euro className="h-5 w-5 text-primary" />
                         {room.Night_price}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <SunMoon className="h-5 w-5 mr-3 text-primary" />
+                      <p className="flex items-center text-primary/90">
+                        <Euro className="h-5 w-5 text-primary" />
+                        {room.FullDay_price}
                       </p>
                     </div>
                   </div>

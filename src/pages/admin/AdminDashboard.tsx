@@ -42,7 +42,9 @@ const AdminDashboard = () => {
       const isoStartOfMonth = startOfMonth.toISOString().split("T")[0];
       const isoEndOfMonth = endOfMonth.toISOString().split("T")[0];
 
-      const { data: totalRevenue, error: revenueError } = await supabase.rpc("get_completed_revenue");
+      const { data: totalRevenue, error: revenueError } = await supabase.rpc(
+        "get_completed_revenue"
+      );
 
       console.log("Total revenue:", totalRevenue);
 
@@ -95,7 +97,7 @@ const AdminDashboard = () => {
         description: "Het laden van de boekingsstatistieken is mislukt.",
         variant: "destructive",
       });
-    } 
+    }
   };
 
   const fetchDashboardData = async () => {
@@ -247,7 +249,9 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-center min-h-screen bg-background">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Het beheerdersdashboard wordt geladen...</p>
+            <p className="text-muted-foreground">
+              Het beheerdersdashboard wordt geladen...
+            </p>
           </div>
         </div>
       </div>
@@ -354,29 +358,39 @@ const AdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto flex flex-col gap-2">
-            {bookings.map((booking) => (
-              <div
-                key={booking.id}
-                className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 px-2 py-2 border border-primary/50 hover:bg-muted/10 rounded-md"
-              >
-                <div className="flex-1">
-                  <p className="font-medium text-primary">
-                    {booking.profiles.full_name}
-                  </p>
-                  <span className="text-sm text-foreground">
-                    Geboekt {booking.rooms.room_name}
-                  </span>
+            {bookings.map((booking) => {
+              const date = new Date(booking.date);
+              const formattedDate = date
+                .toLocaleDateString("nl-NL", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })
+                .replace(/-/g, "/");
+              return (
+                <div
+                  key={booking.id}
+                  className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 px-2 py-2 border border-primary/50 hover:bg-muted/10 rounded-md"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-primary">
+                      {booking.profiles.full_name}
+                    </p>
+                    <span className="text-sm text-foreground">
+                      Geboekt {booking.rooms.room_name}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-primary">{booking.time_slot}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <span className="text-primary">{formattedDate}</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <span className="text-primary">{booking.time_slot}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <span className="text-primary">{booking.date}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
 

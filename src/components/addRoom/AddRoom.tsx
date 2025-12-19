@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -26,12 +26,35 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
     morning_price: 1,
     afternoon_price: 1,
     night_price: 1,
+    fullDay_price: 0,
+    fullDayManual: false, // 👈 key player
     amenities: "",
     room_pics: "",
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (addRoomData.fullDayManual) return;
+
+    const { morning_price, afternoon_price } = addRoomData;
+
+    let fullDay = 0;
+
+    if (morning_price && afternoon_price) {
+      fullDay = morning_price + afternoon_price;
+    } else if (morning_price) {
+      fullDay = morning_price;
+    } else if (afternoon_price) {
+      fullDay = afternoon_price;
+    }
+
+    setAddRoomData((prev) => ({
+      ...prev,
+      fullDay_price: fullDay,
+    }));
+  }, [addRoomData.morning_price, addRoomData.afternoon_price]);
 
   const handleImageUpload = async (
     room: React.ChangeEvent<HTMLInputElement>
@@ -92,7 +115,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
       });
       return;
     }
-    if (!addRoomData.afternoon_price || addRoomData.morning_price <= 0) {
+    if (!addRoomData.afternoon_price || addRoomData.afternoon_price <= 0) {
       toast({
         title: "Fout",
         description: "Middagprijs is vereist",
@@ -100,10 +123,18 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
       });
       return;
     }
-    if (!addRoomData.night_price || addRoomData.morning_price <= 0) {
+    if (!addRoomData.night_price || addRoomData.night_price <= 0) {
       toast({
         title: "Fout",
         description: "Nachtprijs is vereist",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!addRoomData.fullDay_price || addRoomData.fullDay_price <= 0) {
+      toast({
+        title: "Fout",
+        description: "haldagtprijs is vereist",
         variant: "destructive",
       });
       return;
@@ -117,6 +148,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
           Morning_price: addRoomData.morning_price,
           Afternoon_price: addRoomData.afternoon_price,
           Night_price: addRoomData.night_price,
+          FullDay_price: addRoomData.fullDay_price,
           amenities: addRoomData.amenities,
           room_pics: addRoomData.room_pics,
         })
@@ -218,6 +250,24 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
               />
             </div>
             <div>
+              <Label>Hele dag:</Label>
+              <Input
+                type="number"
+                placeholder="1"
+                min={1}
+                value={addRoomData.fullDay_price}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+
+                  setAddRoomData((prev) => ({
+                    ...prev,
+                    fullDay_price: Number(e.target.value),
+                    fullDayManual: true, // 👈 user is boss now
+                  }));
+                }}
+              />
+            </div>
+            <div>
               <Label>Voorzieningen</Label>
               <Input
                 value={addRoomData.amenities}
@@ -268,8 +318,7 @@ const AddRoom: React.FC<AddRoomProps> = ({ open, onOpenChange }) => {
                         <Upload className="h-4 w-4 mr-2" />
                         {addRoomData.room_pics
                           ? "Foto wijzigen"
-                          : "Kamerfoto uploaden"
-                        }
+                          : "Kamerfoto uploaden"}
                       </>
                     )}
                   </span>
