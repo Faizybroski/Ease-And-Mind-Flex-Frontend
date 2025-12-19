@@ -369,6 +369,19 @@ const AdminRooms = () => {
                 />
               </div>
               <div>
+                <Label>Hele dag</Label>
+                <Input
+                  type="number"
+                  value={editRoomData.fullDay_price}
+                  onChange={(e) =>
+                    setEditRoomData({
+                      ...editRoomData,
+                      fullDay_price: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
                 <Label>Voorzieningen</Label>
                 <Input
                   value={editRoomData.amenities}
@@ -426,6 +439,14 @@ const AdminRooms = () => {
                       });
                       return;
                     }
+                    if (!editRoomData.FullDay_price) {
+                      toast({
+                        title: "Validatiefout",
+                        description: "Heledagprijs is vereist",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
                     try {
                       const { error } = await supabase
                         .from("rooms")
@@ -434,6 +455,7 @@ const AdminRooms = () => {
                           Morning_price: editRoomData.Morning_price,
                           Afternoon_price: editRoomData.Afternoon_price,
                           Night_price: editRoomData.Night_price,
+                          FullDay_price: editRoomData.fullDay_price,
                           amenities: editRoomData.amenities.trim() || null,
                         })
                         .eq("id", editRoomData.id);
