@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/lib/sendEmail";
 import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
@@ -91,6 +92,88 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     navigate("/");
+
+    await sendEmail({
+      to: email,
+      subject: "Update on Your Parish Application",
+      html: `<!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>Signup Update – Ease & Mind Flex Spaces</title>
+          </head>
+          <body style="margin:0; padding:0; background-color:#f9fafb; font-family:Arial, sans-serif; color:#333;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb; padding:20px;">
+              <tr>
+                <td align="center">
+                  <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                    
+                    <!-- Header with Logo -->
+                    <tr>
+                      <td align="center" style="background-color:#ffffff; padding:30px 20px;">
+                        <img 
+                          src="https://njmscbbdzkdvgkdnylxx.supabase.co/storage/v1/object/public/Ease%20And%20Mind%20Flex/app/logo.svg" 
+                          alt="Ease & Mind Flex Spaces" 
+                          width="120"
+                          style="display:block; margin:auto;"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center" style="background-color:#0f766e; padding:10px 20px;">
+                        <h1 style="margin:0; font-size:24px; color:#ffffff;">
+                          Signup Update
+                        </h1>
+                      </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                      <td style="padding:30px; font-size:16px; line-height:1.6; color:#444;">
+                        <p>Hi <strong>${metadata?.full_name}</strong>,</p>
+
+                        <p>
+                          Thank you for your interest in <strong>Ease & Mind Flex Spaces</strong>. We’ve reviewed your signup details.
+                        </p>
+
+                        <p>
+                          At this time, we’re unable to complete your registration. This could be due to missing information, pending verification, or not meeting our criteria.
+                        </p>
+
+                        <p>
+                          If you think this is an error or you’d like additional clarity, please reach out — we’re here to help.
+                        </p>
+
+                        <p style="margin-top:30px;">
+                          We appreciate your time and interest in joining our community.
+                        </p>
+
+                        <p style="margin-top:30px; font-size:14px; color:#888;">
+                          Warm regards,<br />
+                          <strong>The Ease & Mind Flex Spaces Team</strong>
+                        </p>
+                      </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                      <td align="center" style="background-color:#f3f4f6; padding:20px; font-size:12px; color:#666;">
+                        <p style="margin:0;">Ease & Mind Flex Spaces</p>
+                        <p style="margin:5px 0 0;">
+                          Didn’t sign up? You can ignore this email.
+                        </p>
+                      </td>
+                    </tr>
+
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+        </html>
+      `,
+    });
 
     console.log("📝 SignUp result:", { error });
     return { error };

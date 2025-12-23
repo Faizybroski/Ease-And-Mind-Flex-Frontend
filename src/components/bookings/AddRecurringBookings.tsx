@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/lib/sendEmail";
 
 type User = { id: string; full_name: string };
 type Room = {
@@ -522,6 +523,82 @@ export default function RecurringBookingDialog({
         );
 
       if (datesError) throw datesError;
+
+      const { data: bookingsData, error: bookingError } = await supabase
+        .from("bookings")
+        .select(
+          `
+          final_revenue,
+          weekdays,
+          start_date,
+          end_date,
+          day_time_slots,
+          recurrence_pattern,
+          profiles (
+            full_name,
+            email
+          ), 
+          rooms (
+            room_name
+          )
+      `
+        )
+        .eq("id", data[0].id)
+        .single();
+
+      const formatDayTimeSlots = (slots) => {
+        return Object.entries(slots)
+          .map(([day, times]) => `<strong>${day}:</strong> ${times}`)
+          .join("<br />");
+      };
+
+      await sendEmail({
+        to: bookingsData.profiles.email,
+        subject: "Recurring Booking Confirmed",
+        html: `
+          <p>Hi ${bookingsData.profiles.full_name},</p>
+
+          <p>
+            Your <strong>recurring booking</strong> with
+            <strong>Ease & Mind Flex Spaces</strong> has been successfully set up.
+          </p>
+
+          <p><strong>Booking details:</strong></p>
+          <ul>
+            <li><strong>Room:</strong> ${bookingsData.rooms.room_name}</li>
+            <li>
+              <strong>Schedule:</strong>
+              ${bookingsData.recurrence_pattern}
+            </li>
+            <li>
+              <strong>Period:</strong>
+              ${bookingsData.start_date} → ${bookingsData.end_date}
+            </li>
+            <li>
+              <strong>Weekdays:</strong>
+              ${bookingsData.weekdays.join(", ")}
+            </li>
+            <li>
+              <strong>Time slots:</strong><br />
+              ${formatDayTimeSlots(bookingsData.day_time_slots)}
+            </li>
+            <li>
+              <strong>Amount (excluding VAT & taxes):</strong>
+              ${bookingsData.final_revenue}
+            </li>
+          </ul>
+
+          <p>
+            Please note that this amount is <strong>exclusive of VAT and other taxes</strong>.
+            Any applicable taxes will be handled separately according to your invoice.
+          </p>
+
+          <p style="margin-top:24px;">
+            Best regards,<br />
+            <strong>The Ease & Mind Flex Spaces Team</strong>
+          </p>
+        `,
+      });
 
       onClose();
       toast({

@@ -32,6 +32,7 @@ import {
   useElements,
   IdealBankElement,
 } from "@stripe/react-stripe-js";
+import { sendEmail } from "@/lib/sendEmail";
 import IdealPayment from "@/components/instantPayment/IdealPayment";
 
 const BUSINESS_ZONE = "Europe/Amsterdam";
@@ -641,7 +642,7 @@ const Dashboard = () => {
         "Hele dag": {
           start: settings.morningSessionStart,
           end: settings.afternoonSessionEnd,
-        }
+        },
       };
 
       const slot = slotTimes[bookingData.slot];
@@ -713,6 +714,40 @@ const Dashboard = () => {
             description: `Booking: room: ${bookingData.roomName} on ${bookingData.date} (${bookingData.slot})`,
           }),
         });
+
+      await sendEmail({
+        to: [profile.email],
+        subject: "Monthly Booking Confirmation",
+        html: `
+          <p>Hi ${profile.full_name},</p>
+          <p>
+            Your <strong>monthly booking</strong> has been successfully recorded with
+            <strong>Ease & Mind Flex Spaces</strong>.
+          </p>
+          <p><strong>Booking details:</strong></p>
+          <ul>
+            <li><strong>Room:</strong> ${bookingData.roomName}</li>
+            <li><strong>Date:</strong> ${bookingData.date}</li>
+            <li><strong>Time Slot:</strong> ${bookingData.slot}</li>
+            <li>
+              <strong>Amount (excluding VAT & taxes):</strong>
+              ${bookingData.price}
+            </li>
+          </ul>
+          <p>
+            Please note that this amount is <strong>exclusive of VAT and other taxes</strong>.
+            The total payable amount will be <strong>calculated and deducted at the end of the month</strong>
+            based on your monthly usage.
+          </p>
+          <p>
+            No immediate payment is required for this booking.
+          </p>
+          <p style="margin-top:24px;">
+            Best regards,<br />
+            <strong>The Ease & Mind Flex Spaces Team</strong>
+          </p>
+        `,
+      });
 
       if (invoiceError) throw invoiceError;
 
@@ -1334,7 +1369,9 @@ const Dashboard = () => {
                         setIsInstantLoading(false); // stop loading
                       }
                     }}
-                    disabled={isInstantLoading || isIdealLoading || !agreeToTerms} // disable both if either is loading
+                    disabled={
+                      isInstantLoading || isIdealLoading || !agreeToTerms
+                    } // disable both if either is loading
                   >
                     {isInstantLoading ? (
                       <>
@@ -1372,7 +1409,9 @@ const Dashboard = () => {
                         setIsIdealLoading(false); // stop loading
                       }
                     }}
-                    disabled={isInstantLoading || isIdealLoading || !agreeToTerms}
+                    disabled={
+                      isInstantLoading || isIdealLoading || !agreeToTerms
+                    }
                   >
                     {isIdealLoading ? (
                       <>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { sendEmail } from "@/lib/sendEmail";
 
 export default function PaymentSuccessIDeal() {
   const [status, setStatus] = useState<"loading" | "success" | "failed">(
@@ -17,6 +18,38 @@ export default function PaymentSuccessIDeal() {
       const method = searchParams.get("method");
       const paymentIntentId = searchParams.get("payment_intent");
       const redirectStatus = searchParams.get("redirect_status");
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", userId)
+        .single();
+
+      if (profileError) {
+        console.error(profileError);
+        return;
+      }
+
+      // 2️⃣ Fetch booking with room name
+      const { data: booking, error: bookingError } = await supabase
+        .from("bookings")
+        .select(
+          `
+          date,
+          time_slot,
+          final_revenue,
+          rooms (
+            room_name
+          )
+        `
+        )
+        .eq("id", bookingId)
+        .single();
+
+      if (bookingError) {
+        console.error(bookingError);
+        return;
+      }
 
       if (!paymentIntentId) return setStatus("failed");
 
@@ -52,13 +85,43 @@ export default function PaymentSuccessIDeal() {
         } else {
           console.info("✅ Booking + payment updated:", sqlData);
         }
-        
+
         if (bookingError) {
           console.error("❌ Supabase booking update error:", bookingError);
         } else {
           console.info("✅ Booking + payment updated:", bookingData);
-        }
 
+          await sendEmail({
+            to: [profile.email],
+            subject: "Booking Payment Confirmed",
+            html: `
+              <p>Hi ${profile.full_name},</p>
+          
+              <p>
+                Your booking has been successfully confirmed and paid via
+                <strong>iDEAL</strong>.
+              </p>
+          
+              <p><strong>Booking details:</strong></p>
+              <ul>
+                <li><strong>Room:</strong> ${booking.rooms.room_name}</li>
+                <li><strong>Date:</strong> ${booking.date}</li>
+                <li><strong>Time Slot:</strong> ${booking.time_slot}</li>
+                <li>
+                  <strong>Amount paid (excluding VAT & taxes):</strong>
+                  ${booking.final_revenue}
+                </li>
+              </ul>
+          
+              <p>This payment was processed instantly. Any applicable VAT or taxes will be handled separately according to your invoice.</p>
+          
+              <p style="margin-top:24px;">
+                Best regards,<br />
+                <strong>The Ease & Mind Flex Spaces Team</strong>
+              </p>
+            `,
+          });
+        }
 
         setStatus("success");
       } else {

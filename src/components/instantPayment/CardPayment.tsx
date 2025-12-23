@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Loader2 } from "lucide-react";
+import { sendEmail } from "@/lib/sendEmail";
 
 const PaymentFields = ({
   bookingData,
@@ -93,6 +94,39 @@ const PaymentFields = ({
           console.error("Payment function failed:", error);
         } else {
           console.info("Payment + booking updated:", data);
+          await sendEmail({
+            to: [bookingData.email],
+            subject: "Booking Confirmation",
+            html: `
+              <p>Hi ${bookingData.full_name},</p>
+
+              <p>
+                Your booking has been successfully confirmed and paid via
+                <strong>card</strong>.
+              </p>
+
+              <p><strong>Booking details:</strong></p>
+              <ul>
+                <li><strong>Room:</strong> ${bookingData.roomName}</li>
+                <li><strong>Date:</strong> ${bookingData.date}</li>
+                <li><strong>Time Slot:</strong> ${bookingData.slot}</li>
+                <li>
+                  <strong>Amount paid (excluding VAT & taxes):</strong>
+                  ${bookingData.price}
+                </li>
+              </ul>
+
+              <p>
+                This payment was processed instantly. Any applicable VAT or taxes
+                will be handled separately according to your invoice.
+              </p>
+
+              <p style="margin-top:24px;">
+                Best regards,<br />
+                <strong>The Ease & Mind Flex Spaces Team</strong>
+              </p>
+            `,
+          });
         }
 
         toast({ title: "Succes", description: "Kamer succesvol geboekt" });
