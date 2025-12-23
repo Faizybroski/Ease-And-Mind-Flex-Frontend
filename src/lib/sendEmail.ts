@@ -19,7 +19,7 @@ export const sendEmail = async ({
     throw new Error("User session not found");
   }
 
-  const { data, error } = await supabase.functions.invoke("send-email", {
+  const { data, error } = await supabase.functions.invoke("email", {
     body: { to, subject, text, html },
   });
 
