@@ -8,7 +8,6 @@ import { LogOut, UserPlus, Plus } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import AddUser from "../addUser/AddUser";
 import AddRoom from "../addRoom/AddRoom";
-import NotificationCenter from "@/components/notifications/NotificationCenter";
 
 const AdminLayout: React.FC = () => {
   const { signOut } = useAuth();
@@ -51,7 +50,6 @@ const AdminLayout: React.FC = () => {
                   Kamer toevoegen
                 </Button>
               </div>
-              <NotificationCenter />
               <Button
                 size="sm"
                 onClick={handleSignOut}

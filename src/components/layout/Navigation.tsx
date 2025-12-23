@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Calendar, Search, LogOut, Menu, X } from "lucide-react";
-import NotificationCenter from "@/components/notifications/NotificationCenter";
 import Code from "@/components/codeDialog/codeDialog";
 import { useProfile } from "@/hooks/useProfile";
 import AppLogo from "@/components/ui/logo";
@@ -95,7 +94,11 @@ const Navigation = () => {
           </div>
           {!user ? (
             <div className="flex items-center space-x-4">
-              <Button onClick={() => showAuthFun()} variant="outline" className="text-primary">
+              <Button
+                onClick={() => showAuthFun()}
+                variant="outline"
+                className="text-primary"
+              >
                 Aanmelden
               </Button>
             </div>
@@ -134,7 +137,6 @@ const Navigation = () => {
                     Code
                   </Button>
                 )}
-                <NotificationCenter />
                 {/* <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
